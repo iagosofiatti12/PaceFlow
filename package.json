@@ -6,17 +6,56 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,json,md}\"",
+    "prepare": "husky"
   },
   "dependencies": {
-    "@react-navigation/bottom-tabs": "^7.8.5",
-    "@react-navigation/native": "^7.1.20",
-    "expo": "~54.0.23",
-    "expo-status-bar": "~3.0.8",
+    "@expo/vector-icons": "^15.0.3",
+    "@react-native-async-storage/async-storage": "^2.2.0",
+    "expo": "^54.0.33",
+    "expo-haptics": "^15.0.8",
+    "expo-status-bar": "^3.0.9",
     "react": "19.1.0",
-    "react-native": "0.81.5",
-    "react-native-safe-area-context": "~5.6.0",
-    "react-native-screens": "~4.16.0"
+    "react-native": "0.81.5"
   },
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "@babel/eslint-parser": "^7.28.6",
+    "@babel/preset-typescript": "^7.28.5",
+    "@testing-library/jest-native": "^5.4.3",
+    "@testing-library/react-native": "^13.3.3",
+    "@types/jest": "^30.0.0",
+    "@types/react": "^19.2.10",
+    "@types/react-native": "^0.72.8",
+    "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "@typescript-eslint/parser": "^8.54.0",
+    "babel-preset-expo": "^54.0.10",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-native": "^5.0.0",
+    "husky": "^9.1.7",
+    "jest": "^30.2.0",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.8.1",
+    "react-test-renderer": "19.1.0",
+    "typescript": "^5.9.3"
+  },
+  "lint-staged": {
+    "*.{js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  }
 }
