@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '../constants/theme';
@@ -17,30 +17,22 @@ import InputField from './ui/InputField';
 import Button from './ui/Button';
 import ButtonRow from './ui/ButtonRow';
 
-interface PaceTableProps {
-  distance: string;
-  setDistance: (value: string) => void;
-  pace: string;
-  setPace: (value: string) => void;
-  table: PaceTableRow[] | null;
-  onGenerate: (tableData: PaceTableRow[]) => void;
-  onClear: () => void;
-}
+const PaceTable: React.FC = () => {
+  const [distance, setDistance] = useState<string>('');
+  const [pace, setPace] = useState<string>('');
+  const [table, setTable] = useState<PaceTableRow[] | null>(null);
 
-const PaceTable: React.FC<PaceTableProps> = ({
-  distance,
-  setDistance,
-  pace,
-  setPace,
-  table,
-  onGenerate,
-  onClear,
-}) => {
   const handleDistanceChange = (value: string): void => {
     const formatted = formatDistanceInput(value);
     if (formatted !== null) {
       setDistance(formatted);
     }
+  };
+
+  const handleClear = (): void => {
+    setDistance('');
+    setPace('');
+    setTable(null);
   };
 
   const generateTable = (): void => {
@@ -61,7 +53,7 @@ const PaceTable: React.FC<PaceTableProps> = ({
     const tableData = generatePaceTable(dist, paceInSeconds);
 
     notifySuccess();
-    onGenerate(tableData);
+    setTable(tableData);
   };
 
   return (
@@ -107,7 +99,7 @@ const PaceTable: React.FC<PaceTableProps> = ({
             title="Limpar"
             icon="trash-outline"
             variant="secondary"
-            onPress={onClear}
+            onPress={handleClear}
             accessibilityLabel="Limpar"
             accessibilityHint="Toque para limpar a tabela"
           />
