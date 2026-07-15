@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Text, StyleSheet } from 'react-native';
 import { COLORS, SPACING, FONT_SIZES } from '../constants/theme';
 import {
@@ -16,30 +16,22 @@ import Button from './ui/Button';
 import ButtonRow from './ui/ButtonRow';
 import ResultCard from './ui/ResultCard';
 
-interface TimeCalculatorProps {
-  distance: string;
-  setDistance: (value: string) => void;
-  pace: string;
-  setPace: (value: string) => void;
-  result: string | null;
-  onCalculate: (timeResult: string) => void;
-  onClear: () => void;
-}
+const TimeCalculator: React.FC = () => {
+  const [distance, setDistance] = useState<string>('');
+  const [pace, setPace] = useState<string>('');
+  const [result, setResult] = useState<string | null>(null);
 
-const TimeCalculator: React.FC<TimeCalculatorProps> = ({
-  distance,
-  setDistance,
-  pace,
-  setPace,
-  result,
-  onCalculate,
-  onClear,
-}) => {
   const handleDistanceChange = (value: string): void => {
     const formatted = formatDistanceInput(value);
     if (formatted !== null) {
       setDistance(formatted);
     }
+  };
+
+  const handleClear = (): void => {
+    setDistance('');
+    setPace('');
+    setResult(null);
   };
 
   const calculateTimeTotal = (): void => {
@@ -60,7 +52,7 @@ const TimeCalculator: React.FC<TimeCalculatorProps> = ({
     const { formatted } = calculateTime(dist, paceInSeconds);
 
     notifySuccess();
-    onCalculate(formatted);
+    setResult(formatted);
   };
 
   return (
@@ -105,7 +97,7 @@ const TimeCalculator: React.FC<TimeCalculatorProps> = ({
           title="Limpar"
           icon="trash-outline"
           variant="secondary"
-          onPress={onClear}
+          onPress={handleClear}
           accessibilityLabel="Limpar campos"
           accessibilityHint="Toque para limpar todos os campos"
         />

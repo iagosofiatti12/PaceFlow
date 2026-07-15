@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '../constants/theme';
 import type { PaceFeedback } from '../types';
@@ -8,8 +8,11 @@ import {
   validateDistance,
   validateTime,
   calculatePaceValue,
+  getPaceFeedback,
+  paceToSeconds,
 } from '../utils/paceHelpers';
 import { showValidationError, notifySuccess } from '../utils/feedback';
+import { saveCalculation, type HistoryItem } from '../utils/storage';
 import Card from './ui/Card';
 import InputField from './ui/InputField';
 import Button from './ui/Button';
@@ -17,34 +20,23 @@ import ButtonRow from './ui/ButtonRow';
 import ResultCard from './ui/ResultCard';
 
 interface PaceCalculatorProps {
-  distance: string;
-  setDistance: (value: string) => void;
-  hours: string;
-  setHours: (value: string) => void;
-  minutes: string;
-  setMinutes: (value: string) => void;
-  seconds: string;
-  setSeconds: (value: string) => void;
-  result: string | null;
-  feedback: PaceFeedback | null;
-  onCalculate: (paceInSeconds: number, formattedResult: string) => void;
-  onClear: () => void;
+  /** Item do histórico para preencher os campos ao restaurar um cálculo salvo */
+  initialItem?: HistoryItem | null;
 }
 
-const PaceCalculator: React.FC<PaceCalculatorProps> = ({
-  distance,
-  setDistance,
-  hours,
-  setHours,
-  minutes,
-  setMinutes,
-  seconds,
-  setSeconds,
-  result,
-  feedback,
-  onCalculate,
-  onClear,
-}) => {
+const PaceCalculator: React.FC<PaceCalculatorProps> = ({ initialItem }) => {
+  // Se veio um item do histórico, os campos já nascem preenchidos
+  const [h, m, s] = initialItem ? initialItem.time.split(':') : ['', '', ''];
+
+  const [distance, setDistance] = useState<string>(initialItem?.distance ?? '');
+  const [hours, setHours] = useState<string>(h === '0' ? '' : h);
+  const [minutes, setMinutes] = useState<string>(m);
+  const [seconds, setSeconds] = useState<string>(s);
+  const [result, setResult] = useState<string | null>(initialItem?.pace ?? null);
+  const [feedback, setFeedback] = useState<PaceFeedback | null>(
+    initialItem ? getPaceFeedback(paceToSeconds(initialItem.pace)) : null,
+  );
+
   const handleDistanceChange = (value: string): void => {
     const formatted = formatDistanceInput(value);
     if (formatted !== null) {
@@ -52,7 +44,16 @@ const PaceCalculator: React.FC<PaceCalculatorProps> = ({
     }
   };
 
-  const calculatePace = (): void => {
+  const handleClear = (): void => {
+    setDistance('');
+    setHours('');
+    setMinutes('');
+    setSeconds('');
+    setResult(null);
+    setFeedback(null);
+  };
+
+  const calculatePace = async (): Promise<void> => {
     const distanceValidation = validateDistance(distance);
     if (!distanceValidation.valid) {
       showValidationError(distanceValidation.message);
@@ -69,7 +70,11 @@ const PaceCalculator: React.FC<PaceCalculatorProps> = ({
     const { formatted, paceInSeconds } = calculatePaceValue(timeValidation.totalSeconds, dist);
 
     notifySuccess();
-    onCalculate(paceInSeconds, formatted);
+    setResult(formatted);
+    setFeedback(getPaceFeedback(paceInSeconds));
+
+    // Salvar no histórico
+    await saveCalculation(distance, hours, minutes, seconds, formatted);
   };
 
   return (
@@ -155,7 +160,7 @@ const PaceCalculator: React.FC<PaceCalculatorProps> = ({
           title="Limpar"
           icon="trash-outline"
           variant="secondary"
-          onPress={onClear}
+          onPress={handleClear}
           accessibilityLabel="Limpar campos"
           accessibilityHint="Toque para limpar todos os campos"
         />
