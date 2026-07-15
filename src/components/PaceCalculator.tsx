@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '../constants/theme';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '../constants/theme';
 import type { PaceFeedback } from '../types';
 import {
   formatTimeInput,
@@ -79,7 +79,7 @@ const PaceCalculator: React.FC<PaceCalculatorProps> = ({ initialItem }) => {
 
   return (
     <Card>
-      <Text style={styles.sectionTitle}>Calcular Pace</Text>
+      <Text style={styles.sectionTitle}>Calcular pace</Text>
       <Text style={styles.sectionDescription}>
         Insira a distância e o tempo para descobrir seu ritmo médio
       </Text>
@@ -95,7 +95,7 @@ const PaceCalculator: React.FC<PaceCalculatorProps> = ({ initialItem }) => {
       />
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Tempo Total</Text>
+        <Text style={styles.label}>Tempo total</Text>
         <View style={styles.timeRow}>
           <View style={styles.timeBlock}>
             <TextInput
@@ -185,21 +185,22 @@ const styles = StyleSheet.create({
   },
   label: {
     color: COLORS.text.label,
+    fontFamily: FONTS.medium,
     fontSize: FONT_SIZES.md,
-    fontWeight: '600',
     letterSpacing: 0.3,
     marginBottom: SPACING.sm,
   },
   sectionDescription: {
     color: COLORS.text.secondary,
+    fontFamily: FONTS.regular,
     fontSize: FONT_SIZES.md,
     lineHeight: 22,
     marginBottom: SPACING.lg,
   },
   sectionTitle: {
     color: COLORS.text.primary,
+    fontFamily: FONTS.semiBold,
     fontSize: FONT_SIZES.xxl,
-    fontWeight: '700',
     marginBottom: SPACING.sm,
   },
   timeBlock: {
@@ -212,8 +213,9 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.md,
     borderWidth: 2,
     color: COLORS.text.primary,
+    fontFamily: FONTS.mono,
     fontSize: 24,
-    fontWeight: '700',
+    fontVariant: ['tabular-nums'],
     padding: SPACING.md,
     textAlign: 'center',
     width: '100%',
@@ -225,14 +227,14 @@ const styles = StyleSheet.create({
   },
   timeSeparator: {
     color: COLORS.borderLight,
+    fontFamily: FONTS.mono,
     fontSize: 24,
-    fontWeight: '700',
     marginHorizontal: SPACING.sm,
   },
   timeUnit: {
     color: COLORS.text.tertiary,
+    fontFamily: FONTS.medium,
     fontSize: FONT_SIZES.xs,
-    fontWeight: '600',
     marginTop: 6,
   },
 });

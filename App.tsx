@@ -1,6 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Animated } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import {
+  useFonts,
+  Geist_400Regular,
+  Geist_500Medium,
+  Geist_600SemiBold,
+} from '@expo-google-fonts/geist';
+import { GeistMono_500Medium, GeistMono_600SemiBold } from '@expo-google-fonts/geist-mono';
 
 import { COLORS, SPACING } from './src/constants/theme';
 import Header from './src/components/Header';
@@ -12,7 +19,16 @@ import HistoryTab from './src/components/HistoryTab';
 import type { HistoryItem } from './src/utils/storage';
 import type { TabKey } from './src/types';
 
-export default function App(): React.ReactElement {
+export default function App(): React.ReactElement | null {
+  // Carrega as fontes Geist antes de mostrar a interface
+  const [fontsLoaded] = useFonts({
+    Geist_400Regular,
+    Geist_500Medium,
+    Geist_600SemiBold,
+    GeistMono_500Medium,
+    GeistMono_600SemiBold,
+  });
+
   const [activeTab, setActiveTab] = useState<TabKey>('pace');
 
   // Item do histórico selecionado, usado para preencher a aba Pace ao restaurar.
@@ -50,6 +66,11 @@ export default function App(): React.ReactElement {
     setRestoredItem(item);
     handleTabChange('pace');
   };
+
+  // Enquanto as fontes carregam (fração de segundo), a splash continua na tela
+  if (!fontsLoaded) {
+    return null;
+  }
 
   return (
     <SafeAreaProvider>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '../constants/theme';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '../constants/theme';
 import type { TabKey } from '../types';
 
 interface Tab {
@@ -43,7 +43,6 @@ const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => {
           <Text style={[styles.tabText, activeTab === tab.key && styles.tabTextActive]}>
             {tab.label}
           </Text>
-          {activeTab === tab.key && <View style={styles.tabIndicator} />}
         </TouchableOpacity>
       ))}
     </View>
@@ -61,8 +60,9 @@ const styles = StyleSheet.create({
   tabIcon: {
     marginBottom: 2,
   },
+  // Um único sinal de aba ativa (ver design_audit): pílula laranja-clara
   tabActive: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primaryLight,
   },
   tabContainer: {
     backgroundColor: COLORS.white,
@@ -77,21 +77,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 12,
   },
-  tabIndicator: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 2,
-    bottom: SPACING.xs,
-    height: 3,
-    position: 'absolute',
-    width: 32,
-  },
   tabText: {
     color: COLORS.text.tertiary,
+    fontFamily: FONTS.medium,
     fontSize: FONT_SIZES.md,
-    fontWeight: '600',
   },
   tabTextActive: {
     color: COLORS.primary,
+    fontFamily: FONTS.semiBold,
   },
 });
 

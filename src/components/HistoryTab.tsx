@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '../constants/theme';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '../constants/theme';
 import { getHistory, deleteHistoryItem, clearHistory, type HistoryItem } from '../utils/storage';
 import Card from './ui/Card';
 
@@ -150,8 +150,8 @@ const styles = StyleSheet.create({
   },
   clearButtonText: {
     color: COLORS.danger,
+    fontFamily: FONTS.medium,
     fontSize: FONT_SIZES.sm,
-    fontWeight: '600',
   },
   container: {
     flex: 1,
@@ -166,7 +166,9 @@ const styles = StyleSheet.create({
   },
   detailText: {
     color: COLORS.text.secondary,
+    fontFamily: FONTS.mono,
     fontSize: FONT_SIZES.sm,
+    fontVariant: ['tabular-nums'],
   },
   emptyContainer: {
     alignItems: 'center',
@@ -176,14 +178,15 @@ const styles = StyleSheet.create({
   },
   emptyDescription: {
     color: COLORS.text.secondary,
+    fontFamily: FONTS.regular,
     fontSize: FONT_SIZES.md,
     marginTop: SPACING.sm,
     textAlign: 'center',
   },
   emptyTitle: {
     color: COLORS.text.primary,
+    fontFamily: FONTS.semiBold,
     fontSize: FONT_SIZES.xl,
-    fontWeight: '600',
     marginTop: SPACING.md,
   },
   header: {
@@ -192,21 +195,23 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: SPACING.sm,
   },
+  // Mais respiro entre e dentro dos itens (ver design_audit)
   historyItem: {
     alignItems: 'center',
     backgroundColor: COLORS.background,
     borderRadius: RADIUS.md,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: SPACING.xs,
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: SPACING.xs + 2,
+    marginBottom: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm + 2,
   },
   itemContent: {
     flex: 1,
   },
   itemDate: {
     color: COLORS.text.light,
+    fontFamily: FONTS.regular,
     fontSize: FONT_SIZES.xs,
     marginTop: 2,
   },
@@ -220,18 +225,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: SPACING.xs,
   },
+  // O pace é a âncora visual do item (ver design_audit)
   itemPace: {
     color: COLORS.text.primary,
-    fontSize: FONT_SIZES.md,
-    fontWeight: '700',
+    fontFamily: FONTS.monoSemiBold,
+    fontSize: FONT_SIZES.lg,
+    fontVariant: ['tabular-nums'],
   },
   list: {
     paddingBottom: 0,
   },
   title: {
     color: COLORS.text.primary,
+    fontFamily: FONTS.semiBold,
     fontSize: FONT_SIZES.xxl,
-    fontWeight: '700',
   },
 });
 

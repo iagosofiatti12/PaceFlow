@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '../../constants/theme';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '../../constants/theme';
 
 interface ButtonProps {
   title: string;
@@ -69,9 +69,9 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: COLORS.white,
+    fontFamily: FONTS.semiBold,
     fontSize: FONT_SIZES.lg,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
   },
   secondaryButton: {
     alignItems: 'center',
@@ -86,8 +86,8 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     color: COLORS.text.muted,
+    fontFamily: FONTS.medium,
     fontSize: FONT_SIZES.lg,
-    fontWeight: '600',
   },
 });
 

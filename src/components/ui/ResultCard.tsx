@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '../../constants/theme';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '../../constants/theme';
 import type { PaceFeedback } from '../../types';
 
 interface ResultCardProps {
@@ -26,7 +26,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ label, value, unit, subtext, fe
 
     {feedback && (
       <View style={[styles.feedbackBadge, { backgroundColor: feedback.color }]}>
-        <Text style={styles.feedbackText}>{feedback.text}</Text>
+        <Text style={[styles.feedbackText, { color: feedback.textColor }]}>{feedback.text}</Text>
       </View>
     )}
   </View>
@@ -40,9 +40,8 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.sm,
   },
   feedbackText: {
-    color: COLORS.white,
+    fontFamily: FONTS.semiBold,
     fontSize: FONT_SIZES.md,
-    fontWeight: '700',
   },
   resultCard: {
     alignItems: 'center',
@@ -58,31 +57,31 @@ const styles = StyleSheet.create({
   },
   resultLabel: {
     color: COLORS.white,
+    fontFamily: FONTS.medium,
     fontSize: FONT_SIZES.sm,
-    fontWeight: '600',
-    letterSpacing: 1,
+    letterSpacing: 0.5,
     marginBottom: SPACING.sm,
     opacity: 0.95,
-    textTransform: 'uppercase',
   },
   resultSubtext: {
     color: COLORS.white,
+    fontFamily: FONTS.regular,
     fontSize: FONT_SIZES.sm,
     marginTop: SPACING.xs,
     opacity: 0.85,
   },
   resultUnit: {
     color: COLORS.white,
+    fontFamily: FONTS.mono,
     fontSize: FONT_SIZES.xl + 4,
-    fontWeight: '700',
     marginLeft: SPACING.xs,
     opacity: 0.9,
   },
   resultValue: {
     color: COLORS.white,
+    fontFamily: FONTS.mono,
     fontSize: FONT_SIZES.xxxl,
-    fontWeight: '800',
-    letterSpacing: -1,
+    fontVariant: ['tabular-nums'],
   },
   resultValueContainer: {
     alignItems: 'baseline',
