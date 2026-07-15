@@ -4,38 +4,60 @@ Aplicativo React Native para calcular o pace (ritmo) de corridas.
 
 ## 📱 Sobre o Projeto
 
-PaceFlow é uma ferramenta simples e intuitiva para corredores calcularem seu pace médio durante treinos e provas. Basta inserir a distância percorrida e o tempo total para obter seu ritmo em minutos por quilômetro.
+PaceFlow é uma ferramenta simples e intuitiva para corredores calcularem seu pace médio durante treinos e provas. Basta inserir a distância percorrida e o tempo total para obter seu ritmo em minutos por quilômetro. Também calcula o tempo estimado de prova a partir de um pace, gera tabelas km a km e guarda o histórico dos últimos cálculos.
 
 ## 🏗️ Estrutura do Projeto
 
 ```
 Paceflow/
 ├── src/
-│   ├── components/       # Componentes React reutilizáveis
-│   │   ├── Header.js
-│   │   ├── TabBar.js
-│   │   ├── PaceCalculator.js
-│   │   └── ComingSoonTab.js
-│   ├── constants/        # Constantes e tokens de design
-│   │   └── theme.js
-│   ├── screens/          # Telas do aplicativo (futuro)
-│   └── utils/            # Funções auxiliares e helpers
-│       └── paceHelpers.js
-├── assets/               # Imagens e recursos
-├── App.js                # Componente principal
-├── index.js              # Ponto de entrada
-└── package.json          # Dependências do projeto
+│   ├── components/          # Componentes das abas do app
+│   │   ├── Header.tsx
+│   │   ├── TabBar.tsx
+│   │   ├── PaceCalculator.tsx
+│   │   ├── TimeCalculator.tsx
+│   │   ├── PaceTable.tsx
+│   │   ├── HistoryTab.tsx
+│   │   └── ui/              # Componentes de UI reutilizáveis
+│   │       ├── Button.tsx
+│   │       ├── ButtonRow.tsx
+│   │       ├── Card.tsx
+│   │       ├── InputField.tsx
+│   │       └── ResultCard.tsx
+│   ├── constants/           # Tokens de design (cores, espaçamentos, fontes)
+│   │   └── theme.ts
+│   ├── types.ts             # Tipos compartilhados
+│   └── utils/               # Lógica de negócio, storage e feedback
+│       ├── paceHelpers.ts
+│       ├── storage.ts
+│       ├── feedback.ts
+│       └── __tests__/
+│           ├── paceHelpers.test.ts
+│           └── storage.test.ts
+├── assets/                  # Imagens e recursos
+├── .github/workflows/ci.yml # CI: lint + tipos + formatação + testes
+├── App.tsx                  # Componente raiz (abas e navegação)
+├── index.js                 # Ponto de entrada
+├── app.json                 # Configuração do Expo
+├── tsconfig.json            # Configuração do TypeScript
+├── jest.config.js           # Configuração dos testes (preset jest-expo)
+├── eslint.config.js         # Configuração do ESLint (flat config)
+├── .prettierrc              # Configuração do Prettier
+├── .husky/pre-commit        # Git hook (roda lint-staged antes do commit)
+└── package.json             # Dependências e scripts do projeto
 ```
 
 ## 🛠️ Tecnologias Utilizadas
 
-- **React Native** - Framework para desenvolvimento mobile
+- **React Native + Expo (SDK 54)** - Framework para desenvolvimento mobile
 - **TypeScript** - Superset JavaScript com tipagem estática
-- **Expo** - Plataforma para facilitar o desenvolvimento
-- **ESLint** - Ferramenta para análise de código e boas práticas
+- **AsyncStorage** - Persistência local do histórico
+- **Geist Sans / Geist Mono** - Tipografia da interface e dos números
+- **ESLint (eslint-config-expo)** - Análise de código e boas práticas
 - **Prettier** - Formatador automático de código
-- **Jest** - Framework de testes
-- **Husky** - Git Hooks para manter qualidade do código
+- **Jest (jest-expo)** - Framework de testes
+- **Husky + lint-staged** - Git hooks para manter qualidade do código
+- **GitHub Actions** - CI rodando em todo push e pull request
 
 ## 🚀 Como Executar
 
@@ -43,7 +65,7 @@ Paceflow/
 
 - Node.js instalado
 - npm ou yarn
-- Expo Go no celular (Android/iOS) ou emulador configurado
+- Expo Go no celular (Android/iOS) ou emulador configurado (Android Studio)
 
 ### Instalação
 
@@ -54,10 +76,10 @@ npm install
 # Iniciar o projeto
 npm start
 
-# Para Android
+# Para Android (emulador ou dispositivo conectado)
 npm run android
 
-# Para iOS
+# Para iOS (só Mac)
 npm run ios
 ```
 
@@ -65,51 +87,30 @@ npm run ios
 
 ### Desenvolvimento e Execução
 
-| Comando           | O que faz               | Quando usar                                                    |
-| ----------------- | ----------------------- | -------------------------------------------------------------- |
-| `npm start`       | Inicia o servidor Expo  | Toda vez que for desenvolver/testar o app                      |
-| `npm run android` | Abre o app no Android   | Quando quiser testar no emulador/celular Android               |
-| `npm run ios`     | Abre o app no iOS       | Quando quiser testar no emulador/iPhone (só Mac)               |
-| `npm run web`     | Abre o app no navegador | Para testes rápidos no navegador (precisa dependências extras) |
+| Comando           | O que faz               | Quando usar                                      |
+| ----------------- | ----------------------- | ------------------------------------------------ |
+| `npm start`       | Inicia o servidor Expo  | Toda vez que for desenvolver/testar o app        |
+| `npm run android` | Abre o app no Android   | Quando quiser testar no emulador/celular Android |
+| `npm run ios`     | Abre o app no iOS       | Quando quiser testar no emulador/iPhone (só Mac) |
+| `npm run web`     | Abre o app no navegador | Para testes rápidos no navegador                 |
 
-### Testes
+### Testes e Verificações
 
-| Comando                 | O que faz                              | Quando usar                                              |
-| ----------------------- | -------------------------------------- | -------------------------------------------------------- |
-| `npm test`              | Roda todos os testes                   | Antes de fazer commit ou para verificar se tudo funciona |
-| `npm run test:watch`    | Roda testes automaticamente ao salvar  | Durante desenvolvimento, para feedback imediato          |
-| `npm run test:coverage` | Mostra cobertura de testes (% testado) | Para saber quanto do código está coberto por testes      |
+| Comando                 | O que faz                              | Quando usar                                     |
+| ----------------------- | -------------------------------------- | ----------------------------------------------- |
+| `npm test`              | Roda todos os testes                   | Antes de commitar ou para verificar se tudo ok  |
+| `npm run test:watch`    | Roda testes automaticamente ao salvar  | Durante desenvolvimento, para feedback imediato |
+| `npm run test:coverage` | Mostra cobertura de testes (% testado) | Para saber quanto do código tem testes          |
+| `npm run typecheck`     | Verifica os tipos do TypeScript        | Para achar erros de tipo sem rodar o app        |
 
 ### Qualidade de Código
 
-| Comando                | O que faz                           | Quando usar                                                |
-| ---------------------- | ----------------------------------- | ---------------------------------------------------------- |
-| `npm run lint`         | Verifica erros no código            | Antes de fazer commit, para encontrar problemas            |
-| `npm run lint:fix`     | Corrige erros automaticamente       | Quando o lint encontrar problemas que podem ser corrigidos |
-| `npm run format`       | Formata todo o código               | Para deixar o código bonito e padronizado                  |
-| `npm run format:check` | Só verifica formatação, sem alterar | Em CI/CD ou para verificar se está tudo formatado          |
-
-### Fluxo de Trabalho Recomendado
-
-```bash
-# 1. Começar a desenvolver
-npm start
-
-# 2. Fazer mudanças no código...
-
-# 3. Antes de commitar, verificar qualidade
-npm run lint        # Ver se tem erros
-npm test            # Ver se testes passam
-
-# 4. Se quiser corrigir automaticamente
-npm run lint:fix    # Corrige erros de código
-npm run format      # Formata tudo
-
-# 5. Fazer commit (Husky vai verificar automaticamente!)
-git add .
-git commit -m "sua mensagem"
-# → Git Hooks rodam automático: lint + format nos arquivos modificados
-```
+| Comando                | O que faz                           | Quando usar                                      |
+| ---------------------- | ----------------------------------- | ------------------------------------------------ |
+| `npm run lint`         | Verifica erros no código            | Antes de commitar, para encontrar problemas      |
+| `npm run lint:fix`     | Corrige erros automaticamente       | Quando o lint encontrar problemas corrigíveis    |
+| `npm run format`       | Formata todo o código               | Para deixar o código padronizado                 |
+| `npm run format:check` | Só verifica formatação, sem alterar | Em CI/CD ou para conferir se está tudo formatado |
 
 ### Nota Importante: Git Hooks Automático 🪝
 
@@ -121,52 +122,42 @@ O Husky configurado faz isso automaticamente:
 - Se tiver erro → commit é bloqueado (você corrige e tenta novamente)
 - Se tudo ok → commit é feito ✅
 
-Isso garante que **nunca vai ter código mal formatado ou com erros** no repositório!
+> `npm run prepare` (script do Husky) não precisa ser chamado manualmente — ele roda sozinho toda vez que você faz `npm install`, configurando o Git hook acima.
+
+Além disso, o **CI no GitHub** (`.github/workflows/ci.yml`) roda lint, verificação de tipos, formatação e testes em todo push na `main` e em todo pull request — mesmo que alguém pule o hook local, nada entra sem passar por essas verificações.
 
 ## ✨ Funcionalidades
 
-- ✅ Cálculo de pace (min/km)
-- ✅ Validação de entradas
-- ✅ Feedback baseado no ritmo (elite, avançado, intermediário, iniciante)
+- ✅ Cálculo de pace (min/km) com feedback baseado no ritmo
+- ✅ Cálculo de tempo estimado a partir de distância e pace
+- ✅ Tabela de ritmo km a km com tempos parciais e acumulados
+- ✅ Histórico dos últimos 10 cálculos (persistido no aparelho)
+- ✅ Validação de entradas com feedback tátil (vibração)
 - ✅ Interface responsiva e acessível
-- 🔜 Cálculo de tempo estimado
-- 🔜 Tabela de ritmos por distância
 
 ## 🏗️ Arquitetura e Boas Práticas
 
 ### Organização de Código
 
-- **Componentização**: Código dividido em componentes pequenos e reutilizáveis
-- **Separação de Responsabilidades**: Lógica de negócio separada da apresentação
-- **Design Tokens**: Cores e espaçamentos centralizados no arquivo `theme.js`
-- **Helpers Utilitários**: Funções auxiliares isoladas em `utils/`
+- **Componentização**: cada aba é um componente que gerencia o próprio estado
+- **UI compartilhada**: inputs, botões e cartões vivem em `src/components/ui/`
+- **Design Tokens**: cores, espaçamentos e fontes centralizados em `src/constants/theme.ts`
+- **Lógica isolada**: cálculos e validações em `src/utils/paceHelpers.ts`, persistência em `src/utils/storage.ts`
 
-### Segurança e Validação
+### Design
 
-- Validação rigorosa de entradas do usuário
-- Limites de distância (0.1 a 500 km)
-- Limites de tempo (até 24 horas)
-- Tratamento de valores inválidos ou vazios
-- Sanitização de entrada numérica
-
-### Qualidade de Código
-
-- **ESLint** configurado para detectar problemas e más práticas
-- **Prettier** para formatação consistente
-- Código formatado automaticamente
-- Análise estática de código
-- Nomenclatura clara e descritiva
+As decisões visuais do projeto (tipografia Geist, uso do laranja, densidade, contraste) estão documentadas no arquivo `design_audit` na raiz — leia antes de mexer em qualquer estilo.
 
 ### Acessibilidade
 
-- Labels descritivas para leitores de tela
-- Hints contextuais para campos
+- Labels e hints descritivos para leitores de tela
 - Roles adequados para elementos interativos
-- Áreas seguras respeitadas (SafeAreaView)
+- Contraste de cores verificado (WCAG)
+- Áreas seguras respeitadas (react-native-safe-area-context)
 
 ## 🤝 Contribuindo
 
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou pull requests.
+Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou pull requests. Nunca commite direto na `main` — crie uma branch descritiva (ex: `fix/nome-do-bug`) e abra um PR.
 
 ## 📄 Licença
 
