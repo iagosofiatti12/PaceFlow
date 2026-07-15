@@ -20,7 +20,7 @@ import PaceTable from './src/components/PaceTable';
 import HistoryTab from './src/components/HistoryTab';
 
 // Importar helpers
-import { getPaceFeedback, PaceTableRow } from './src/utils/paceHelpers';
+import { getPaceFeedback, paceToSeconds, PaceTableRow } from './src/utils/paceHelpers';
 import { saveCalculation, type HistoryItem } from './src/utils/storage';
 
 type TabKey = 'pace' | 'time' | 'table' | 'history';
@@ -82,7 +82,7 @@ export default function App(): React.ReactElement {
     setPaceTable(null);
   };
 
-  const handleTabChange = (tab: TabKey): void => {
+  const handleTabChange = (tab: TabKey, shouldClearInputs: boolean = true): void => {
     // Fade out rápido
     Animated.timing(fadeAnim, {
       toValue: 0,
@@ -90,7 +90,9 @@ export default function App(): React.ReactElement {
       useNativeDriver: true,
     }).start(() => {
       setActiveTab(tab);
-      clearInputs();
+      if (shouldClearInputs) {
+        clearInputs();
+      }
       
       // Fade in suave
       Animated.timing(fadeAnim, {
@@ -110,10 +112,10 @@ export default function App(): React.ReactElement {
     setMinutes(m);
     setSeconds(s);
     setResult(item.pace);
-    setFeedback(null);
-    
-    // Mudar para aba pace
-    handleTabChange('pace');
+    setFeedback(getPaceFeedback(paceToSeconds(item.pace)));
+
+    // Mudar para aba pace sem limpar os campos restaurados
+    handleTabChange('pace', false);
   };
 
   return (
