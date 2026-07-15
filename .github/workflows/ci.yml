@@ -16,14 +16,15 @@ jobs:
     steps:
       # Baixa o código do repositório para a máquina do CI
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      # Instala o Node.js na mesma versão usada em desenvolvimento,
-      # com cache do npm para acelerar execuções futuras
+      # Node 24 = mesma versão usada em desenvolvimento; o npm que acompanha
+      # cada Node lê o package-lock.json de formas ligeiramente diferentes,
+      # então CI e máquina local precisam estar alinhados
       - name: Configurar Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       # npm ci instala exatamente as versões do package-lock.json

@@ -146,7 +146,7 @@ Além disso, o **CI no GitHub** (`.github/workflows/ci.yml`) roda lint, verifica
 
 ### Design
 
-As decisões visuais do projeto (tipografia Geist, uso do laranja, densidade, contraste) estão documentadas no arquivo `design_audit` na raiz — leia antes de mexer em qualquer estilo.
+As decisões visuais do projeto (tipografia Geist, uso do laranja, densidade, contraste) estão documentadas no arquivo `DESIGN.md` na raiz — leia antes de mexer em qualquer estilo.
 
 ### Acessibilidade
 

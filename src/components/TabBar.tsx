@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
   tabIcon: {
     marginBottom: 2,
   },
-  // Um único sinal de aba ativa (ver design_audit): pílula laranja-clara
+  // Um único sinal de aba ativa (ver DESIGN.md): pílula laranja-clara
   tabActive: {
     backgroundColor: COLORS.primaryLight,
   },

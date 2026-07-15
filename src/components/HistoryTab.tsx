@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: SPACING.sm,
   },
-  // Mais respiro entre e dentro dos itens (ver design_audit)
+  // Mais respiro entre e dentro dos itens (ver DESIGN.md)
   historyItem: {
     alignItems: 'center',
     backgroundColor: COLORS.background,
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: SPACING.xs,
   },
-  // O pace é a âncora visual do item (ver design_audit)
+  // O pace é a âncora visual do item (ver DESIGN.md)
   itemPace: {
     color: COLORS.text.primary,
     fontFamily: FONTS.monoSemiBold,
