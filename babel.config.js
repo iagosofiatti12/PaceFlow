@@ -1,6 +1,7 @@
 module.exports = function (api) {
   api.cache(true);
   return {
-    presets: ['babel-preset-expo', '@babel/preset-typescript'],
+    // babel-preset-expo já inclui suporte a TypeScript e JSX
+    presets: ['babel-preset-expo'],
   };
 };

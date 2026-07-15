@@ -1,12 +1,6 @@
 import React, { useState, useRef } from 'react';
-import {
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  SafeAreaView,
-  Animated,
-} from 'react-native';
+import { StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Animated } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import { COLORS, SPACING } from './src/constants/theme';
 import Header from './src/components/Header';
@@ -58,42 +52,44 @@ export default function App(): React.ReactElement {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Header />
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>
+        <Header />
 
-      <TabBar activeTab={activeTab} onTabChange={handleTabChange} />
+        <TabBar activeTab={activeTab} onTabChange={handleTabChange} />
 
-      {activeTab === 'history' ? (
-        <Animated.View style={[styles.tabContent, styles.historyContent, { opacity: fadeAnim }]}>
-          <HistoryTab onSelectItem={handleSelectHistoryItem} />
-        </Animated.View>
-      ) : activeTab === 'table' ? (
-        <Animated.View style={[styles.tabContent, { opacity: fadeAnim }]}>
-          <PaceTable />
-        </Animated.View>
-      ) : (
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.content}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-        >
-          <ScrollView
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-            bounces={false}
+        {activeTab === 'history' ? (
+          <Animated.View style={[styles.tabContent, styles.historyContent, { opacity: fadeAnim }]}>
+            <HistoryTab onSelectItem={handleSelectHistoryItem} />
+          </Animated.View>
+        ) : activeTab === 'table' ? (
+          <Animated.View style={[styles.tabContent, { opacity: fadeAnim }]}>
+            <PaceTable />
+          </Animated.View>
+        ) : (
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.content}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
           >
-            <Animated.View style={[styles.tabContent, { opacity: fadeAnim }]}>
-              {activeTab === 'pace' && (
-                <PaceCalculator key={restoredItem?.id ?? 'blank'} initialItem={restoredItem} />
-              )}
+            <ScrollView
+              contentContainerStyle={styles.scrollContent}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              bounces={false}
+            >
+              <Animated.View style={[styles.tabContent, { opacity: fadeAnim }]}>
+                {activeTab === 'pace' && (
+                  <PaceCalculator key={restoredItem?.id ?? 'blank'} initialItem={restoredItem} />
+                )}
 
-              {activeTab === 'time' && <TimeCalculator />}
-            </Animated.View>
-          </ScrollView>
-        </KeyboardAvoidingView>
-      )}
-    </SafeAreaView>
+                {activeTab === 'time' && <TimeCalculator />}
+              </Animated.View>
+            </ScrollView>
+          </KeyboardAvoidingView>
+        )}
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 

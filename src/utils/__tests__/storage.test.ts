@@ -4,6 +4,8 @@ import { saveCalculation, getHistory, clearHistory, deleteHistoryItem } from '..
 // Usa o mock oficial da biblioteca: um "AsyncStorage de mentira" que
 // guarda os dados em memória só durante o teste
 jest.mock('@react-native-async-storage/async-storage', () =>
+  // fábricas do jest.mock precisam de require(); import não funciona aqui
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
 );
 
