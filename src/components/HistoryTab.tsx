@@ -1,15 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  Alert,
-} from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '../constants/theme';
 import { getHistory, deleteHistoryItem, clearHistory, type HistoryItem } from '../utils/storage';
+import Card from './ui/Card';
 
 interface HistoryTabProps {
   onSelectItem: (item: HistoryItem) => void;
@@ -35,39 +29,31 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ onSelectItem }) => {
   };
 
   const handleDelete = (id: string): void => {
-    Alert.alert(
-      'Excluir cálculo',
-      'Tem certeza que deseja excluir este cálculo do histórico?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Excluir',
-          style: 'destructive',
-          onPress: async () => {
-            await deleteHistoryItem(id);
-            await loadHistory();
-          },
+    Alert.alert('Excluir cálculo', 'Tem certeza que deseja excluir este cálculo do histórico?', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Excluir',
+        style: 'destructive',
+        onPress: async () => {
+          await deleteHistoryItem(id);
+          await loadHistory();
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const handleClearAll = (): void => {
-    Alert.alert(
-      'Limpar histórico',
-      'Tem certeza que deseja limpar todo o histórico?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Limpar tudo',
-          style: 'destructive',
-          onPress: async () => {
-            await clearHistory();
-            await loadHistory();
-          },
+    Alert.alert('Limpar histórico', 'Tem certeza que deseja limpar todo o histórico?', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Limpar tudo',
+        style: 'destructive',
+        onPress: async () => {
+          await clearHistory();
+          await loadHistory();
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const formatDate = (isoDate: string): string => {
@@ -79,11 +65,11 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ onSelectItem }) => {
     if (diffDays === 0) return 'Hoje';
     if (diffDays === 1) return 'Ontem';
     if (diffDays < 7) return `${diffDays} dias atrás`;
-    
-    return date.toLocaleDateString('pt-BR', { 
-      day: '2-digit', 
+
+    return date.toLocaleDateString('pt-BR', {
+      day: '2-digit',
       month: '2-digit',
-      year: '2-digit'
+      year: '2-digit',
     });
   };
 
@@ -98,7 +84,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ onSelectItem }) => {
           <Ionicons name="speedometer" size={16} color={COLORS.primary} />
           <Text style={styles.itemPace}>{item.pace} /km</Text>
         </View>
-        
+
         <View style={styles.itemDetails}>
           <View style={styles.detailRow}>
             <Ionicons name="navigate" size={12} color={COLORS.text.secondary} />
@@ -109,34 +95,34 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ onSelectItem }) => {
             <Text style={styles.detailText}>{item.time}</Text>
           </View>
         </View>
-        
+
         <Text style={styles.itemDate}>{formatDate(item.date)}</Text>
       </View>
-      
+
       <TouchableOpacity
         style={styles.deleteButton}
         onPress={() => handleDelete(item.id)}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
-        <Ionicons name="trash-outline" size={20} color="#ff6b6b" />
+        <Ionicons name="trash-outline" size={20} color={COLORS.danger} />
       </TouchableOpacity>
     </TouchableOpacity>
   );
 
   if (history.length === 0) {
     return (
-      <View style={styles.emptyContainer}>
+      <Card style={styles.emptyContainer}>
         <Ionicons name="time-outline" size={64} color={COLORS.text.light} />
         <Text style={styles.emptyTitle}>Nenhum cálculo salvo</Text>
         <Text style={styles.emptyDescription}>
           Seus cálculos de pace aparecerão aqui automaticamente
         </Text>
-      </View>
+      </Card>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <Card style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Histórico</Text>
         <TouchableOpacity onPress={handleClearAll} style={styles.clearButton}>
@@ -153,7 +139,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ onSelectItem }) => {
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
       />
-    </View>
+    </Card>
   );
 };
 
@@ -168,15 +154,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   container: {
-    backgroundColor: COLORS.white,
-    borderRadius: RADIUS.xxl,
-    elevation: 3,
     flex: 1,
-    padding: SPACING.lg,
-    shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 16,
   },
   deleteButton: {
     padding: SPACING.xs,
@@ -192,16 +170,9 @@ const styles = StyleSheet.create({
   },
   emptyContainer: {
     alignItems: 'center',
-    backgroundColor: COLORS.white,
-    borderRadius: RADIUS.xxl,
-    elevation: 3,
     flex: 1,
     justifyContent: 'center',
     padding: SPACING.xxl,
-    shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 16,
   },
   emptyDescription: {
     color: COLORS.text.secondary,

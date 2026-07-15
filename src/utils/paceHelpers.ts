@@ -1,3 +1,6 @@
+import { COLORS } from '../constants/theme';
+import type { PaceFeedback } from '../types';
+
 // Tipos para validação
 interface ValidationResult {
   valid: boolean;
@@ -11,11 +14,6 @@ interface TimeValidationResult extends ValidationResult {
 interface PaceResult {
   formatted: string;
   paceInSeconds: number;
-}
-
-interface PaceFeedback {
-  text: string;
-  color: string;
 }
 
 interface TimeResult {
@@ -75,7 +73,7 @@ export const validateDistance = (distance: string): ValidationResult => {
 export const validateTime = (
   hours: string,
   minutes: string,
-  seconds: string
+  seconds: string,
 ): TimeValidationResult => {
   const h = parseInt(hours) || 0;
   const m = parseInt(minutes) || 0;
@@ -112,12 +110,41 @@ export const calculatePaceValue = (totalSeconds: number, distance: number): Pace
  */
 export const getPaceFeedback = (paceInSeconds: number): PaceFeedback => {
   const totalMinutes = paceInSeconds / 60;
-  if (totalMinutes < 3) return { text: 'Alienígena 👽! 🏅', color: '#587a0e' };
-  if (totalMinutes < 4) return { text: 'Pace de elite! 🏆', color: '#A73E12' };
-  if (totalMinutes < 5) return { text: 'Pace avançado! 💪', color: '#D9591E' };
-  if (totalMinutes < 6) return { text: 'Pace intermediário! 👏', color: '#EC7A42' };
-  if (totalMinutes < 8) return { text: 'Pace iniciante! 🎯', color: '#F29A6A' };
-  return { text: 'Continue treinando! 🚀', color: '#FBB896' };
+  const colors = COLORS.paceFeedback;
+  if (totalMinutes < 3) return { text: 'Alienígena 👽! 🏅', color: colors.alien };
+  if (totalMinutes < 4) return { text: 'Pace de elite! 🏆', color: colors.elite };
+  if (totalMinutes < 5) return { text: 'Pace avançado! 💪', color: colors.advanced };
+  if (totalMinutes < 6) return { text: 'Pace intermediário! 👏', color: colors.intermediate };
+  if (totalMinutes < 8) return { text: 'Pace iniciante! 🎯', color: colors.beginner };
+  return { text: 'Continue treinando! 🚀', color: colors.keepTraining };
+};
+
+/**
+ * Máscara de digitação do pace: mantém só dígitos e ":", limita a min:seg
+ * e insere o ":" automaticamente após dois dígitos (ex: "530" vira "5:30" ao digitar "53" + "0")
+ */
+export const formatPaceInput = (value: string): string => {
+  // Remove tudo que não é número ou :
+  let cleaned = value.replace(/[^\d:]/g, '');
+
+  // Garante apenas um :
+  const colonCount = (cleaned.match(/:/g) || []).length;
+  if (colonCount > 1) {
+    cleaned = cleaned.replace(/:.*:/, ':');
+  }
+
+  // Limita formato min:seg
+  const parts = cleaned.split(':');
+  if (parts.length === 2) {
+    const minutes = parts[0].slice(0, 2);
+    const seconds = parts[1].slice(0, 2);
+    cleaned = `${minutes}:${seconds}`;
+  } else if (cleaned.length > 2 && !cleaned.includes(':')) {
+    // Auto-adiciona : após 2 dígitos
+    cleaned = `${cleaned.slice(0, 2)}:${cleaned.slice(2, 4)}`;
+  }
+
+  return cleaned;
 };
 
 /**
@@ -134,7 +161,7 @@ export const validatePaceFormat = (pace: string): ValidationResult => {
   }
 
   const [minutes, seconds] = pace.split(':').map(Number);
-  
+
   if (minutes < 0 || minutes > 20) {
     return { valid: false, message: 'Pace deve estar entre 0:01 e 20:00 por km' };
   }
@@ -159,18 +186,7 @@ export const paceToSeconds = (pace: string): number => {
  */
 export const calculateTime = (distance: number, paceInSeconds: number): TimeResult => {
   const totalSeconds = Math.round(distance * paceInSeconds);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-
-  let formatted = '';
-  if (hours > 0) {
-    formatted = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  } else {
-    formatted = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  }
-
-  return { formatted, totalSeconds };
+  return { formatted: formatSecondsToTime(totalSeconds), totalSeconds };
 };
 
 /**

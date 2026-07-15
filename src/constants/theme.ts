@@ -17,6 +17,15 @@ export const COLORS = {
   border: '#E8E8E8',
   borderLight: '#DDD',
   input: '#F9F7F4',
+  // Escala de cores do feedback de pace (do mais rápido ao mais lento)
+  paceFeedback: {
+    alien: '#587a0e',
+    elite: '#A73E12',
+    advanced: '#D9591E',
+    intermediate: '#EC7A42',
+    beginner: '#F29A6A',
+    keepTraining: '#FBB896',
+  },
 } as const;
 
 export const SPACING = {

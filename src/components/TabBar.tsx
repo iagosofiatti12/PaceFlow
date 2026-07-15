@@ -2,8 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '../constants/theme';
-
-type TabKey = 'pace' | 'time' | 'table' | 'history';
+import type { TabKey } from '../types';
 
 interface Tab {
   key: TabKey;
@@ -16,17 +15,17 @@ interface TabBarProps {
   onTabChange: (tab: TabKey) => void;
 }
 
-const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => {
-  const tabs: Tab[] = [
-    { key: 'pace', label: 'Pace', icon: 'speedometer-outline' },
-    { key: 'time', label: 'Tempo', icon: 'time-outline' },
-    { key: 'table', label: 'Tabela', icon: 'list-outline' },
-    { key: 'history', label: 'Histórico', icon: 'archive-outline' },
-  ];
+const TABS: Tab[] = [
+  { key: 'pace', label: 'Pace', icon: 'speedometer-outline' },
+  { key: 'time', label: 'Tempo', icon: 'time-outline' },
+  { key: 'table', label: 'Tabela', icon: 'list-outline' },
+  { key: 'history', label: 'Histórico', icon: 'archive-outline' },
+];
 
+const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => {
   return (
     <View style={styles.tabContainer}>
-      {tabs.map((tab) => (
+      {TABS.map((tab) => (
         <TouchableOpacity
           key={tab.key}
           style={[styles.tab, activeTab === tab.key && styles.tabActive]}

@@ -1,8 +1,7 @@
 import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics';
+import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '../constants/theme';
+import type { PaceFeedback } from '../types';
 import {
   formatTimeInput,
   formatDistanceInput,
@@ -10,11 +9,12 @@ import {
   validateTime,
   calculatePaceValue,
 } from '../utils/paceHelpers';
-
-interface PaceFeedback {
-  text: string;
-  color: string;
-}
+import { showValidationError, notifySuccess } from '../utils/feedback';
+import Card from './ui/Card';
+import InputField from './ui/InputField';
+import Button from './ui/Button';
+import ButtonRow from './ui/ButtonRow';
+import ResultCard from './ui/ResultCard';
 
 interface PaceCalculatorProps {
   distance: string;
@@ -53,55 +53,41 @@ const PaceCalculator: React.FC<PaceCalculatorProps> = ({
   };
 
   const calculatePace = (): void => {
-    // Validar distância
     const distanceValidation = validateDistance(distance);
     if (!distanceValidation.valid) {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      Alert.alert('Atenção', distanceValidation.message);
+      showValidationError(distanceValidation.message);
       return;
     }
 
-    // Validar tempo
     const timeValidation = validateTime(hours, minutes, seconds);
     if (!timeValidation.valid) {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      Alert.alert('Atenção', timeValidation.message);
+      showValidationError(timeValidation.message);
       return;
     }
 
-    // Calcular pace
     const dist = parseFloat(distance);
     const { formatted, paceInSeconds } = calculatePaceValue(timeValidation.totalSeconds, dist);
 
-    // Vibração de sucesso
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    
+    notifySuccess();
     onCalculate(paceInSeconds, formatted);
   };
 
   return (
-    <View style={styles.calculator}>
+    <Card>
       <Text style={styles.sectionTitle}>Calcular Pace</Text>
       <Text style={styles.sectionDescription}>
         Insira a distância e o tempo para descobrir seu ritmo médio
       </Text>
 
-      <View style={styles.inputGroup}>
-        <Text style={styles.label}>Distância</Text>
-        <View style={styles.inputWrapper}>
-          <TextInput
-            style={styles.input}
-            value={distance}
-            onChangeText={handleDistanceChange}
-            keyboardType="decimal-pad"
-            placeholder="5.0"
-            placeholderTextColor={COLORS.text.light}
-            accessibilityLabel="Campo de distância em quilômetros"
-            accessibilityHint="Digite a distância percorrida"
-          />
-          <Text style={styles.inputUnit}>km</Text>
-        </View>
-      </View>
+      <InputField
+        label="Distância"
+        value={distance}
+        onChangeText={handleDistanceChange}
+        unit="km"
+        placeholder="5.0"
+        accessibilityLabel="Campo de distância em quilômetros"
+        accessibilityHint="Digite a distância percorrida"
+      />
 
       <View style={styles.inputGroup}>
         <Text style={styles.label}>Tempo Total</Text>
@@ -157,100 +143,40 @@ const PaceCalculator: React.FC<PaceCalculatorProps> = ({
         </View>
       </View>
 
-      <View style={styles.buttonGroup}>
-        <TouchableOpacity
-          style={styles.primaryButton}
+      <ButtonRow>
+        <Button
+          title="Calcular"
+          icon="calculator"
           onPress={calculatePace}
-          accessibilityRole="button"
           accessibilityLabel="Calcular pace"
           accessibilityHint="Toque para calcular o pace médio"
-        >
-          <Ionicons name="calculator" size={20} color="white" style={styles.buttonIcon} />
-          <Text style={styles.primaryButtonText}>Calcular</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.secondaryButton}
+        />
+        <Button
+          title="Limpar"
+          icon="trash-outline"
+          variant="secondary"
           onPress={onClear}
-          accessibilityRole="button"
           accessibilityLabel="Limpar campos"
           accessibilityHint="Toque para limpar todos os campos"
-        >
-          <Ionicons name="trash-outline" size={20} color={COLORS.primary} style={styles.buttonIcon} />
-          <Text style={styles.secondaryButtonText}>Limpar</Text>
-        </TouchableOpacity>
-      </View>
+        />
+      </ButtonRow>
 
       {result && (
-        <View style={styles.resultCard}>
-          <Text style={styles.resultLabel}>Seu pace médio</Text>
-          <View style={styles.resultValueContainer}>
-            <Text style={styles.resultValue}>{result}</Text>
-            <Text style={styles.resultUnit}>/km</Text>
-          </View>
-          <Text style={styles.resultSubtext}>min por quilômetro</Text>
-
-          {feedback && (
-            <View style={[styles.feedbackBadge, { backgroundColor: feedback.color }]}>
-              <Text style={styles.feedbackText}>{feedback.text}</Text>
-            </View>
-          )}
-        </View>
+        <ResultCard
+          label="Seu pace médio"
+          value={result}
+          unit="/km"
+          subtext="min por quilômetro"
+          feedback={feedback}
+        />
       )}
-    </View>
+    </Card>
   );
 };
 
 const styles = StyleSheet.create({
-  buttonGroup: {
-    flexDirection: 'row',
-    gap: SPACING.sm,
-    marginTop: SPACING.sm,
-  },
-  calculator: {
-    backgroundColor: COLORS.white,
-    borderRadius: RADIUS.xxl,
-    elevation: 3,
-    padding: SPACING.lg,
-    shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 16,
-  },
-  feedbackBadge: {
-    borderRadius: 20,
-    marginTop: SPACING.md,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
-  },
-  feedbackText: {
-    color: COLORS.white,
-    fontSize: FONT_SIZES.md,
-    fontWeight: '700',
-  },
-  input: {
-    color: COLORS.text.primary,
-    flex: 1,
-    fontSize: FONT_SIZES.xl,
-    fontWeight: '600',
-    padding: SPACING.md,
-  },
   inputGroup: {
     marginBottom: SPACING.lg,
-  },
-  inputUnit: {
-    color: COLORS.primary,
-    fontSize: FONT_SIZES.md,
-    fontWeight: '600',
-  },
-  inputWrapper: {
-    alignItems: 'center',
-    backgroundColor: COLORS.input,
-    borderColor: COLORS.border,
-    borderRadius: RADIUS.md,
-    borderWidth: 2,
-    flexDirection: 'row',
-    paddingRight: SPACING.md,
   },
   label: {
     color: COLORS.text.label,
@@ -258,90 +184,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     letterSpacing: 0.3,
     marginBottom: SPACING.sm,
-  },
-  primaryButton: {
-    alignItems: 'center',
-    backgroundColor: COLORS.primary,
-    borderRadius: RADIUS.md,
-    elevation: 4,
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingVertical: SPACING.md + 2,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-  },
-  buttonIcon: {
-    marginRight: SPACING.xs,
-  },
-  primaryButtonText: {
-    color: COLORS.white,
-    fontSize: FONT_SIZES.lg,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-  resultCard: {
-    alignItems: 'center',
-    backgroundColor: COLORS.primary,
-    borderRadius: RADIUS.xl,
-    elevation: 6,
-    marginTop: SPACING.xl,
-    padding: SPACING.xl,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-  },
-  resultLabel: {
-    color: COLORS.white,
-    fontSize: FONT_SIZES.sm,
-    fontWeight: '600',
-    letterSpacing: 1,
-    marginBottom: SPACING.sm,
-    opacity: 0.95,
-    textTransform: 'uppercase',
-  },
-  resultSubtext: {
-    color: COLORS.white,
-    fontSize: FONT_SIZES.sm,
-    marginTop: SPACING.xs,
-    opacity: 0.85,
-  },
-  resultUnit: {
-    color: COLORS.white,
-    fontSize: FONT_SIZES.lg + 7,
-    fontWeight: '700',
-    marginLeft: SPACING.xs,
-    opacity: 0.9,
-  },
-  resultValue: {
-    color: COLORS.white,
-    fontSize: FONT_SIZES.xxxl,
-    fontWeight: '800',
-    letterSpacing: -1,
-  },
-  resultValueContainer: {
-    alignItems: 'baseline',
-    flexDirection: 'row',
-    marginBottom: SPACING.sm,
-  },
-  secondaryButton: {
-    alignItems: 'center',
-    backgroundColor: COLORS.white,
-    borderColor: COLORS.border,
-    borderRadius: RADIUS.md,
-    borderWidth: 2,
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingVertical: SPACING.md + 2,
-  },
-  secondaryButtonText: {
-    color: COLORS.text.muted,
-    fontSize: FONT_SIZES.lg,
-    fontWeight: '600',
   },
   sectionDescription: {
     color: COLORS.text.secondary,

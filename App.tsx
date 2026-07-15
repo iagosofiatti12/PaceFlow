@@ -22,17 +22,11 @@ import HistoryTab from './src/components/HistoryTab';
 // Importar helpers
 import { getPaceFeedback, paceToSeconds, PaceTableRow } from './src/utils/paceHelpers';
 import { saveCalculation, type HistoryItem } from './src/utils/storage';
-
-type TabKey = 'pace' | 'time' | 'table' | 'history';
-
-interface PaceFeedback {
-  text: string;
-  color: string;
-}
+import type { TabKey, PaceFeedback } from './src/types';
 
 export default function App(): React.ReactElement {
   const [activeTab, setActiveTab] = useState<TabKey>('pace');
-  
+
   // Estados do PaceCalculator
   const [distance, setDistance] = useState<string>('');
   const [hours, setHours] = useState<string>('');
@@ -57,7 +51,7 @@ export default function App(): React.ReactElement {
   const calculatePace = async (paceInSeconds: number, formattedResult: string): Promise<void> => {
     setResult(formattedResult);
     setFeedback(getPaceFeedback(paceInSeconds));
-    
+
     // Salvar no histórico
     await saveCalculation(distance, hours, minutes, seconds, formattedResult);
   };
@@ -70,12 +64,12 @@ export default function App(): React.ReactElement {
     setSeconds('');
     setResult(null);
     setFeedback(null);
-    
+
     // Limpar TimeCalculator
     setTimeDistance('');
     setTimePace('');
     setTimeResult(null);
-    
+
     // Limpar PaceTable
     setTableDistance('');
     setTablePace('');
@@ -93,7 +87,7 @@ export default function App(): React.ReactElement {
       if (shouldClearInputs) {
         clearInputs();
       }
-      
+
       // Fade in suave
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -106,7 +100,7 @@ export default function App(): React.ReactElement {
   const handleSelectHistoryItem = (item: HistoryItem): void => {
     // Extrair tempo do formato HH:MM:SS
     const [h, m, s] = item.time.split(':');
-    
+
     setDistance(item.distance);
     setHours(h === '0' ? '' : h);
     setMinutes(m);
