@@ -111,12 +111,18 @@ export const calculatePaceValue = (totalSeconds: number, distance: number): Pace
 export const getPaceFeedback = (paceInSeconds: number): PaceFeedback => {
   const totalMinutes = paceInSeconds / 60;
   const colors = COLORS.paceFeedback;
-  if (totalMinutes < 3) return { text: 'Alienígena 👽! 🏅', color: colors.alien };
-  if (totalMinutes < 4) return { text: 'Pace de elite! 🏆', color: colors.elite };
-  if (totalMinutes < 5) return { text: 'Pace avançado! 💪', color: colors.advanced };
-  if (totalMinutes < 6) return { text: 'Pace intermediário! 👏', color: colors.intermediate };
-  if (totalMinutes < 8) return { text: 'Pace iniciante! 🎯', color: colors.beginner };
-  return { text: 'Continue treinando! 🚀', color: colors.keepTraining };
+  // Fundos escuros recebem texto branco; fundos claros, texto escuro (contraste WCAG)
+  const light = COLORS.white;
+  const dark = COLORS.paceFeedbackDarkText;
+  if (totalMinutes < 3) return { text: 'Alienígena 👽! 🏅', color: colors.alien, textColor: light };
+  if (totalMinutes < 4) return { text: 'Pace de elite! 🏆', color: colors.elite, textColor: light };
+  if (totalMinutes < 5)
+    return { text: 'Pace avançado! 💪', color: colors.advanced, textColor: light };
+  if (totalMinutes < 6)
+    return { text: 'Pace intermediário! 👏', color: colors.intermediate, textColor: dark };
+  if (totalMinutes < 8)
+    return { text: 'Pace iniciante! 🎯', color: colors.beginner, textColor: dark };
+  return { text: 'Continue treinando! 🚀', color: colors.keepTraining, textColor: dark };
 };
 
 /**

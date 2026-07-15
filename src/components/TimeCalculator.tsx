@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Text, StyleSheet } from 'react-native';
-import { COLORS, SPACING, FONT_SIZES } from '../constants/theme';
+import { COLORS, SPACING, FONT_SIZES, FONTS } from '../constants/theme';
 import {
   formatDistanceInput,
   formatPaceInput,
@@ -57,7 +57,7 @@ const TimeCalculator: React.FC = () => {
 
   return (
     <Card>
-      <Text style={styles.sectionTitle}>Calcular Tempo</Text>
+      <Text style={styles.sectionTitle}>Calcular tempo</Text>
       <Text style={styles.sectionDescription}>
         Insira a distância e seu pace para descobrir quanto tempo levará
       </Text>
@@ -73,7 +73,7 @@ const TimeCalculator: React.FC = () => {
       />
 
       <InputField
-        label="Pace Desejado"
+        label="Pace desejado"
         value={pace}
         onChangeText={(value) => setPace(formatPaceInput(value))}
         unit="/km"
@@ -117,14 +117,15 @@ const TimeCalculator: React.FC = () => {
 const styles = StyleSheet.create({
   sectionDescription: {
     color: COLORS.text.secondary,
+    fontFamily: FONTS.regular,
     fontSize: FONT_SIZES.md,
     lineHeight: 22,
     marginBottom: SPACING.lg,
   },
   sectionTitle: {
     color: COLORS.text.primary,
+    fontFamily: FONTS.semiBold,
     fontSize: FONT_SIZES.xxl,
-    fontWeight: '700',
     marginBottom: SPACING.sm,
   },
 });

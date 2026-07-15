@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TextInput, StyleSheet, KeyboardTypeOptions } from 'react-native';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '../../constants/theme';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '../../constants/theme';
 
 interface InputFieldProps {
   label: string;
@@ -54,15 +54,16 @@ const InputField: React.FC<InputFieldProps> = ({
 const styles = StyleSheet.create({
   hint: {
     color: COLORS.text.light,
+    fontFamily: FONTS.regular,
     fontSize: FONT_SIZES.xs,
-    fontStyle: 'italic',
     marginTop: SPACING.xs,
   },
   input: {
     color: COLORS.text.primary,
     flex: 1,
+    fontFamily: FONTS.mono,
     fontSize: FONT_SIZES.xl,
-    fontWeight: '600',
+    fontVariant: ['tabular-nums'],
     padding: SPACING.md,
   },
   inputGroup: {
@@ -70,8 +71,8 @@ const styles = StyleSheet.create({
   },
   inputUnit: {
     color: COLORS.primary,
+    fontFamily: FONTS.medium,
     fontSize: FONT_SIZES.md,
-    fontWeight: '600',
   },
   inputWrapper: {
     alignItems: 'center',
@@ -84,8 +85,8 @@ const styles = StyleSheet.create({
   },
   label: {
     color: COLORS.text.label,
+    fontFamily: FONTS.medium,
     fontSize: FONT_SIZES.md,
-    fontWeight: '600',
     letterSpacing: 0.3,
     marginBottom: SPACING.sm,
   },

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '../constants/theme';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '../constants/theme';
 import {
   formatDistanceInput,
   formatPaceInput,
@@ -59,13 +59,13 @@ const PaceTable: React.FC = () => {
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <Card style={styles.calculatorCard}>
-        <Text style={styles.sectionTitle}>Tabela de Ritmo</Text>
+        <Text style={styles.sectionTitle}>Tabela de ritmo</Text>
         <Text style={styles.sectionDescription}>
           Gere uma tabela km a km para acompanhar sua prova
         </Text>
 
         <InputField
-          label="Distância da Prova"
+          label="Distância da prova"
           value={distance}
           onChangeText={handleDistanceChange}
           unit="km"
@@ -75,7 +75,7 @@ const PaceTable: React.FC = () => {
         />
 
         <InputField
-          label="Pace Desejado"
+          label="Pace desejado"
           value={pace}
           onChangeText={(value) => setPace(formatPaceInput(value))}
           unit="/km"
@@ -89,7 +89,7 @@ const PaceTable: React.FC = () => {
 
         <ButtonRow>
           <Button
-            title="Gerar Tabela"
+            title="Gerar tabela"
             icon="list"
             onPress={generateTable}
             accessibilityLabel="Gerar tabela"
@@ -156,39 +156,43 @@ const styles = StyleSheet.create({
   },
   sectionDescription: {
     color: COLORS.text.secondary,
+    fontFamily: FONTS.regular,
     fontSize: FONT_SIZES.md,
     lineHeight: 22,
     marginBottom: SPACING.lg,
   },
   sectionTitle: {
     color: COLORS.text.primary,
+    fontFamily: FONTS.semiBold,
     fontSize: FONT_SIZES.xxl,
-    fontWeight: '700',
     marginBottom: SPACING.sm,
   },
   summaryText: {
     color: COLORS.primary,
+    fontFamily: FONTS.monoSemiBold,
     fontSize: FONT_SIZES.md,
-    fontWeight: '700',
+    fontVariant: ['tabular-nums'],
     marginLeft: SPACING.xs,
   },
   tableCell: {
     color: COLORS.text.primary,
     flex: 1,
+    fontFamily: FONTS.monoSemiBold,
     fontSize: FONT_SIZES.lg,
-    fontWeight: '700',
+    fontVariant: ['tabular-nums'],
     textAlign: 'center',
   },
   tableCellTime: {
     color: COLORS.text.secondary,
     flex: 1,
+    fontFamily: FONTS.mono,
     fontSize: FONT_SIZES.md,
-    fontWeight: '600',
+    fontVariant: ['tabular-nums'],
     textAlign: 'center',
   },
   tableCellTotal: {
     color: COLORS.primary,
-    fontWeight: '700',
+    fontFamily: FONTS.monoSemiBold,
   },
   tableContainer: {
     backgroundColor: COLORS.white,
@@ -201,19 +205,20 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 16,
   },
+  // Header neutro/escuro (ver design_audit): o laranja fica reservado
+  // para os números que importam (coluna Total e resumo)
   tableHeader: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.text.primary,
     flexDirection: 'row',
     padding: SPACING.md,
   },
   tableHeaderText: {
     color: COLORS.white,
     flex: 1,
-    fontSize: FONT_SIZES.md,
-    fontWeight: '700',
+    fontFamily: FONTS.medium,
+    fontSize: FONT_SIZES.sm,
     letterSpacing: 0.5,
     textAlign: 'center',
-    textTransform: 'uppercase',
   },
   tableRow: {
     borderBottomColor: COLORS.border,

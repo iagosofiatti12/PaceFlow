@@ -18,16 +18,18 @@ const Header: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  // Header compacto (ver design_audit): logo ~44px alinhada à esquerda,
+  // devolvendo espaço vertical para o conteúdo
   header: {
     backgroundColor: COLORS.background,
-    paddingBottom: 0,
-    paddingHorizontal: SPACING.xs,
-    paddingVertical: SPACING.xs,
+    paddingBottom: SPACING.xs,
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.sm,
   },
   logo: {
-    height: 120,
-    maxWidth: 140,
-    width: SCREEN_WIDTH * 0.35,
+    height: 44,
+    maxWidth: 110,
+    width: SCREEN_WIDTH * 0.28,
   },
 });
 

@@ -26,6 +26,8 @@ export const COLORS = {
     beginner: '#F29A6A',
     keepTraining: '#FBB896',
   },
+  // Texto escuro para badges de fundo claro (intermediário/iniciante/treinando)
+  paceFeedbackDarkText: '#4A2410',
 } as const;
 
 export const SPACING = {
@@ -51,6 +53,18 @@ export const FONT_SIZES = {
   md: 15,
   lg: 17,
   xl: 20,
-  xxl: 26,
-  xxxl: 56,
+  xxl: 22,
+  xxxl: 46,
+} as const;
+
+// Sistema tipográfico (ver design_audit):
+// - Geist Sans para interface: regular 400 / medium 500 / semibold 600
+// - Geist Mono para números, sempre com fontVariant: ['tabular-nums']
+//   (dígitos de largura igual, para números alinharem como numa planilha)
+export const FONTS = {
+  regular: 'Geist_400Regular',
+  medium: 'Geist_500Medium',
+  semiBold: 'Geist_600SemiBold',
+  mono: 'GeistMono_500Medium',
+  monoSemiBold: 'GeistMono_600SemiBold',
 } as const;
