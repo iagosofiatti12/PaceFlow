@@ -16,13 +16,15 @@ export const saveCalculation = async (
   hours: string,
   minutes: string,
   seconds: string,
-  pace: string
+  pace: string,
 ): Promise<void> => {
   try {
     const history = await getHistory();
-    
+
     const newItem: HistoryItem = {
-      id: Date.now().toString(),
+      // Timestamp + sufixo aleatório: dois cálculos no mesmo milissegundo
+      // não podem acabar com o mesmo id
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       distance,
       time: `${hours || '0'}:${minutes.padStart(2, '0')}:${seconds.padStart(2, '0')}`,
       pace,
@@ -30,7 +32,7 @@ export const saveCalculation = async (
     };
 
     const updatedHistory = [newItem, ...history].slice(0, MAX_HISTORY_ITEMS);
-    
+
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedHistory));
   } catch (error) {
     console.error('Erro ao salvar histórico:', error);
@@ -58,7 +60,7 @@ export const clearHistory = async (): Promise<void> => {
 export const deleteHistoryItem = async (id: string): Promise<void> => {
   try {
     const history = await getHistory();
-    const updatedHistory = history.filter(item => item.id !== id);
+    const updatedHistory = history.filter((item) => item.id !== id);
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedHistory));
   } catch (error) {
     console.error('Erro ao deletar item:', error);

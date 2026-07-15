@@ -60,7 +60,7 @@ export const validateDistance = (distance: string): ValidationResult => {
     return { valid: false, message: 'Por favor, insira uma distância válida' };
   }
 
-  if (dist <= 0 || dist > 500) {
+  if (dist < 0.1 || dist > 500) {
     return { valid: false, message: 'A distância deve estar entre 0.1 e 500 km' };
   }
 
@@ -162,7 +162,7 @@ export const validatePaceFormat = (pace: string): ValidationResult => {
 
   const [minutes, seconds] = pace.split(':').map(Number);
 
-  if (minutes < 0 || minutes > 20) {
+  if (minutes > 20 || (minutes === 20 && seconds > 0)) {
     return { valid: false, message: 'Pace deve estar entre 0:01 e 20:00 por km' };
   }
 
