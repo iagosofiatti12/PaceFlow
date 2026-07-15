@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 16,
   },
-  // Header neutro/escuro (ver design_audit): o laranja fica reservado
+  // Header neutro/escuro (ver DESIGN.md): o laranja fica reservado
   // para os números que importam (coluna Total e resumo)
   tableHeader: {
     backgroundColor: COLORS.text.primary,

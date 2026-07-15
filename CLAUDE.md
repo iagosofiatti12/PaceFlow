@@ -59,7 +59,7 @@ Padrões estabelecidos:
 1. **Nunca commitar direto na `main`.** Toda mudança nasce numa branch descritiva (`fix/...`, `feat/...`, `refactor/...`, `chore/...`, `design/...`, `docs/...`, `test/...`).
 2. **Commits saem apenas com a autoria do dono do repositório.** Não adicionar `Co-Authored-By` nem qualquer assinatura de IA nas mensagens.
 3. **Nunca usar `git add -A` ou `git add .`** — adicionar arquivos explicitamente, para não arrastar trabalho não relacionado do dono do repo.
-4. **Antes de mexer em qualquer estilo/layout/cor, ler o arquivo `design_audit`** na raiz — é a fonte da verdade das decisões visuais.
+4. **Antes de mexer em qualquer estilo/layout/cor, ler o arquivo `DESIGN.md`** na raiz — é a fonte da verdade das decisões visuais.
 5. **Consultar documentação atualizada (Context7 ou docs oficiais) antes de usar API de biblioteca** — não confiar só em conhecimento de treinamento para versões do Expo/RN.
 6. **Mensagens de commit em português**, no formato `tipo: descrição` (ex: `fix: ...`, `refactor: ...`).
 7. O dono do projeto é iniciante (~2 meses de dev): **explicar cada decisão técnica de forma didática**, com analogias quando ajudar.
@@ -87,7 +87,7 @@ Build de produção/publicação: via **EAS (Expo Application Services)** — ai
 - **ESLint flat config com `eslint-config-expo`**: caminho oficial do Expo; substituiu 6 plugins instalados à mão.
 - **`react-native-safe-area-context`**: o `SafeAreaView` do `react-native` está depreciado.
 - **Prettier com `endOfLine: "auto"`**: o desenvolvimento acontece no Windows (CRLF); sem isso o format:check briga com o git.
-- **Geist Sans/Mono com `tabular-nums`**: decisão do `design_audit` — números com largura fixa alinham em tabelas e não "dançam" ao digitar.
+- **Geist Sans/Mono com `tabular-nums`**: decisão do `DESIGN.md` — números com largura fixa alinham em tabelas e não "dançam" ao digitar.
 - **Cores do feedback de pace com `textColor` dinâmico**: fundos claros recebem texto escuro para cumprir contraste WCAG.
 - **Id do histórico = timestamp + sufixo aleatório**: `Date.now()` sozinho colidia em cálculos no mesmo milissegundo.
 - **Histórico limitado a 10 itens**: mantém o AsyncStorage leve e a lista útil.

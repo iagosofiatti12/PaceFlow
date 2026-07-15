@@ -57,7 +57,7 @@ export const FONT_SIZES = {
   xxxl: 46,
 } as const;
 
-// Sistema tipográfico (ver design_audit):
+// Sistema tipográfico (ver DESIGN.md):
 // - Geist Sans para interface: regular 400 / medium 500 / semibold 600
 // - Geist Mono para números, sempre com fontVariant: ['tabular-nums']
 //   (dígitos de largura igual, para números alinharem como numa planilha)

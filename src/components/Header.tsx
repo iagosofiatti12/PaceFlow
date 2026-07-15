@@ -18,7 +18,7 @@ const Header: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  // Header compacto (ver design_audit): logo ~44px alinhada à esquerda,
+  // Header compacto (ver DESIGN.md): logo ~44px alinhada à esquerda,
   // devolvendo espaço vertical para o conteúdo
   header: {
     backgroundColor: COLORS.background,
