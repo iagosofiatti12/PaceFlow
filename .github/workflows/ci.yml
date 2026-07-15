@@ -1,0 +1,44 @@
+# CI do PaceFlow: roda automaticamente no GitHub a cada push na main
+# e a cada pull request. Se qualquer etapa falhar, o PR fica marcado
+# com um X vermelho e não deve ser mesclado até ser corrigido.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    name: Lint, tipos e testes
+    runs-on: ubuntu-latest
+
+    steps:
+      # Baixa o código do repositório para a máquina do CI
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Instala o Node.js na mesma versão usada em desenvolvimento,
+      # com cache do npm para acelerar execuções futuras
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # npm ci instala exatamente as versões do package-lock.json
+      # (mais previsível que npm install para ambientes de CI)
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Lint (ESLint)
+        run: npm run lint
+
+      - name: Verificação de tipos (TypeScript)
+        run: npm run typecheck
+
+      - name: Formatação (Prettier)
+        run: npm run format:check
+
+      - name: Testes (Jest)
+        run: npm test
