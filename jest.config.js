@@ -17,6 +17,7 @@ module.exports = {
     './src/format/': { branches: 90, functions: 90, lines: 90, statements: 90 },
     './src/validation/': { branches: 90, functions: 90, lines: 90, statements: 90 },
     './src/hooks/': { branches: 90, functions: 90, lines: 90, statements: 90 },
+    './src/utils/historySchema.ts': { branches: 90, functions: 90, lines: 90, statements: 90 },
     './src/utils/storage.ts': { branches: 85, functions: 85, lines: 85, statements: 85 },
   },
 };

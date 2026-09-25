@@ -4,6 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '../constants/theme';
 import { getHistory, deleteHistoryItem, clearHistory, type HistoryItem } from '../utils/storage';
 import { formatRelativeDate } from '../format/dates';
+import { formatPace, formatSecondsToTime } from '../format/time';
+import { calculatePace } from '../domain/pace';
 import Card from './ui/Card';
 
 interface HistoryTabProps {
@@ -60,7 +62,11 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ onSelectItem }) => {
   // A linha é um container comum com dois botões irmãos (restaurar e excluir).
   // Botão dentro de botão confunde o leitor de tela, que não sabe qual ação anunciar.
   const renderItem = ({ item }: { item: HistoryItem }): React.ReactElement => {
-    const relativeDate = formatRelativeDate(item.date);
+    // O histórico guarda números; o texto é montado só na hora de mostrar
+    const relativeDate = formatRelativeDate(item.createdAt);
+    const pace = formatPace(calculatePace(item.durationSeconds, item.distanceKm));
+    const distance = item.distanceKm.toString();
+    const time = formatSecondsToTime(item.durationSeconds);
 
     return (
       <View style={styles.historyItem}>
@@ -68,22 +74,22 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ onSelectItem }) => {
           style={({ pressed }) => [styles.itemContent, pressed && styles.pressed]}
           onPress={() => onSelectItem(item)}
           accessibilityRole="button"
-          accessibilityLabel={`Pace ${item.pace} por km, ${item.distance} km em ${item.time}, ${relativeDate}`}
+          accessibilityLabel={`Pace ${pace} por km, ${distance} km em ${time}, ${relativeDate}`}
           accessibilityHint="Toque para abrir este cálculo na aba Pace"
         >
           <View style={styles.itemHeader}>
             <Ionicons name="speedometer" size={16} color={COLORS.primary} />
-            <Text style={styles.itemPace}>{item.pace} /km</Text>
+            <Text style={styles.itemPace}>{pace} /km</Text>
           </View>
 
           <View style={styles.itemDetails}>
             <View style={styles.detailRow}>
               <Ionicons name="navigate" size={12} color={COLORS.text.secondary} />
-              <Text style={styles.detailText}>{item.distance} km</Text>
+              <Text style={styles.detailText}>{distance} km</Text>
             </View>
             <View style={styles.detailRow}>
               <Ionicons name="time" size={12} color={COLORS.text.secondary} />
-              <Text style={styles.detailText}>{item.time}</Text>
+              <Text style={styles.detailText}>{time}</Text>
             </View>
           </View>
 
@@ -95,7 +101,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ onSelectItem }) => {
           onPress={() => handleDelete(item.id)}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           accessibilityRole="button"
-          accessibilityLabel={`Excluir cálculo de ${item.distance} km`}
+          accessibilityLabel={`Excluir cálculo de ${distance} km`}
           accessibilityHint="Pede confirmação antes de excluir"
         >
           <Ionicons name="trash-outline" size={20} color={COLORS.danger} />

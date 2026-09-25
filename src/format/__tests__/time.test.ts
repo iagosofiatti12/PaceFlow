@@ -1,4 +1,4 @@
-import { formatSecondsToTime, formatPace, paceToSeconds } from '../time';
+import { formatSecondsToTime, formatPace, paceToSeconds, splitDuration } from '../time';
 
 describe('formatSecondsToTime', () => {
   it('deve formatar minutos e segundos', () => {
@@ -34,6 +34,24 @@ describe('formatPace', () => {
   it('deve fazer ida e volta com paceToSeconds', () => {
     [45, 330, 1200, 3600, 3725].forEach((seconds) => {
       expect(paceToSeconds(formatPace(seconds))).toBe(seconds);
+    });
+  });
+});
+
+describe('splitDuration', () => {
+  it('deve separar horas, minutos e segundos', () => {
+    expect(splitDuration(3930)).toEqual({ hours: '1', minutes: '05', seconds: '30' });
+  });
+
+  it('deve deixar as horas vazias quando forem zero', () => {
+    expect(splitDuration(1800)).toEqual({ hours: '', minutes: '30', seconds: '00' });
+  });
+
+  it('deve aceitar tempos de ultramaratona', () => {
+    expect(splitDuration(99 * 3600 + 59 * 60 + 59)).toEqual({
+      hours: '99',
+      minutes: '59',
+      seconds: '59',
     });
   });
 });

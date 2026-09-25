@@ -3,7 +3,7 @@ import type { PaceLevel } from '../domain/levels';
 import { getPaceLevel } from '../domain/levels';
 import { calculatePace } from '../domain/pace';
 import { formatDistanceInput, formatHoursInput, formatMinutesInput } from '../format/masks';
-import { formatPace, paceToSeconds } from '../format/time';
+import { formatPace, splitDuration } from '../format/time';
 import { validateDistance, validateTime } from '../validation/rules';
 import { useMaskedField } from '../hooks/useMaskedField';
 import { showValidationError, notifySuccess } from '../utils/feedback';
@@ -22,17 +22,23 @@ interface PaceCalculatorProps {
 }
 
 const PaceCalculator: React.FC<PaceCalculatorProps> = ({ initialItem }) => {
-  // Se veio um item do histórico, os campos já nascem preenchidos
-  const [h, m, s] = initialItem ? initialItem.time.split(':') : ['', '', ''];
+  // Se veio um item do histórico, os campos já nascem preenchidos e o
+  // resultado é recalculado a partir dos dados brutos (km e segundos)
+  const initialTime = initialItem ? splitDuration(initialItem.durationSeconds) : null;
+  const initialPace = initialItem
+    ? calculatePace(initialItem.durationSeconds, initialItem.distanceKm)
+    : null;
 
-  const distance = useMaskedField(formatDistanceInput, initialItem?.distance ?? '');
-  const hours = useMaskedField(formatHoursInput, h === '0' ? '' : h);
-  const minutes = useMaskedField(formatMinutesInput, m);
-  const seconds = useMaskedField(formatMinutesInput, s);
+  const distance = useMaskedField(formatDistanceInput, initialItem?.distanceKm.toString() ?? '');
+  const hours = useMaskedField(formatHoursInput, initialTime?.hours ?? '');
+  const minutes = useMaskedField(formatMinutesInput, initialTime?.minutes ?? '');
+  const seconds = useMaskedField(formatMinutesInput, initialTime?.seconds ?? '');
 
-  const [result, setResult] = useState<string | null>(initialItem?.pace ?? null);
+  const [result, setResult] = useState<string | null>(
+    initialPace !== null ? formatPace(initialPace) : null,
+  );
   const [level, setLevel] = useState<PaceLevel | null>(
-    initialItem ? getPaceLevel(paceToSeconds(initialItem.pace)) : null,
+    initialPace !== null ? getPaceLevel(initialPace) : null,
   );
 
   const handleClear = (): void => {
@@ -64,7 +70,7 @@ const PaceCalculator: React.FC<PaceCalculatorProps> = ({ initialItem }) => {
     setResult(formatted);
     setLevel(getPaceLevel(paceSeconds));
 
-    await saveCalculation(distance.value, hours.value, minutes.value, seconds.value, formatted);
+    await saveCalculation(distanceResult.value, timeResult.value);
   };
 
   return (
