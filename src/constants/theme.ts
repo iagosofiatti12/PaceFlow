@@ -156,3 +156,17 @@ export const FONTS = {
   mono: 'GeistMono_500Medium',
   monoSemiBold: 'GeistMono_600SemiBold',
 } as const;
+
+/**
+ * Teto de ampliação da fonte (maxFontSizeMultiplier) quando a pessoa aumenta
+ * o tamanho do texto no celular (acessibilidade).
+ *
+ * Texto corrido (títulos, descrições, histórico) cresce sem limite: ele quebra
+ * linha. Já elementos de largura fixa estourariam a tela, então têm um teto:
+ * - display: o número grande do resultado (46px → no máximo ~60px)
+ * - control: botões, abas, campos e células da tabela, que dividem a linha com outros
+ */
+export const FONT_SCALE = {
+  display: 1.3,
+  control: 1.4,
+} as const;

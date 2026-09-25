@@ -4,6 +4,7 @@ import { getPaceLevel } from '../domain/levels';
 import { calculatePace } from '../domain/pace';
 import { formatDistanceInput, formatHoursInput, formatMinutesInput } from '../format/masks';
 import { formatPace, splitDuration } from '../format/time';
+import { formatKm } from '../format/distance';
 import { validateDistance, validateTime } from '../validation/rules';
 import { useMaskedField } from '../hooks/useMaskedField';
 import { showValidationError, notifySuccess } from '../utils/feedback';
@@ -29,7 +30,10 @@ const PaceCalculator: React.FC<PaceCalculatorProps> = ({ initialItem }) => {
     ? calculatePace(initialItem.durationSeconds, initialItem.distanceKm)
     : null;
 
-  const distance = useMaskedField(formatDistanceInput, initialItem?.distanceKm.toString() ?? '');
+  const distance = useMaskedField(
+    formatDistanceInput,
+    initialItem ? formatKm(initialItem.distanceKm) : '',
+  );
   const hours = useMaskedField(formatHoursInput, initialTime?.hours ?? '');
   const minutes = useMaskedField(formatMinutesInput, initialTime?.minutes ?? '');
   const seconds = useMaskedField(formatMinutesInput, initialTime?.seconds ?? '');
@@ -85,7 +89,7 @@ const PaceCalculator: React.FC<PaceCalculatorProps> = ({ initialItem }) => {
         value={distance.value}
         onChangeText={distance.onChangeText}
         unit="km"
-        placeholder="5.0"
+        placeholder="5,0"
         accessibilityLabel="Campo de distância em quilômetros"
         accessibilityHint="Digite a distância percorrida"
       />

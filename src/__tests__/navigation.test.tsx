@@ -79,10 +79,10 @@ describe('navegação', () => {
     await seedHistory();
     renderRouter(routes, { initialUrl: '/history' });
 
-    fireEvent.press(await screen.findByLabelText(/^Pace 6:00 por km, 21.1 km em 2:06:36/));
+    fireEvent.press(await screen.findByLabelText(/^Pace 6:00 por km, 21,1 km em 2:06:36/));
 
     await waitFor(() => expect(screen).toHavePathname('/'));
-    expect(await screen.findByDisplayValue('21.1')).toBeTruthy();
+    expect(await screen.findByDisplayValue('21,1')).toBeTruthy();
     expect(screen.getByDisplayValue('2')).toBeTruthy();
     expect(screen.getByDisplayValue('06')).toBeTruthy();
     expect(screen.getByDisplayValue('36')).toBeTruthy();
@@ -94,11 +94,11 @@ describe('navegação', () => {
     renderRouter(routes, { initialUrl: '/history' });
 
     fireEvent.press(await screen.findByLabelText(/^Pace 6:00 por km/));
-    fireEvent.changeText(await screen.findByDisplayValue('21.1'), '5');
+    fireEvent.changeText(await screen.findByDisplayValue('21,1'), '5');
 
     fireEvent.press(screen.getByLabelText('Aba Histórico'));
     fireEvent.press(await screen.findByLabelText(/^Pace 6:00 por km/));
 
-    expect(await screen.findByDisplayValue('21.1')).toBeTruthy();
+    expect(await screen.findByDisplayValue('21,1')).toBeTruthy();
   });
 });

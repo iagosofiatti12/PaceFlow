@@ -52,7 +52,7 @@ const TimeCalculator: React.FC = () => {
         value={distance.value}
         onChangeText={distance.onChangeText}
         unit="km"
-        placeholder="5.0"
+        placeholder="5,0"
         accessibilityLabel="Campo de distância em quilômetros"
         accessibilityHint="Digite a distância da prova"
       />

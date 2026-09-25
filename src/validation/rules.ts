@@ -5,6 +5,7 @@ import {
   MIN_DISTANCE_KM,
 } from '../domain/limits';
 import { paceToSeconds } from '../format/time';
+import { parseKm } from '../format/distance';
 
 // A validação devolve um CÓDIGO de erro, e não o texto da mensagem.
 // O texto mora em src/constants/messages.ts, perto da interface:
@@ -30,9 +31,9 @@ const fail = (error: ValidationError): { valid: false; error: ValidationError } 
   error,
 });
 
-/** Distância em km (texto do campo) → número entre os limites do domínio */
+/** Distância em km (texto do campo, com vírgula ou ponto) → número entre os limites do domínio */
 export const validateDistance = (distance: string): ValidationResult<number> => {
-  const km = parseFloat(distance);
+  const km = parseKm(distance);
   if (!distance || isNaN(km)) return fail('distance.empty');
   if (km < MIN_DISTANCE_KM || km > MAX_DISTANCE_KM) return fail('distance.range');
   return { valid: true, value: km };

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TextInput, KeyboardTypeOptions } from 'react-native';
-import { SPACING, RADIUS, FONT_SIZES, FONTS } from '../../constants/theme';
+import { SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE } from '../../constants/theme';
 import { createThemedStyles, useColors } from '../../hooks/useTheme';
 
 interface InputFieldProps {
@@ -39,6 +39,7 @@ const InputField: React.FC<InputFieldProps> = ({
       <Text style={styles.label}>{label}</Text>
       <View style={styles.inputWrapper}>
         <TextInput
+          maxFontSizeMultiplier={FONT_SCALE.control}
           style={styles.input}
           value={value}
           onChangeText={onChangeText}
@@ -49,7 +50,11 @@ const InputField: React.FC<InputFieldProps> = ({
           accessibilityLabel={accessibilityLabel ?? label}
           accessibilityHint={accessibilityHint}
         />
-        {unit && <Text style={styles.inputUnit}>{unit}</Text>}
+        {unit && (
+          <Text style={styles.inputUnit} maxFontSizeMultiplier={FONT_SCALE.control}>
+            {unit}
+          </Text>
+        )}
       </View>
       {hint && <Text style={styles.hint}>{hint}</Text>}
     </View>

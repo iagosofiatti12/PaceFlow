@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { SPACING, RADIUS, FONT_SIZES, FONTS } from '../constants/theme';
+import { SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE } from '../constants/theme';
 import { generateSplits, type Split } from '../domain/splits';
 import { formatDistanceInput, formatPaceInput } from '../format/masks';
 import { formatSecondsToTime } from '../format/time';
+import { formatKm } from '../format/distance';
 import { validateDistance, validatePace } from '../validation/rules';
 import { useMaskedField } from '../hooks/useMaskedField';
 import { showValidationError, notifySuccess } from '../utils/feedback';
@@ -58,7 +59,7 @@ const PaceTable: React.FC = () => {
           value={distance.value}
           onChangeText={distance.onChangeText}
           unit="km"
-          placeholder="10.0"
+          placeholder="10,0"
           accessibilityLabel="Campo de distância da prova"
           accessibilityHint="Digite a distância total da prova"
         />
@@ -98,9 +99,15 @@ const PaceTable: React.FC = () => {
       {splits && splits.length > 0 && (
         <View style={styles.tableContainer}>
           <View style={styles.tableHeader}>
-            <Text style={styles.tableHeaderText}>KM</Text>
-            <Text style={styles.tableHeaderText}>Parcial</Text>
-            <Text style={styles.tableHeaderText}>Total</Text>
+            <Text style={styles.tableHeaderText} maxFontSizeMultiplier={FONT_SCALE.control}>
+              KM
+            </Text>
+            <Text style={styles.tableHeaderText} maxFontSizeMultiplier={FONT_SCALE.control}>
+              Parcial
+            </Text>
+            <Text style={styles.tableHeaderText} maxFontSizeMultiplier={FONT_SCALE.control}>
+              Total
+            </Text>
           </View>
 
           {splits.map((row, index) => (
@@ -113,11 +120,16 @@ const PaceTable: React.FC = () => {
                 index === splits.length - 1 && styles.tableRowLast,
               ]}
             >
-              <Text style={styles.tableCell}>
-                {Number.isInteger(row.km) ? row.km : row.km.toFixed(1)}
+              <Text style={styles.tableCell} maxFontSizeMultiplier={FONT_SCALE.control}>
+                {formatKm(row.km, 1)}
               </Text>
-              <Text style={styles.tableCellTime}>{formatSecondsToTime(row.splitSeconds)}</Text>
-              <Text style={[styles.tableCellTime, styles.tableCellTotal]}>
+              <Text style={styles.tableCellTime} maxFontSizeMultiplier={FONT_SCALE.control}>
+                {formatSecondsToTime(row.splitSeconds)}
+              </Text>
+              <Text
+                style={[styles.tableCellTime, styles.tableCellTotal]}
+                maxFontSizeMultiplier={FONT_SCALE.control}
+              >
                 {formatSecondsToTime(row.cumulativeSeconds)}
               </Text>
             </View>
@@ -125,7 +137,7 @@ const PaceTable: React.FC = () => {
 
           <View style={styles.tableSummary}>
             <Ionicons name="flag" size={18} color={colors.accent} />
-            <Text style={styles.summaryText}>
+            <Text style={styles.summaryText} maxFontSizeMultiplier={FONT_SCALE.control}>
               Tempo final: {formatSecondsToTime(splits[splits.length - 1].cumulativeSeconds)}
             </Text>
           </View>

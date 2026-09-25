@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { SPACING, RADIUS, FONT_SIZES, FONTS } from '../../constants/theme';
+import { SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE } from '../../constants/theme';
 import type { PaceLevel } from '../../domain/levels';
 import { PACE_LEVELS } from '../../constants/paceLevels';
 import { createThemedStyles } from '../../hooks/useTheme';
@@ -26,8 +26,21 @@ const ResultCard: React.FC<ResultCardProps> = ({ label, value, unit, subtext, le
     <View style={styles.resultCard}>
       <Text style={styles.resultLabel}>{label}</Text>
       <View style={styles.resultValueContainer}>
-        <Text style={styles.resultValue}>{value}</Text>
-        {unit && <Text style={styles.resultUnit}>{unit}</Text>}
+        {/* Número grande: teto de ampliação e, se ainda assim não couber
+            (ex: "12:34:56" com fonte no máximo), encolhe para caber numa linha */}
+        <Text
+          style={styles.resultValue}
+          maxFontSizeMultiplier={FONT_SCALE.display}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+        >
+          {value}
+        </Text>
+        {unit && (
+          <Text style={styles.resultUnit} maxFontSizeMultiplier={FONT_SCALE.display}>
+            {unit}
+          </Text>
+        )}
       </View>
       {subtext && <Text style={styles.resultSubtext}>{subtext}</Text>}
 

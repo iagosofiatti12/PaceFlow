@@ -10,8 +10,8 @@ describe('useMaskedField', () => {
 
   it('deve aplicar a máscara ao digitar', () => {
     const { result } = renderHook(() => useMaskedField(formatDistanceInput));
-    act(() => result.current.onChangeText('10,5'));
-    expect(result.current.value).toBe('10.5');
+    act(() => result.current.onChangeText('10.5'));
+    expect(result.current.value).toBe('10,5');
   });
 
   it('deve ignorar a tecla quando a máscara devolve null', () => {

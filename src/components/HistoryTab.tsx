@@ -6,6 +6,7 @@ import { SPACING, RADIUS, FONT_SIZES, FONTS } from '../constants/theme';
 import { getHistory, deleteHistoryItem, clearHistory, type HistoryItem } from '../utils/storage';
 import { formatRelativeDate } from '../format/dates';
 import { formatPace, formatSecondsToTime } from '../format/time';
+import { formatKm } from '../format/distance';
 import { calculatePace } from '../domain/pace';
 import Card from './ui/Card';
 import { createThemedStyles, useColors } from '../hooks/useTheme';
@@ -74,7 +75,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ onSelectItem }) => {
     // O histórico guarda números; o texto é montado só na hora de mostrar
     const relativeDate = formatRelativeDate(item.createdAt);
     const pace = formatPace(calculatePace(item.durationSeconds, item.distanceKm));
-    const distance = item.distanceKm.toString();
+    const distance = formatKm(item.distanceKm);
     const time = formatSecondsToTime(item.durationSeconds);
 
     return (

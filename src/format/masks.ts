@@ -14,12 +14,13 @@ export const formatTimeInput = (value: string, maxValue: number): string => {
 };
 
 /**
- * Campo de distância: aceita vírgula ou ponto como separador decimal.
- * Retorna null quando a tecla deve ser ignorada (ex: uma letra).
+ * Campo de distância: aceita vírgula ou ponto como separador decimal e sempre
+ * MOSTRA vírgula, como o brasileiro escreve ("10.5" vira "10,5").
+ * Retorna null quando a tecla deve ser ignorada (ex: uma letra ou um segundo separador).
  */
 export const formatDistanceInput = (value: string): string | null => {
-  const normalized = value.replace(',', '.');
-  if (normalized === '' || /^\d*\.?\d*$/.test(normalized)) {
+  const normalized = value.replace('.', ',');
+  if (normalized === '' || /^\d*,?\d*$/.test(normalized)) {
     return normalized;
   }
   return null;

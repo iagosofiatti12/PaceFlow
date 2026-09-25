@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { SPACING, RADIUS, FONT_SIZES, FONTS } from '../../constants/theme';
+import { SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE } from '../../constants/theme';
 import { createThemedStyles, useColors } from '../../hooks/useTheme';
 
 interface ButtonProps {
@@ -49,7 +49,13 @@ const Button: React.FC<ButtonProps> = ({
           style={styles.buttonIcon}
         />
       )}
-      <Text style={isPrimary ? styles.primaryButtonText : styles.secondaryButtonText}>{title}</Text>
+      <Text
+        style={isPrimary ? styles.primaryButtonText : styles.secondaryButtonText}
+        maxFontSizeMultiplier={FONT_SCALE.control}
+        numberOfLines={1}
+      >
+        {title}
+      </Text>
     </Pressable>
   );
 };

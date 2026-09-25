@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TextInput } from 'react-native';
-import { SPACING, RADIUS, FONT_SIZES, FONTS } from '../../constants/theme';
+import { SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE } from '../../constants/theme';
 import type { MaskedField } from '../../hooks/useMaskedField';
 import { createThemedStyles, useColors } from '../../hooks/useTheme';
 
@@ -32,6 +32,7 @@ const TimeBlock: React.FC<TimeBlockProps> = ({
   return (
     <View style={styles.timeBlock}>
       <TextInput
+        maxFontSizeMultiplier={FONT_SCALE.control}
         style={styles.timeInput}
         value={field.value}
         onChangeText={field.onChangeText}
@@ -42,7 +43,9 @@ const TimeBlock: React.FC<TimeBlockProps> = ({
         accessibilityLabel={accessibilityLabel}
         accessibilityHint={accessibilityHint}
       />
-      <Text style={styles.timeUnit}>{unit}</Text>
+      <Text style={styles.timeUnit} maxFontSizeMultiplier={FONT_SCALE.control}>
+        {unit}
+      </Text>
     </View>
   );
 };
@@ -62,7 +65,9 @@ const TimeInput: React.FC<TimeInputProps> = ({ label, hours, minutes, seconds })
           accessibilityLabel="Horas"
           accessibilityHint="Digite as horas"
         />
-        <Text style={styles.timeSeparator}>:</Text>
+        <Text style={styles.timeSeparator} maxFontSizeMultiplier={FONT_SCALE.control}>
+          :
+        </Text>
         <TimeBlock
           field={minutes}
           placeholder="00"
@@ -70,7 +75,9 @@ const TimeInput: React.FC<TimeInputProps> = ({ label, hours, minutes, seconds })
           accessibilityLabel="Minutos"
           accessibilityHint="Digite os minutos"
         />
-        <Text style={styles.timeSeparator}>:</Text>
+        <Text style={styles.timeSeparator} maxFontSizeMultiplier={FONT_SCALE.control}>
+          :
+        </Text>
         <TimeBlock
           field={seconds}
           placeholder="00"
