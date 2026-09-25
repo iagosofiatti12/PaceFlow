@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '../constants/theme';
 import { getHistory, deleteHistoryItem, clearHistory, type HistoryItem } from '../utils/storage';
-import { formatRelativeDate } from '../utils/dates';
+import { formatRelativeDate } from '../format/dates';
 import Card from './ui/Card';
 
 interface HistoryTabProps {
@@ -64,10 +64,9 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ onSelectItem }) => {
 
     return (
       <View style={styles.historyItem}>
-        <TouchableOpacity
-          style={styles.itemContent}
+        <Pressable
+          style={({ pressed }) => [styles.itemContent, pressed && styles.pressed]}
           onPress={() => onSelectItem(item)}
-          activeOpacity={0.7}
           accessibilityRole="button"
           accessibilityLabel={`Pace ${item.pace} por km, ${item.distance} km em ${item.time}, ${relativeDate}`}
           accessibilityHint="Toque para abrir este cálculo na aba Pace"
@@ -89,10 +88,10 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ onSelectItem }) => {
           </View>
 
           <Text style={styles.itemDate}>{relativeDate}</Text>
-        </TouchableOpacity>
+        </Pressable>
 
-        <TouchableOpacity
-          style={styles.deleteButton}
+        <Pressable
+          style={({ pressed }) => [styles.deleteButton, pressed && styles.pressed]}
           onPress={() => handleDelete(item.id)}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           accessibilityRole="button"
@@ -100,7 +99,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ onSelectItem }) => {
           accessibilityHint="Pede confirmação antes de excluir"
         >
           <Ionicons name="trash-outline" size={20} color={COLORS.danger} />
-        </TouchableOpacity>
+        </Pressable>
       </View>
     );
   };
@@ -121,15 +120,15 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ onSelectItem }) => {
     <Card style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Histórico</Text>
-        <TouchableOpacity
+        <Pressable
           onPress={handleClearAll}
-          style={styles.clearButton}
+          style={({ pressed }) => [styles.clearButton, pressed && styles.pressed]}
           accessibilityRole="button"
           accessibilityLabel="Limpar todo o histórico"
           accessibilityHint="Pede confirmação antes de apagar todos os cálculos"
         >
           <Text style={styles.clearButtonText}>Limpar tudo</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       <FlatList
@@ -236,6 +235,10 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingBottom: 0,
+  },
+  // Mesmo retorno visual do TouchableOpacity (activeOpacity 0.7), agora com Pressable
+  pressed: {
+    opacity: 0.7,
   },
   title: {
     color: COLORS.text.primary,

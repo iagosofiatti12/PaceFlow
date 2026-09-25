@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '../constants/theme';
 import type { TabKey } from '../types';
@@ -26,9 +26,13 @@ const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => {
   return (
     <View style={styles.tabContainer}>
       {TABS.map((tab) => (
-        <TouchableOpacity
+        <Pressable
           key={tab.key}
-          style={[styles.tab, activeTab === tab.key && styles.tabActive]}
+          style={({ pressed }) => [
+            styles.tab,
+            activeTab === tab.key && styles.tabActive,
+            pressed && styles.pressed,
+          ]}
           onPress={() => onTabChange(tab.key)}
           accessibilityRole="tab"
           accessibilityState={{ selected: activeTab === tab.key }}
@@ -43,13 +47,16 @@ const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => {
           <Text style={[styles.tabText, activeTab === tab.key && styles.tabTextActive]}>
             {tab.label}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       ))}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  pressed: {
+    opacity: 0.7,
+  },
   tab: {
     alignItems: 'center',
     borderRadius: RADIUS.sm,

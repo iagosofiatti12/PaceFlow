@@ -1,40 +1,48 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '../../constants/theme';
-import type { PaceFeedback } from '../../types';
+import type { PaceLevel } from '../../domain/levels';
+import { PACE_LEVELS } from '../../constants/paceLevels';
 
 interface ResultCardProps {
   label: string;
   value: string;
   unit?: string;
   subtext?: string;
-  feedback?: PaceFeedback | null;
+  /** Nível do pace: mostra o selo colorido embaixo do número */
+  level?: PaceLevel | null;
 }
 
 /**
  * Cartão laranja de resultado: rótulo em cima, número grande no centro,
- * unidade opcional ao lado, texto de apoio e selo de feedback opcionais.
+ * unidade opcional ao lado, texto de apoio e selo de nível opcionais.
  */
-const ResultCard: React.FC<ResultCardProps> = ({ label, value, unit, subtext, feedback }) => (
-  <View style={styles.resultCard}>
-    <Text style={styles.resultLabel}>{label}</Text>
-    <View style={styles.resultValueContainer}>
-      <Text style={styles.resultValue}>{value}</Text>
-      {unit && <Text style={styles.resultUnit}>{unit}</Text>}
-    </View>
-    {subtext && <Text style={styles.resultSubtext}>{subtext}</Text>}
+const ResultCard: React.FC<ResultCardProps> = ({ label, value, unit, subtext, level }) => {
+  const levelStyle = level ? PACE_LEVELS[level] : null;
 
-    {feedback && (
-      <View
-        style={[styles.feedbackBadge, { backgroundColor: feedback.color }]}
-        accessible
-        accessibilityLabel={feedback.accessibilityText}
-      >
-        <Text style={[styles.feedbackText, { color: feedback.textColor }]}>{feedback.text}</Text>
+  return (
+    <View style={styles.resultCard}>
+      <Text style={styles.resultLabel}>{label}</Text>
+      <View style={styles.resultValueContainer}>
+        <Text style={styles.resultValue}>{value}</Text>
+        {unit && <Text style={styles.resultUnit}>{unit}</Text>}
       </View>
-    )}
-  </View>
-);
+      {subtext && <Text style={styles.resultSubtext}>{subtext}</Text>}
+
+      {levelStyle && (
+        <View
+          style={[styles.feedbackBadge, { backgroundColor: levelStyle.color }]}
+          accessible
+          accessibilityLabel={levelStyle.label}
+        >
+          <Text style={[styles.feedbackText, { color: levelStyle.textColor }]}>
+            {`${levelStyle.label} ${levelStyle.emoji}`}
+          </Text>
+        </View>
+      )}
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   feedbackBadge: {

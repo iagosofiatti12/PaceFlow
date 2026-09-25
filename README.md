@@ -23,19 +23,31 @@ Paceflow/
 │   │       ├── ButtonRow.tsx
 │   │       ├── Card.tsx
 │   │       ├── InputField.tsx
-│   │       └── ResultCard.tsx
-│   ├── constants/           # Tokens de design (cores, espaçamentos, fontes)
-│   │   └── theme.ts
-│   ├── types.ts             # Tipos compartilhados
-│   └── utils/               # Lógica de negócio, storage e feedback
-│       ├── paceHelpers.ts
+│   │       ├── ResultCard.tsx
+│   │       ├── ScreenHeader.tsx
+│   │       └── TimeInput.tsx
+│   ├── constants/           # Tokens de design, mensagens e aparência dos níveis
+│   │   ├── theme.ts
+│   │   ├── messages.ts
+│   │   └── paceLevels.ts
+│   ├── domain/              # Regra de negócio pura (só números)
+│   │   ├── pace.ts
+│   │   ├── splits.ts
+│   │   ├── levels.ts
+│   │   └── limits.ts
+│   ├── format/              # Texto ↔ número: máscaras, tempo, datas
+│   │   ├── masks.ts
+│   │   ├── time.ts
+│   │   └── dates.ts
+│   ├── validation/          # Validação dos campos (devolve número ou código de erro)
+│   │   └── rules.ts
+│   ├── hooks/               # Hooks reutilizáveis
+│   │   └── useMaskedField.ts
+│   ├── types.ts             # Tipos compartilhados de UI
+│   └── utils/               # Efeitos colaterais: storage e feedback
 │       ├── storage.ts
-│       ├── feedback.ts
-│       ├── dates.ts
-│       └── __tests__/
-│           ├── dates.test.ts
-│           ├── paceHelpers.test.ts
-│           └── storage.test.ts
+│       └── feedback.ts
+│   (cada pasta tem seus testes em __tests__/)
 ├── assets/                  # Imagens e recursos
 ├── docs/AUDITORIA.md        # Auditoria técnica e roadmap do revamp
 ├── .github/workflows/ci.yml # CI: lint + tipos + formatação + testes + expo-doctor
@@ -144,7 +156,7 @@ Além disso, o **CI no GitHub** (`.github/workflows/ci.yml`) roda lint, verifica
 - **Componentização**: cada aba é um componente que gerencia o próprio estado
 - **UI compartilhada**: inputs, botões e cartões vivem em `src/components/ui/`
 - **Design Tokens**: cores, espaçamentos e fontes centralizados em `src/constants/theme.ts`
-- **Lógica isolada**: cálculos e validações em `src/utils/paceHelpers.ts`, persistência em `src/utils/storage.ts`
+- **Lógica isolada em camadas**: cálculos em `src/domain/`, formatação em `src/format/`, validação em `src/validation/`, persistência em `src/utils/storage.ts`
 
 ### Design
 

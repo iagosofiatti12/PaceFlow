@@ -44,7 +44,7 @@ mais trabalho é a experiência de uso.
 
 **Manter:** estado local por aba, lógica em funções puras, UI compartilhada em `ui/`.
 
-**Mudar:**
+**Mudar:** _(Fase 1a entregou: camadas `domain/format/validation`, feedback por nível, códigos de erro, `<TimeInput>`, `<ScreenHeader>`, `useMaskedField` e `Pressable`. Pendentes: histórico v2 e Expo Router.)_
 
 - **Regra de negócio conhece cores**: `getPaceFeedback` importa `COLORS`. Deve devolver só um
   nível (`'elite' | 'advanced' | ...`) e a camada visual traduz em cor e texto.
