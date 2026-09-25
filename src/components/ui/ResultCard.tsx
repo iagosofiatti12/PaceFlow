@@ -25,7 +25,11 @@ const ResultCard: React.FC<ResultCardProps> = ({ label, value, unit, subtext, fe
     {subtext && <Text style={styles.resultSubtext}>{subtext}</Text>}
 
     {feedback && (
-      <View style={[styles.feedbackBadge, { backgroundColor: feedback.color }]}>
+      <View
+        style={[styles.feedbackBadge, { backgroundColor: feedback.color }]}
+        accessible
+        accessibilityLabel={feedback.accessibilityText}
+      >
         <Text style={[styles.feedbackText, { color: feedback.textColor }]}>{feedback.text}</Text>
       </View>
     )}

@@ -27,6 +27,9 @@ export interface PaceTableRow {
   cumulativeTime: string;
 }
 
+/** Maior tempo aceito: 99:59:59 */
+export const MAX_TIME_SECONDS = 99 * 3600 + 59 * 60 + 59;
+
 /**
  * Função para formatar entradas de tempo (horas, minutos, segundos)
  * Garante que o valor não exceda o máximo permitido
@@ -75,17 +78,19 @@ export const validateTime = (
   minutes: string,
   seconds: string,
 ): TimeValidationResult => {
-  const h = parseInt(hours) || 0;
-  const m = parseInt(minutes) || 0;
-  const s = parseInt(seconds) || 0;
+  const h = parseInt(hours, 10) || 0;
+  const m = parseInt(minutes, 10) || 0;
+  const s = parseInt(seconds, 10) || 0;
   const totalSeconds = h * 3600 + m * 60 + s;
 
   if (totalSeconds <= 0) {
     return { valid: false, message: 'Por favor, insira um tempo válido', totalSeconds: 0 };
   }
 
-  if (totalSeconds > 86400) {
-    return { valid: false, message: 'O tempo deve ser menor que 24 horas', totalSeconds: 0 };
+  // Até 99:59:59 (o campo de horas tem 2 dígitos): cabe de um tiro de 400 m
+  // a ultramaratonas de 100 milhas, coerente com o limite de 500 km de distância
+  if (totalSeconds > MAX_TIME_SECONDS) {
+    return { valid: false, message: 'O tempo deve ser de no máximo 99:59:59', totalSeconds: 0 };
   }
 
   return { valid: true, totalSeconds };
@@ -96,14 +101,23 @@ export const validateTime = (
  */
 export const calculatePaceValue = (totalSeconds: number, distance: number): PaceResult => {
   const paceInSeconds = totalSeconds / distance;
-  const paceMinutes = Math.floor(paceInSeconds / 60);
-  const paceSeconds = Math.floor(paceInSeconds % 60);
+  // Arredonda para o segundo mais próximo (e não trunca), igual ao calculateTime:
+  // 299,9 s/km vira "5:00", não "4:59". Arredondar o total evita um "4:60".
+  const rounded = Math.round(paceInSeconds);
 
   return {
-    formatted: `${paceMinutes}:${paceSeconds.toString().padStart(2, '0')}`,
+    formatted: formatSecondsToTime(rounded),
     paceInSeconds,
   };
 };
+
+// Monta o feedback: o emoji só aparece na tela; o leitor de tela lê o texto limpo
+const feedback = (
+  label: string,
+  emoji: string,
+  color: string,
+  textColor: string,
+): PaceFeedback => ({ text: `${label} ${emoji}`, accessibilityText: label, color, textColor });
 
 /**
  * Retorna feedback baseado no pace (ritmo) do corredor
@@ -114,15 +128,12 @@ export const getPaceFeedback = (paceInSeconds: number): PaceFeedback => {
   // Fundos escuros recebem texto branco; fundos claros, texto escuro (contraste WCAG)
   const light = COLORS.white;
   const dark = COLORS.paceFeedbackDarkText;
-  if (totalMinutes < 3) return { text: 'Alienígena 👽! 🏅', color: colors.alien, textColor: light };
-  if (totalMinutes < 4) return { text: 'Pace de elite! 🏆', color: colors.elite, textColor: light };
-  if (totalMinutes < 5)
-    return { text: 'Pace avançado! 💪', color: colors.advanced, textColor: light };
-  if (totalMinutes < 6)
-    return { text: 'Pace intermediário! 👏', color: colors.intermediate, textColor: dark };
-  if (totalMinutes < 8)
-    return { text: 'Pace iniciante! 🎯', color: colors.beginner, textColor: dark };
-  return { text: 'Continue treinando! 🚀', color: colors.keepTraining, textColor: dark };
+  if (totalMinutes < 3) return feedback('Alienígena!', '👽🏅', colors.alien, light);
+  if (totalMinutes < 4) return feedback('Pace de elite!', '🏆', colors.elite, light);
+  if (totalMinutes < 5) return feedback('Pace avançado!', '💪', colors.advanced, light);
+  if (totalMinutes < 6) return feedback('Pace intermediário!', '👏', colors.intermediate, dark);
+  if (totalMinutes < 8) return feedback('Pace iniciante!', '🎯', colors.beginner, dark);
+  return feedback('Continue treinando!', '🚀', colors.keepTraining, dark);
 };
 
 /**
