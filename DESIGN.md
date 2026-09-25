@@ -5,9 +5,42 @@
 > componentes, estilos, layouts, cores, espaçamentos — leia este arquivo primeiro.
 > Ele é a fonte da verdade para decisões visuais do projeto.
 
-> **Status (julho/2026):** os "ganhos rápidos" 1–4, os estruturais 5 e 7 e as correções de
-> contraste já foram implementados. Pendentes: variar o tratamento do resultado por contexto
+> **Status (setembro/2026):** os "ganhos rápidos" 1–4 e os estruturais 5 e 7 já foram
+> implementados. A Fase 2 do revamp (`docs/AUDITORIA.md`) trouxe o modo escuro e o sistema de
+> cores por papel (seção abaixo). Pendentes: variar o tratamento do resultado por contexto
 > (estrutural 6) e desenhar o ícone de app a partir do símbolo do tênis (estrutural 8).
+
+## Cores por papel e modo escuro (vale para todo código novo)
+
+O app segue o tema do celular (claro ou escuro). As cores vivem em `src/constants/theme.ts`,
+em duas paletas (`LIGHT_COLORS` e `DARK_COLORS`) com os mesmos nomes. Cada nome descreve o
+**papel** da cor, não a aparência: `surface` é "fundo de cartão", branco no claro e
+cinza-escuro no escuro. Nos componentes, as cores vêm de `useColors()` ou de
+`createThemedStyles()` (`src/hooks/useTheme.ts`), nunca de valores fixos.
+
+**Os dois laranjas da marca:**
+
+| Token          | Claro     | Escuro    | Onde usar                                                             |
+| -------------- | --------- | --------- | --------------------------------------------------------------------- |
+| `accent`       | `#E8662E` | `#F07A45` | Ícones e detalhes sem texto (bordas, bandeira da tabela)              |
+| `accentStrong` | `#BF4B17` | `#BF4B17` | Fundo com texto branco por cima: botão principal, cartão de resultado |
+| `accentText`   | `#BF4B17` | `#F07A45` | Texto laranja sobre os fundos do app ("km", coluna Total)             |
+| `accentSoft`   | `#FFF5F0` | `#3A2418` | Fundo laranja-claro: aba ativa, linha final da tabela                 |
+
+O `#E8662E` com texto branco tinha contraste 3.3:1 (o mínimo é 4.5:1). Por isso botões e o
+cartão de resultado passaram a usar o `#BF4B17`, um tom mais queimado da mesma cor, e o
+`#E8662E` ficou para o que não tem texto por cima.
+
+**Contraste é garantido por teste:** `src/constants/__tests__/contrast.test.ts` mede, nos dois
+temas, cada combinação de texto e fundo usada no app (mínimo 4.5:1 para texto e 3:1 para
+ícones). Uma cor nova que não passa deixa o CI vermelho.
+
+**Selos de nível do pace:** usam a escala `PACE_LEVEL_COLORS`, igual nos dois temas. O selo
+"avançado" mudou de `#D9591E` para `#C2521C`: o texto branco sobre o tom antigo tinha 3.89:1.
+
+**Modo escuro:** fundos quase pretos com um toque quente (`#121110`, `#1C1A18`), que combinam
+com o laranja, e um laranja mais luminoso para texto e ícones. O cabeçalho da tabela usa
+`inverseSurface`, que é escuro no tema claro e claro no escuro.
 
 # Auditoria de Design — PaceFlow
 

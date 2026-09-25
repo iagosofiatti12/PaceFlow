@@ -49,7 +49,8 @@ Paceflow/
 │   ├── validation/          # Validação dos campos (devolve número ou código de erro)
 │   │   └── rules.ts
 │   ├── hooks/               # Hooks reutilizáveis
-│   │   └── useMaskedField.ts
+│   │   ├── useMaskedField.ts
+│   │   └── useTheme.ts
 │   └── utils/               # Efeitos colaterais: storage e feedback
 │       ├── storage.ts
 │       ├── historySchema.ts
@@ -154,7 +155,8 @@ Além disso, o **CI no GitHub** (`.github/workflows/ci.yml`) roda lint, verifica
 - ✅ Tabela de ritmo km a km com tempos parciais e acumulados
 - ✅ Histórico dos últimos 10 cálculos (persistido no aparelho)
 - ✅ Validação de entradas com feedback tátil (vibração)
-- ✅ Interface responsiva e acessível
+- ✅ Modo escuro automático (segue o tema do celular)
+- ✅ Interface responsiva e acessível (contraste WCAG AA verificado por teste)
 
 ## 🏗️ Arquitetura e Boas Práticas
 

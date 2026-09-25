@@ -34,13 +34,14 @@ app/index.tsx              → aba Pace (rota "/"); recebe ?restore=<id> para re
 app/time.tsx, table.tsx, history.tsx → abas Tempo, Tabela e Histórico (rotas /time, /table, /history)
 src/components/            → um componente por aba (cada um gerencia o PRÓPRIO estado) + Header e TabBar
 src/components/ui/         → componentes reutilizáveis: Card, ScreenHeader, InputField, TimeInput, Button, ButtonRow, ResultCard, KeyboardScreen
-src/constants/theme.ts     → TODOS os tokens: COLORS, SPACING, RADIUS, FONT_SIZES, FONTS
+src/constants/theme.ts     → TODOS os tokens: paletas LIGHT_COLORS/DARK_COLORS, PACE_LEVEL_COLORS, SPACING, RADIUS, FONT_SIZES, FONTS
 src/constants/messages.ts  → textos das mensagens de validação (um por código de erro)
 src/constants/paceLevels.ts→ aparência de cada nível de pace (rótulo, emoji, cores)
 src/domain/                → regra de negócio pura, só números: pace, parciais, níveis, limites
 src/format/                → texto ↔ número: máscaras de digitação, formatação de tempo, datas relativas
 src/validation/rules.ts    → valida o texto dos campos e devolve o número convertido ou um código de erro
 src/hooks/useMaskedField.ts→ estado de um campo com máscara (value, onChangeText, clear)
+src/hooks/useTheme.ts      → useColors() e createThemedStyles(): cores do tema claro/escuro
 src/utils/storage.ts       → persistência do histórico (AsyncStorage)
 src/utils/historySchema.ts → formato do histórico (schema Zod v2) e migração da v1
 src/utils/feedback.ts      → vibração + alerta padrão de validação
@@ -61,7 +62,7 @@ Padrões estabelecidos:
 - Nomes de componentes em PascalCase, um componente por arquivo, `export default` no fim
 - Funções auxiliares em camelCase, arrow functions com tipos explícitos de retorno
 - Comentários e textos de UI em português brasileiro
-- **Nunca hardcodar cores, espaçamentos ou fontes** — sempre importar de `src/constants/theme.ts`
+- **Nunca hardcodar cores, espaçamentos ou fontes.** Espaçamentos e fontes vêm de `src/constants/theme.ts`. Cores vêm do tema atual: `const useStyles = createThemedStyles((colors) => ({ ... }))` no lugar de `StyleSheet.create` e, para cores fora do StyleSheet (ex: `color` de ícone), `const colors = useColors()`. Use o token pelo **papel** (`surface`, `accentText`, `text.secondary`), ver DESIGN.md
 - Números na UI usam `fontFamily: FONTS.mono` (ou `monoSemiBold`) com `fontVariant: ['tabular-nums']`
 - Todo elemento interativo tem `accessibilityLabel`, `accessibilityRole` e, quando útil, `accessibilityHint`
 - Estilos com `StyleSheet.create`, chaves em ordem alfabética (o lint avisa)
@@ -102,6 +103,9 @@ Build de produção/publicação: via **EAS (Expo Application Services)** — ai
 - **ESLint flat config com `eslint-config-expo`**: caminho oficial do Expo; substituiu 6 plugins instalados à mão.
 - **`react-native-safe-area-context`**: o `SafeAreaView` do `react-native` está depreciado.
 - **Prettier com `endOfLine: "auto"`**: o desenvolvimento acontece no Windows (CRLF); sem isso o format:check briga com o git.
+- **Modo escuro seguindo o celular**: `userInterfaceStyle: "automatic"` no `app.json` + `useColorScheme` do React Native. O `expo-system-ui` é obrigatório para isso funcionar em builds de Android (documentação do Expo).
+- **`createThemedStyles` monta os dois StyleSheets uma vez**: o hook só escolhe entre o claro e o escuro, sem recriar estilos a cada render.
+- **Contraste testado no CI** (`contrast.test.ts`): cor nova tem que passar no WCAG AA nos dois temas.
 - **Geist Sans/Mono com `tabular-nums`**: decisão do `DESIGN.md` — números com largura fixa alinham em tabelas e não "dançam" ao digitar.
 - **Nível de pace separado da aparência**: `domain/levels.ts` só diz qual é o nível (`'elite'`, `'beginner'`...); texto, emoji e cor ficam em `constants/paceLevels.ts`. A mesma regra serve para modo escuro ou outro idioma. Fundos claros recebem texto escuro para cumprir contraste WCAG.
 - **Validação devolve código de erro, não texto**: a regra não muda se a frase mudar, e o `Record<ValidationError, string>` obriga todo código novo a ter mensagem.
