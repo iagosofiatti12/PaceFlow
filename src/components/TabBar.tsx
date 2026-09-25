@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { Tabs } from 'expo-router';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '../constants/theme';
+import { SPACING, RADIUS, FONT_SIZES, FONTS } from '../constants/theme';
+import { createThemedStyles, useColors } from '../hooks/useTheme';
 
 // Props que o navegador de abas do Expo Router entrega para uma barra customizada
 // (estado das abas + objeto de navegação). Derivadas do próprio componente Tabs,
@@ -22,6 +23,8 @@ const TAB_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
  * Quem decide qual aba está ativa agora é o Expo Router; esta barra só desenha.
  */
 const TabBar: React.FC<TabBarProps> = ({ state, descriptors, navigation }) => {
+  const styles = useStyles();
+  const colors = useColors();
   return (
     <View style={styles.tabContainer}>
       {state.routes.map((route, index) => {
@@ -57,7 +60,7 @@ const TabBar: React.FC<TabBarProps> = ({ state, descriptors, navigation }) => {
             <Ionicons
               name={TAB_ICONS[route.name] ?? 'ellipse-outline'}
               size={20}
-              color={isActive ? COLORS.primary : COLORS.text.light}
+              color={isActive ? colors.accent : colors.iconMuted}
               style={styles.tabIcon}
             />
             <Text style={[styles.tabText, isActive && styles.tabTextActive]}>{label}</Text>
@@ -68,7 +71,7 @@ const TabBar: React.FC<TabBarProps> = ({ state, descriptors, navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((colors) => ({
   pressed: {
     opacity: 0.7,
   },
@@ -84,30 +87,30 @@ const styles = StyleSheet.create({
   },
   // Um único sinal de aba ativa (ver DESIGN.md): pílula laranja-clara
   tabActive: {
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: colors.accentSoft,
   },
   tabContainer: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.surface,
     borderRadius: RADIUS.lg,
     elevation: 4,
     flexDirection: 'row',
     marginBottom: 0,
     marginHorizontal: SPACING.lg,
     padding: 6,
-    shadowColor: COLORS.primary,
+    shadowColor: colors.accent,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 12,
   },
   tabText: {
-    color: COLORS.text.tertiary,
+    color: colors.text.tertiary,
     fontFamily: FONTS.medium,
     fontSize: FONT_SIZES.md,
   },
   tabTextActive: {
-    color: COLORS.primary,
+    color: colors.accentText,
     fontFamily: FONTS.semiBold,
   },
-});
+}));
 
 export default TabBar;

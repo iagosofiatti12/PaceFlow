@@ -1,7 +1,8 @@
 import React from 'react';
-import { Text, Pressable, StyleSheet } from 'react-native';
+import { Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '../../constants/theme';
+import { SPACING, RADIUS, FONT_SIZES, FONTS } from '../../constants/theme';
+import { createThemedStyles, useColors } from '../../hooks/useTheme';
 
 interface ButtonProps {
   title: string;
@@ -25,6 +26,8 @@ const Button: React.FC<ButtonProps> = ({
   accessibilityLabel,
   accessibilityHint,
 }) => {
+  const styles = useStyles();
+  const colors = useColors();
   const isPrimary = variant === 'primary';
 
   return (
@@ -42,7 +45,7 @@ const Button: React.FC<ButtonProps> = ({
         <Ionicons
           name={icon}
           size={20}
-          color={isPrimary ? COLORS.white : COLORS.primary}
+          color={isPrimary ? colors.onAccent : colors.accentText}
           style={styles.buttonIcon}
         />
       )}
@@ -51,7 +54,7 @@ const Button: React.FC<ButtonProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((colors) => ({
   buttonIcon: {
     marginRight: SPACING.xs,
   },
@@ -61,7 +64,7 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     alignItems: 'center',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.accentStrong,
     borderRadius: RADIUS.md,
     elevation: 4,
     flex: 1,
@@ -69,21 +72,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.md + 2,
-    shadowColor: COLORS.primary,
+    shadowColor: colors.accent,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 12,
   },
   primaryButtonText: {
-    color: COLORS.white,
+    color: colors.onAccent,
     fontFamily: FONTS.semiBold,
     fontSize: FONT_SIZES.lg,
     letterSpacing: 0.3,
   },
   secondaryButton: {
     alignItems: 'center',
-    backgroundColor: COLORS.white,
-    borderColor: COLORS.border,
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
     borderRadius: RADIUS.md,
     borderWidth: 2,
     flex: 1,
@@ -92,10 +95,10 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.md + 2,
   },
   secondaryButtonText: {
-    color: COLORS.text.muted,
+    color: colors.text.secondary,
     fontFamily: FONTS.medium,
     fontSize: FONT_SIZES.lg,
   },
-});
+}));
 
 export default Button;

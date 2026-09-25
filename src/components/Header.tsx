@@ -1,8 +1,10 @@
 import React from 'react';
-import { View, Image, StyleSheet, useWindowDimensions } from 'react-native';
-import { COLORS, SPACING } from '../constants/theme';
+import { View, Image, useWindowDimensions } from 'react-native';
+import { SPACING } from '../constants/theme';
+import { createThemedStyles } from '../hooks/useTheme';
 
 const Header: React.FC = () => {
+  const styles = useStyles();
   // useWindowDimensions (e não Dimensions.get fora do componente) acompanha
   // rotação, tablets e celulares dobráveis: a largura se atualiza sozinha
   const { width } = useWindowDimensions();
@@ -20,11 +22,11 @@ const Header: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((colors) => ({
   // Header compacto (ver DESIGN.md): logo ~44px alinhada à esquerda,
   // devolvendo espaço vertical para o conteúdo
   header: {
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     paddingBottom: SPACING.xs,
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.sm,
@@ -33,6 +35,6 @@ const styles = StyleSheet.create({
     height: 44,
     maxWidth: 110,
   },
-});
+}));
 
 export default Header;

@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, TextInput, StyleSheet } from 'react-native';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '../../constants/theme';
+import { View, Text, TextInput } from 'react-native';
+import { SPACING, RADIUS, FONT_SIZES, FONTS } from '../../constants/theme';
 import type { MaskedField } from '../../hooks/useMaskedField';
+import { createThemedStyles, useColors } from '../../hooks/useTheme';
 
 interface TimeInputProps {
   label: string;
@@ -25,61 +26,69 @@ const TimeBlock: React.FC<TimeBlockProps> = ({
   unit,
   accessibilityLabel,
   accessibilityHint,
-}) => (
-  <View style={styles.timeBlock}>
-    <TextInput
-      style={styles.timeInput}
-      value={field.value}
-      onChangeText={field.onChangeText}
-      keyboardType="number-pad"
-      placeholder={placeholder}
-      placeholderTextColor={COLORS.text.light}
-      maxLength={2}
-      accessibilityLabel={accessibilityLabel}
-      accessibilityHint={accessibilityHint}
-    />
-    <Text style={styles.timeUnit}>{unit}</Text>
-  </View>
-);
+}) => {
+  const styles = useStyles();
+  const colors = useColors();
+  return (
+    <View style={styles.timeBlock}>
+      <TextInput
+        style={styles.timeInput}
+        value={field.value}
+        onChangeText={field.onChangeText}
+        keyboardType="number-pad"
+        placeholder={placeholder}
+        placeholderTextColor={colors.text.placeholder}
+        maxLength={2}
+        accessibilityLabel={accessibilityLabel}
+        accessibilityHint={accessibilityHint}
+      />
+      <Text style={styles.timeUnit}>{unit}</Text>
+    </View>
+  );
+};
 
 /** Campo de tempo total no formato h : min : seg (extraído do PaceCalculator). */
-const TimeInput: React.FC<TimeInputProps> = ({ label, hours, minutes, seconds }) => (
-  <View style={styles.inputGroup}>
-    <Text style={styles.label}>{label}</Text>
-    <View style={styles.timeRow}>
-      <TimeBlock
-        field={hours}
-        placeholder="0"
-        unit="h"
-        accessibilityLabel="Horas"
-        accessibilityHint="Digite as horas"
-      />
-      <Text style={styles.timeSeparator}>:</Text>
-      <TimeBlock
-        field={minutes}
-        placeholder="00"
-        unit="min"
-        accessibilityLabel="Minutos"
-        accessibilityHint="Digite os minutos"
-      />
-      <Text style={styles.timeSeparator}>:</Text>
-      <TimeBlock
-        field={seconds}
-        placeholder="00"
-        unit="seg"
-        accessibilityLabel="Segundos"
-        accessibilityHint="Digite os segundos"
-      />
-    </View>
-  </View>
-);
+const TimeInput: React.FC<TimeInputProps> = ({ label, hours, minutes, seconds }) => {
+  const styles = useStyles();
 
-const styles = StyleSheet.create({
+  return (
+    <View style={styles.inputGroup}>
+      <Text style={styles.label}>{label}</Text>
+      <View style={styles.timeRow}>
+        <TimeBlock
+          field={hours}
+          placeholder="0"
+          unit="h"
+          accessibilityLabel="Horas"
+          accessibilityHint="Digite as horas"
+        />
+        <Text style={styles.timeSeparator}>:</Text>
+        <TimeBlock
+          field={minutes}
+          placeholder="00"
+          unit="min"
+          accessibilityLabel="Minutos"
+          accessibilityHint="Digite os minutos"
+        />
+        <Text style={styles.timeSeparator}>:</Text>
+        <TimeBlock
+          field={seconds}
+          placeholder="00"
+          unit="seg"
+          accessibilityLabel="Segundos"
+          accessibilityHint="Digite os segundos"
+        />
+      </View>
+    </View>
+  );
+};
+
+const useStyles = createThemedStyles((colors) => ({
   inputGroup: {
     marginBottom: SPACING.lg,
   },
   label: {
-    color: COLORS.text.label,
+    color: colors.text.label,
     fontFamily: FONTS.medium,
     fontSize: FONT_SIZES.md,
     letterSpacing: 0.3,
@@ -90,11 +99,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   timeInput: {
-    backgroundColor: COLORS.input,
-    borderColor: COLORS.border,
+    backgroundColor: colors.surfaceMuted,
+    borderColor: colors.border,
     borderRadius: RADIUS.md,
     borderWidth: 2,
-    color: COLORS.text.primary,
+    color: colors.text.primary,
     fontFamily: FONTS.mono,
     fontSize: 24,
     fontVariant: ['tabular-nums'],
@@ -108,17 +117,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   timeSeparator: {
-    color: COLORS.borderLight,
+    color: colors.borderStrong,
     fontFamily: FONTS.mono,
     fontSize: 24,
     marginHorizontal: SPACING.sm,
   },
   timeUnit: {
-    color: COLORS.text.tertiary,
+    color: colors.text.tertiary,
     fontFamily: FONTS.medium,
     fontSize: FONT_SIZES.xs,
     marginTop: 6,
   },
-});
+}));
 
 export default TimeInput;

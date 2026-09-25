@@ -1,19 +1,22 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, Pressable, Alert } from 'react-native';
+import { View, Text, FlatList, Pressable, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '../constants/theme';
+import { SPACING, RADIUS, FONT_SIZES, FONTS } from '../constants/theme';
 import { getHistory, deleteHistoryItem, clearHistory, type HistoryItem } from '../utils/storage';
 import { formatRelativeDate } from '../format/dates';
 import { formatPace, formatSecondsToTime } from '../format/time';
 import { calculatePace } from '../domain/pace';
 import Card from './ui/Card';
+import { createThemedStyles, useColors } from '../hooks/useTheme';
 
 interface HistoryTabProps {
   onSelectItem: (item: HistoryItem) => void;
 }
 
 const HistoryTab: React.FC<HistoryTabProps> = ({ onSelectItem }) => {
+  const styles = useStyles();
+  const colors = useColors();
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
@@ -84,17 +87,17 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ onSelectItem }) => {
           accessibilityHint="Toque para abrir este cálculo na aba Pace"
         >
           <View style={styles.itemHeader}>
-            <Ionicons name="speedometer" size={16} color={COLORS.primary} />
+            <Ionicons name="speedometer" size={16} color={colors.accent} />
             <Text style={styles.itemPace}>{pace} /km</Text>
           </View>
 
           <View style={styles.itemDetails}>
             <View style={styles.detailRow}>
-              <Ionicons name="navigate" size={12} color={COLORS.text.secondary} />
+              <Ionicons name="navigate" size={12} color={colors.text.secondary} />
               <Text style={styles.detailText}>{distance} km</Text>
             </View>
             <View style={styles.detailRow}>
-              <Ionicons name="time" size={12} color={COLORS.text.secondary} />
+              <Ionicons name="time" size={12} color={colors.text.secondary} />
               <Text style={styles.detailText}>{time}</Text>
             </View>
           </View>
@@ -110,7 +113,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ onSelectItem }) => {
           accessibilityLabel={`Excluir cálculo de ${distance} km`}
           accessibilityHint="Pede confirmação antes de excluir"
         >
-          <Ionicons name="trash-outline" size={20} color={COLORS.danger} />
+          <Ionicons name="trash-outline" size={20} color={colors.danger} />
         </Pressable>
       </View>
     );
@@ -119,7 +122,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ onSelectItem }) => {
   if (history.length === 0) {
     return (
       <Card style={styles.emptyContainer}>
-        <Ionicons name="time-outline" size={64} color={COLORS.text.light} />
+        <Ionicons name="time-outline" size={64} color={colors.iconMuted} />
         <Text style={styles.emptyTitle}>Nenhum cálculo salvo</Text>
         <Text style={styles.emptyDescription}>
           Seus cálculos de pace aparecerão aqui automaticamente
@@ -156,13 +159,13 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ onSelectItem }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((colors) => ({
   clearButton: {
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.xs,
   },
   clearButtonText: {
-    color: COLORS.danger,
+    color: colors.danger,
     fontFamily: FONTS.medium,
     fontSize: FONT_SIZES.sm,
   },
@@ -178,7 +181,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   detailText: {
-    color: COLORS.text.secondary,
+    color: colors.text.secondary,
     fontFamily: FONTS.mono,
     fontSize: FONT_SIZES.sm,
     fontVariant: ['tabular-nums'],
@@ -190,14 +193,14 @@ const styles = StyleSheet.create({
     padding: SPACING.xxl,
   },
   emptyDescription: {
-    color: COLORS.text.secondary,
+    color: colors.text.secondary,
     fontFamily: FONTS.regular,
     fontSize: FONT_SIZES.md,
     marginTop: SPACING.sm,
     textAlign: 'center',
   },
   emptyTitle: {
-    color: COLORS.text.primary,
+    color: colors.text.primary,
     fontFamily: FONTS.semiBold,
     fontSize: FONT_SIZES.xl,
     marginTop: SPACING.md,
@@ -211,7 +214,7 @@ const styles = StyleSheet.create({
   // Mais respiro entre e dentro dos itens (ver DESIGN.md)
   historyItem: {
     alignItems: 'center',
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     borderRadius: RADIUS.md,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -223,7 +226,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   itemDate: {
-    color: COLORS.text.light,
+    color: colors.text.tertiary,
     fontFamily: FONTS.regular,
     fontSize: FONT_SIZES.xs,
     marginTop: 2,
@@ -240,7 +243,7 @@ const styles = StyleSheet.create({
   },
   // O pace é a âncora visual do item (ver DESIGN.md)
   itemPace: {
-    color: COLORS.text.primary,
+    color: colors.text.primary,
     fontFamily: FONTS.monoSemiBold,
     fontSize: FONT_SIZES.lg,
     fontVariant: ['tabular-nums'],
@@ -253,10 +256,10 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   title: {
-    color: COLORS.text.primary,
+    color: colors.text.primary,
     fontFamily: FONTS.semiBold,
     fontSize: FONT_SIZES.xxl,
   },
-});
+}));
 
 export default HistoryTab;
