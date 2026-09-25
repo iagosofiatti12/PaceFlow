@@ -34,11 +34,11 @@ app/index.tsx              → aba Pace (rota "/"); recebe ?restore=<id> para re
 app/time.tsx, table.tsx, history.tsx → abas Tempo, Tabela e Histórico (rotas /time, /table, /history)
 src/components/            → um componente por aba (cada um gerencia o PRÓPRIO estado) + Header e TabBar
 src/components/ui/         → componentes reutilizáveis: Card, ScreenHeader, InputField, TimeInput, Button, ButtonRow, ResultCard, KeyboardScreen
-src/constants/theme.ts     → TODOS os tokens: paletas LIGHT_COLORS/DARK_COLORS, PACE_LEVEL_COLORS, SPACING, RADIUS, FONT_SIZES, FONTS
+src/constants/theme.ts     → TODOS os tokens: paletas LIGHT_COLORS/DARK_COLORS, PACE_LEVEL_COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE
 src/constants/messages.ts  → textos das mensagens de validação (um por código de erro)
 src/constants/paceLevels.ts→ aparência de cada nível de pace (rótulo, emoji, cores)
 src/domain/                → regra de negócio pura, só números: pace, parciais, níveis, limites
-src/format/                → texto ↔ número: máscaras de digitação, formatação de tempo, datas relativas
+src/format/                → texto ↔ número: máscaras de digitação, tempo, distância (vírgula decimal), datas relativas
 src/validation/rules.ts    → valida o texto dos campos e devolve o número convertido ou um código de erro
 src/hooks/useMaskedField.ts→ estado de um campo com máscara (value, onChangeText, clear)
 src/hooks/useTheme.ts      → useColors() e createThemedStyles(): cores do tema claro/escuro
@@ -64,6 +64,8 @@ Padrões estabelecidos:
 - Comentários e textos de UI em português brasileiro
 - **Nunca hardcodar cores, espaçamentos ou fontes.** Espaçamentos e fontes vêm de `src/constants/theme.ts`. Cores vêm do tema atual: `const useStyles = createThemedStyles((colors) => ({ ... }))` no lugar de `StyleSheet.create` e, para cores fora do StyleSheet (ex: `color` de ícone), `const colors = useColors()`. Use o token pelo **papel** (`surface`, `accentText`, `text.secondary`), ver DESIGN.md
 - Números na UI usam `fontFamily: FONTS.mono` (ou `monoSemiBold`) com `fontVariant: ['tabular-nums']`
+- Distância na tela sempre com vírgula decimal: `formatKm(km)`, nunca `km.toString()`; para ler o campo, `parseKm(texto)`
+- Texto em elemento de largura fixa (botão, aba, campo, célula, número grande) leva `maxFontSizeMultiplier={FONT_SCALE.control}` (ou `.display`); texto corrido fica sem teto
 - Todo elemento interativo tem `accessibilityLabel`, `accessibilityRole` e, quando útil, `accessibilityHint`
 - Estilos com `StyleSheet.create`, chaves em ordem alfabética (o lint avisa)
 - Formatação é do Prettier (config em `.prettierrc`) — não discutir estilo manualmente
@@ -104,6 +106,8 @@ Build de produção/publicação: via **EAS (Expo Application Services)** — ai
 - **`react-native-safe-area-context`**: o `SafeAreaView` do `react-native` está depreciado.
 - **Prettier com `endOfLine: "auto"`**: o desenvolvimento acontece no Windows (CRLF); sem isso o format:check briga com o git.
 - **Modo escuro seguindo o celular**: `userInterfaceStyle: "automatic"` no `app.json` + `useColorScheme` do React Native. O `expo-system-ui` é obrigatório para isso funcionar em builds de Android (documentação do Expo).
+- **Splash com `expo-splash-screen`**: o plugin no `app.json` define a splash clara e a escura, e o `app/_layout.tsx` a segura na tela (`preventAutoHideAsync`) até as fontes carregarem. Se as fontes falharem, o app abre mesmo assim, com a fonte do sistema. A splash só aparece de verdade em build de preview/produção; o Expo Go mostra a dele.
+- **Teto de ampliação só onde a largura é fixa** (`FONT_SCALE`): respeita quem aumenta a fonte do celular sem deixar botão, aba ou número grande estourar a tela.
 - **`createThemedStyles` monta os dois StyleSheets uma vez**: o hook só escolhe entre o claro e o escuro, sem recriar estilos a cada render.
 - **Contraste testado no CI** (`contrast.test.ts`): cor nova tem que passar no WCAG AA nos dois temas.
 - **Geist Sans/Mono com `tabular-nums`**: decisão do `DESIGN.md` — números com largura fixa alinham em tabelas e não "dançam" ao digitar.

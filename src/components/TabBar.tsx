@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { Tabs } from 'expo-router';
-import { SPACING, RADIUS, FONT_SIZES, FONTS } from '../constants/theme';
+import { SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE } from '../constants/theme';
 import { createThemedStyles, useColors } from '../hooks/useTheme';
 
 // Props que o navegador de abas do Expo Router entrega para uma barra customizada
@@ -63,7 +63,16 @@ const TabBar: React.FC<TabBarProps> = ({ state, descriptors, navigation }) => {
               color={isActive ? colors.accent : colors.iconMuted}
               style={styles.tabIcon}
             />
-            <Text style={[styles.tabText, isActive && styles.tabTextActive]}>{label}</Text>
+            {/* Quatro abas dividem a largura: com fonte ampliada, o rótulo
+                encolhe para caber numa linha em vez de quebrar */}
+            <Text
+              style={[styles.tabText, isActive && styles.tabTextActive]}
+              maxFontSizeMultiplier={FONT_SCALE.control}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+            >
+              {label}
+            </Text>
           </Pressable>
         );
       })}

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Tabs } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import * as SplashScreen from 'expo-splash-screen';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import {
   useFonts,
@@ -14,6 +15,11 @@ import Header from '../src/components/Header';
 import TabBar from '../src/components/TabBar';
 import { createThemedStyles } from '../src/hooks/useTheme';
 
+// Mantém a splash (logo sobre o fundo do tema) na tela até as fontes carregarem,
+// em vez de mostrar um instante de tela vazia. Ela some com um fade curto.
+SplashScreen.preventAutoHideAsync();
+SplashScreen.setOptions({ duration: 300, fade: true });
+
 // Layout raiz do Expo Router: tudo o que aparece em TODAS as telas mora aqui
 // (fontes, área segura, logo e barra de abas). Cada aba é um arquivo desta pasta:
 // index.tsx (Pace), time.tsx, table.tsx e history.tsx.
@@ -22,7 +28,7 @@ export default function RootLayout(): React.ReactElement | null {
   const styles = useStyles();
 
   // Carrega as fontes Geist antes de mostrar a interface
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     Geist_400Regular,
     Geist_500Medium,
     Geist_600SemiBold,
@@ -30,8 +36,18 @@ export default function RootLayout(): React.ReactElement | null {
     GeistMono_600SemiBold,
   });
 
+  // Fontes prontas (ou falharam: nesse caso o app abre com a fonte do sistema,
+  // em vez de ficar preso na splash para sempre)
+  const ready = fontsLoaded || fontError !== null;
+
+  useEffect(() => {
+    if (ready) {
+      SplashScreen.hide();
+    }
+  }, [ready]);
+
   // Enquanto as fontes carregam (fração de segundo), a splash continua na tela
-  if (!fontsLoaded) {
+  if (!ready) {
     return null;
   }
 

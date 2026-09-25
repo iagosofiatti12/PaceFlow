@@ -91,7 +91,7 @@ _(Fase 2a: resolvido. Todas as combinações passam no AA nos dois temas, com te
 
 Soluções: laranja de texto `#BF4B17` (4.96:1), cinzas `#6B6B6B` (5.3:1), vermelho mais escuro.
 Também: modo escuro, `maxFontSizeMultiplier` no número grande, vírgula decimal ("5,0"),
-ícone do app real.
+ícone do app real. _(Fase 2a: modo escuro. Fase 2b: fonte ampliada, vírgula decimal e splash com o logo. Pendente: ícone do app.)_
 
 ## 5. UX
 

@@ -26,12 +26,17 @@ describe('formatTimeInput', () => {
 });
 
 describe('formatDistanceInput', () => {
-  it('deve aceitar números com ponto decimal', () => {
-    expect(formatDistanceInput('10.5')).toBe('10.5');
+  it('deve manter a vírgula decimal', () => {
+    expect(formatDistanceInput('10,5')).toBe('10,5');
   });
 
-  it('deve converter vírgula em ponto', () => {
-    expect(formatDistanceInput('10,5')).toBe('10.5');
+  it('deve trocar ponto por vírgula (teclados que só têm ponto)', () => {
+    expect(formatDistanceInput('10.5')).toBe('10,5');
+  });
+
+  it('deve ignorar um segundo separador decimal', () => {
+    expect(formatDistanceInput('10,5,')).toBeNull();
+    expect(formatDistanceInput('10,5.')).toBeNull();
   });
 
   it('deve rejeitar letras retornando null', () => {

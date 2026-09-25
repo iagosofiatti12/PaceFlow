@@ -7,6 +7,11 @@ describe('validateDistance', () => {
     expect(validateDistance('21.0975')).toEqual({ valid: true, value: 21.0975 });
   });
 
+  it('deve aceitar vírgula decimal, como o brasileiro digita', () => {
+    expect(validateDistance('21,0975')).toEqual({ valid: true, value: 21.0975 });
+    expect(validateDistance('0,1')).toEqual({ valid: true, value: 0.1 });
+  });
+
   it('deve rejeitar distância vazia', () => {
     expect(validateDistance('')).toEqual({ valid: false, error: 'distance.empty' });
   });
