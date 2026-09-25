@@ -20,7 +20,7 @@ Público: corredores amadores brasileiros. Todo texto de UI é em **português b
 - **AsyncStorage** (`@react-native-async-storage/async-storage`) para o histórico
 - **Fontes**: Geist Sans e Geist Mono via `@expo-google-fonts/*`, carregadas com `useFonts` no `App.tsx`
 - **Lint**: ESLint 9 flat config (`eslint.config.js`) com `eslint-config-expo` + `eslint-config-prettier`
-- **Testes**: Jest com preset `jest-expo`; testes em `src/**/__tests__/*.test.ts`
+- **Testes**: Jest com preset `jest-expo` + `@testing-library/react-native` (hooks); testes em `src/**/__tests__/*.test.ts`
 - **Hooks de git**: Husky + lint-staged (ESLint + Prettier nos arquivos staged)
 - **CI**: GitHub Actions (`.github/workflows/ci.yml`) — lint, typecheck, format:check e testes
 
@@ -29,21 +29,26 @@ Público: corredores amadores brasileiros. Todo texto de UI é em **português b
 ```
 App.tsx                    → raiz: aba ativa, animação de fade, item restaurado do histórico
 src/components/            → um componente por aba (cada um gerencia o PRÓPRIO estado)
-src/components/ui/         → componentes reutilizáveis: Card, InputField, Button, ButtonRow, ResultCard
+src/components/ui/         → componentes reutilizáveis: Card, ScreenHeader, InputField, TimeInput, Button, ButtonRow, ResultCard
 src/constants/theme.ts     → TODOS os tokens: COLORS, SPACING, RADIUS, FONT_SIZES, FONTS
-src/types.ts               → tipos compartilhados (TabKey, PaceFeedback)
-src/utils/paceHelpers.ts   → cálculos, validações e máscaras (funções puras, todas testadas)
+src/constants/messages.ts  → textos das mensagens de validação (um por código de erro)
+src/constants/paceLevels.ts→ aparência de cada nível de pace (rótulo, emoji, cores)
+src/domain/                → regra de negócio pura, só números: pace, parciais, níveis, limites
+src/format/                → texto ↔ número: máscaras de digitação, formatação de tempo, datas relativas
+src/validation/rules.ts    → valida o texto dos campos e devolve o número convertido ou um código de erro
+src/hooks/useMaskedField.ts→ estado de um campo com máscara (value, onChangeText, clear)
+src/types.ts               → tipos compartilhados de UI (TabKey)
 src/utils/storage.ts       → persistência do histórico (AsyncStorage)
 src/utils/feedback.ts      → vibração + alerta padrão de validação
-src/utils/dates.ts         → datas relativas do histórico (Hoje/Ontem/N dias atrás)
 docs/AUDITORIA.md          → auditoria técnica e roadmap do revamp (fases 0–5)
 ```
 
 Padrões estabelecidos:
 
 - **Estado local**: cada aba é dona do próprio estado. O `App.tsx` só conhece a aba ativa e o `restoredItem` (que preenche o `PaceCalculator` via prop `initialItem` + `key`). Não recriar estado global.
-- **Lógica pura em `utils/`**: componentes não fazem cálculo; chamam funções de `paceHelpers.ts`. Toda função nova em `utils/` nasce com teste.
-- **Fluxo de validação**: validar com helpers → em erro, `showValidationError(mensagem)` → em sucesso, `notifySuccess()`.
+- **Camadas de lógica pura**: componentes não fazem cálculo. `domain/` só trabalha com números (sem texto de tela nem cores), `format/` converte texto ↔ número e `validation/` valida os campos. Toda função nova nessas pastas (e em `hooks/`) nasce com teste; o CI exige cobertura mínima de 90% nelas.
+- **Fluxo de validação**: `const r = validateDistance(texto)` → se `!r.valid`, `showValidationError(r.error)` (o código vira texto via `constants/messages.ts`) → se válido, usar `r.value` (já é número) e chamar `notifySuccess()`.
+- **Campos com máscara**: `const distance = useMaskedField(formatDistanceInput)` em vez de `useState` + handler manual.
 
 ## Convenções de código
 
@@ -90,7 +95,9 @@ Build de produção/publicação: via **EAS (Expo Application Services)** — ai
 - **`react-native-safe-area-context`**: o `SafeAreaView` do `react-native` está depreciado.
 - **Prettier com `endOfLine: "auto"`**: o desenvolvimento acontece no Windows (CRLF); sem isso o format:check briga com o git.
 - **Geist Sans/Mono com `tabular-nums`**: decisão do `DESIGN.md` — números com largura fixa alinham em tabelas e não "dançam" ao digitar.
-- **Cores do feedback de pace com `textColor` dinâmico**: fundos claros recebem texto escuro para cumprir contraste WCAG.
+- **Nível de pace separado da aparência**: `domain/levels.ts` só diz qual é o nível (`'elite'`, `'beginner'`...); texto, emoji e cor ficam em `constants/paceLevels.ts`. A mesma regra serve para modo escuro ou outro idioma. Fundos claros recebem texto escuro para cumprir contraste WCAG.
+- **Validação devolve código de erro, não texto**: a regra não muda se a frase mudar, e o `Record<ValidationError, string>` obriga todo código novo a ter mensagem.
+- **`Pressable` em vez de `TouchableOpacity`**: API atual do React Native, com estilo de "pressionado" controlado por nós.
 - **Id do histórico = timestamp + sufixo aleatório**: `Date.now()` sozinho colidia em cálculos no mesmo milissegundo.
 - **Histórico limitado a 10 itens**: mantém o AsyncStorage leve e a lista útil.
 - **Tempo máximo de 99:59:59**: o campo de horas tem 2 dígitos e o limite cobre ultramaratonas (coerente com os 500 km de distância).
