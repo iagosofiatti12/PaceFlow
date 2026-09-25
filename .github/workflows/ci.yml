@@ -8,6 +8,12 @@ on:
     branches: [main]
   pull_request:
 
+# Se chegar um push novo no mesmo PR, cancela a execução antiga
+# (não faz sentido gastar minutos de CI testando um commit já superado)
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     name: Lint, tipos e testes
@@ -41,5 +47,12 @@ jobs:
       - name: Formatação (Prettier)
         run: npm run format:check
 
-      - name: Testes (Jest)
-        run: npm test
+      # --coverage também aplica o piso de cobertura do jest.config.js
+      - name: Testes (Jest) com cobertura
+        run: npm run test:coverage
+
+      # expo-doctor confere se as versões das libs batem com o SDK do Expo
+      # e se a configuração do app é válida — pega incompatibilidades antes
+      # de elas virarem um build quebrado no celular
+      - name: Saúde do projeto Expo (expo-doctor)
+        run: npx expo-doctor@latest
