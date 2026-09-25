@@ -1,54 +1,69 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import type { Tabs } from 'expo-router';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '../constants/theme';
-import type { TabKey } from '../types';
 
-interface Tab {
-  key: TabKey;
-  label: string;
-  icon: keyof typeof Ionicons.glyphMap;
-}
+// Props que o navegador de abas do Expo Router entrega para uma barra customizada
+// (estado das abas + objeto de navegação). Derivadas do próprio componente Tabs,
+// para não depender de um pacote interno do Expo Router.
+type TabBarProps = Parameters<NonNullable<React.ComponentProps<typeof Tabs>['tabBar']>>[0];
 
-interface TabBarProps {
-  activeTab: TabKey;
-  onTabChange: (tab: TabKey) => void;
-}
+// Ícone de cada aba, pelo nome do arquivo da rota em app/
+const TAB_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
+  index: 'speedometer-outline',
+  time: 'time-outline',
+  table: 'list-outline',
+  history: 'archive-outline',
+};
 
-const TABS: Tab[] = [
-  { key: 'pace', label: 'Pace', icon: 'speedometer-outline' },
-  { key: 'time', label: 'Tempo', icon: 'time-outline' },
-  { key: 'table', label: 'Tabela', icon: 'list-outline' },
-  { key: 'history', label: 'Histórico', icon: 'archive-outline' },
-];
-
-const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => {
+/**
+ * Barra de abas no estilo do app (pílula laranja-clara na aba ativa, ver DESIGN.md).
+ * Quem decide qual aba está ativa agora é o Expo Router; esta barra só desenha.
+ */
+const TabBar: React.FC<TabBarProps> = ({ state, descriptors, navigation }) => {
   return (
     <View style={styles.tabContainer}>
-      {TABS.map((tab) => (
-        <Pressable
-          key={tab.key}
-          style={({ pressed }) => [
-            styles.tab,
-            activeTab === tab.key && styles.tabActive,
-            pressed && styles.pressed,
-          ]}
-          onPress={() => onTabChange(tab.key)}
-          accessibilityRole="tab"
-          accessibilityState={{ selected: activeTab === tab.key }}
-          accessibilityLabel={`Aba ${tab.label}`}
-        >
-          <Ionicons
-            name={tab.icon}
-            size={20}
-            color={activeTab === tab.key ? COLORS.primary : COLORS.text.light}
-            style={styles.tabIcon}
-          />
-          <Text style={[styles.tabText, activeTab === tab.key && styles.tabTextActive]}>
-            {tab.label}
-          </Text>
-        </Pressable>
-      ))}
+      {state.routes.map((route, index) => {
+        const isActive = state.index === index;
+        const label = descriptors[route.key].options.title ?? route.name;
+
+        const handlePress = (): void => {
+          // Avisa o navegador do toque (padrão do React Navigation) e só troca
+          // de aba se ninguém cancelou o evento e ela ainda não está ativa
+          const event = navigation.emit({
+            type: 'tabPress',
+            target: route.key,
+            canPreventDefault: true,
+          });
+          if (!isActive && !event.defaultPrevented) {
+            navigation.navigate(route.name, route.params);
+          }
+        };
+
+        return (
+          <Pressable
+            key={route.key}
+            style={({ pressed }) => [
+              styles.tab,
+              isActive && styles.tabActive,
+              pressed && styles.pressed,
+            ]}
+            onPress={handlePress}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: isActive }}
+            accessibilityLabel={`Aba ${label}`}
+          >
+            <Ionicons
+              name={TAB_ICONS[route.name] ?? 'ellipse-outline'}
+              size={20}
+              color={isActive ? COLORS.primary : COLORS.text.light}
+              style={styles.tabIcon}
+            />
+            <Text style={[styles.tabText, isActive && styles.tabTextActive]}>{label}</Text>
+          </Pressable>
+        );
+      })}
     </View>
   );
 };

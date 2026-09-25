@@ -53,6 +53,12 @@ export const saveCalculation = async (
   }
 };
 
+/** Busca um item do histórico pelo id (usado ao restaurar um cálculo na aba Pace). */
+export const findHistoryItem = async (id: string): Promise<HistoryItem | null> => {
+  const history = await getHistory();
+  return history.find((item) => item.id === id) ?? null;
+};
+
 export const clearHistory = async (): Promise<void> => {
   try {
     await AsyncStorage.removeItem(STORAGE_KEY);

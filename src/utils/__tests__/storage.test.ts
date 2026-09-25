@@ -1,5 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { saveCalculation, getHistory, clearHistory, deleteHistoryItem } from '../storage';
+import {
+  saveCalculation,
+  getHistory,
+  clearHistory,
+  deleteHistoryItem,
+  findHistoryItem,
+} from '../storage';
 
 // Usa o mock oficial da biblioteca: um "AsyncStorage de mentira" que
 // guarda os dados em memória só durante o teste
@@ -130,6 +136,21 @@ describe('storage', () => {
 
       const history = await getHistory();
       expect(history.map((item) => item.id)).toEqual(['ok']);
+    });
+  });
+
+  describe('findHistoryItem', () => {
+    it('deve encontrar o item pelo id', async () => {
+      await saveCalculation(5, 1800);
+      await saveCalculation(10, 3600);
+      const [latest] = await getHistory();
+
+      expect(await findHistoryItem(latest.id)).toEqual(latest);
+    });
+
+    it('deve devolver null quando o id não existe (ex: item apagado)', async () => {
+      await saveCalculation(5, 1800);
+      expect(await findHistoryItem('nao-existe')).toBeNull();
     });
   });
 
