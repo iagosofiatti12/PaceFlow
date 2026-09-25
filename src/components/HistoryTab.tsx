@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, Pressable, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from 'expo-router';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '../constants/theme';
 import { getHistory, deleteHistoryItem, clearHistory, type HistoryItem } from '../utils/storage';
 import { formatRelativeDate } from '../format/dates';
@@ -16,14 +17,19 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ onSelectItem }) => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
-  const loadHistory = async (): Promise<void> => {
+  const loadHistory = useCallback(async (): Promise<void> => {
     const data = await getHistory();
     setHistory(data);
-  };
-
-  useEffect(() => {
-    loadHistory();
   }, []);
+
+  // Recarrega sempre que a aba ganha foco. Com o Expo Router as abas ficam
+  // montadas ao trocar, então um useEffect de "montou" rodaria só uma vez
+  // e cálculos novos não apareceriam
+  useFocusEffect(
+    useCallback(() => {
+      loadHistory();
+    }, [loadHistory]),
+  );
 
   const handleRefresh = async (): Promise<void> => {
     setRefreshing(true);

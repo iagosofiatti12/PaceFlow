@@ -17,20 +17,23 @@ Público: corredores amadores brasileiros. Todo texto de UI é em **português b
 
 - **Expo SDK 54** (managed workflow — as pastas `/android` e `/ios` são geradas, nunca editadas ou commitadas)
 - **React Native 0.81 + React 19 + TypeScript estrito**
+- **Expo Router 6** para navegação: cada aba é um arquivo em `app/` (rotas por arquivo)
 - **AsyncStorage** (`@react-native-async-storage/async-storage`) para o histórico
 - **Zod 4** para validar o formato do histórico ao ler do aparelho
-- **Fontes**: Geist Sans e Geist Mono via `@expo-google-fonts/*`, carregadas com `useFonts` no `App.tsx`
+- **Fontes**: Geist Sans e Geist Mono via `@expo-google-fonts/*`, carregadas com `useFonts` no `app/_layout.tsx`
 - **Lint**: ESLint 9 flat config (`eslint.config.js`) com `eslint-config-expo` + `eslint-config-prettier`
-- **Testes**: Jest com preset `jest-expo` + `@testing-library/react-native` (hooks); testes em `src/**/__tests__/*.test.ts`
+- **Testes**: Jest com preset `jest-expo` + `@testing-library/react-native` (hooks) + `expo-router/testing-library` (navegação); testes em `src/**/__tests__/*.test.ts(x)` — nunca dentro de `app/`, onde todo arquivo vira rota
 - **Hooks de git**: Husky + lint-staged (ESLint + Prettier nos arquivos staged)
 - **CI**: GitHub Actions (`.github/workflows/ci.yml`) — lint, typecheck, format:check e testes
 
 ## Arquitetura
 
 ```
-App.tsx                    → raiz: aba ativa, animação de fade, item restaurado do histórico
-src/components/            → um componente por aba (cada um gerencia o PRÓPRIO estado)
-src/components/ui/         → componentes reutilizáveis: Card, ScreenHeader, InputField, TimeInput, Button, ButtonRow, ResultCard
+app/_layout.tsx            → layout raiz: fontes, área segura, logo e navegador de abas (Tabs)
+app/index.tsx              → aba Pace (rota "/"); recebe ?restore=<id> para restaurar um cálculo
+app/time.tsx, table.tsx, history.tsx → abas Tempo, Tabela e Histórico (rotas /time, /table, /history)
+src/components/            → um componente por aba (cada um gerencia o PRÓPRIO estado) + Header e TabBar
+src/components/ui/         → componentes reutilizáveis: Card, ScreenHeader, InputField, TimeInput, Button, ButtonRow, ResultCard, KeyboardScreen
 src/constants/theme.ts     → TODOS os tokens: COLORS, SPACING, RADIUS, FONT_SIZES, FONTS
 src/constants/messages.ts  → textos das mensagens de validação (um por código de erro)
 src/constants/paceLevels.ts→ aparência de cada nível de pace (rótulo, emoji, cores)
@@ -38,7 +41,6 @@ src/domain/                → regra de negócio pura, só números: pace, parci
 src/format/                → texto ↔ número: máscaras de digitação, formatação de tempo, datas relativas
 src/validation/rules.ts    → valida o texto dos campos e devolve o número convertido ou um código de erro
 src/hooks/useMaskedField.ts→ estado de um campo com máscara (value, onChangeText, clear)
-src/types.ts               → tipos compartilhados de UI (TabKey)
 src/utils/storage.ts       → persistência do histórico (AsyncStorage)
 src/utils/historySchema.ts → formato do histórico (schema Zod v2) e migração da v1
 src/utils/feedback.ts      → vibração + alerta padrão de validação
@@ -47,7 +49,9 @@ docs/AUDITORIA.md          → auditoria técnica e roadmap do revamp (fases 0�
 
 Padrões estabelecidos:
 
-- **Estado local**: cada aba é dona do próprio estado. O `App.tsx` só conhece a aba ativa e o `restoredItem` (que preenche o `PaceCalculator` via prop `initialItem` + `key`). Não recriar estado global.
+- **Estado local**: cada aba é dona do próprio estado. Não recriar estado global.
+- **Navegação pela rota**: para mandar algo de uma aba para outra, use parâmetros de rota. Ex: o Histórico chama `router.navigate({ pathname: '/', params: { restore: id, t } })` e a aba Pace lê com `useLocalSearchParams`. Os arquivos em `app/` são finos: só montam a tela com os componentes de `src/components/`.
+- **Abas ficam montadas ao trocar**: os campos não se apagam ao mudar de aba. Tela que mostra dados salvos (Histórico) recarrega com `useFocusEffect`, e não com `useEffect`.
 - **Camadas de lógica pura**: componentes não fazem cálculo. `domain/` só trabalha com números (sem texto de tela nem cores), `format/` converte texto ↔ número e `validation/` valida os campos. Toda função nova nessas pastas (e em `hooks/`) nasce com teste; o CI exige cobertura mínima de 90% nelas.
 - **Fluxo de validação**: `const r = validateDistance(texto)` → se `!r.valid`, `showValidationError(r.error)` (o código vira texto via `constants/messages.ts`) → se válido, usar `r.value` (já é número) e chamar `notifySuccess()`.
 - **Campos com máscara**: `const distance = useMaskedField(formatDistanceInput)` em vez de `useState` + handler manual.
@@ -78,6 +82,7 @@ Padrões estabelecidos:
 ```bash
 npm install          # instala dependências (o Husky se configura sozinho via prepare)
 npm start            # servidor Expo (testar com Expo Go no celular)
+# ao mexer em app.json/plugins ou trocar de branch com rotas novas: npx expo start --clear
 npm run android      # abre no emulador Android (requer Android Studio) ou dispositivo
 npm test             # roda a suíte de testes (Jest)
 npm run typecheck    # tsc --noEmit
@@ -91,7 +96,8 @@ Build de produção/publicação: via **EAS (Expo Application Services)** — ai
 
 ## Decisões técnicas e o porquê
 
-- **Estado local por aba (sem Redux/Context)**: o app é pequeno; estado global era prop drilling desnecessário. As abas desmontam ao trocar (reset natural dos campos).
+- **Estado local por aba (sem Redux/Context)**: o app é pequeno; estado global era prop drilling desnecessário.
+- **Expo Router com `Tabs` (estável) + `TabBar` próprio**: dá botão voltar do Android, links diretos (`paceflow://history`) e uma tela por arquivo. As abas customizadas de `expo-router/ui` ainda são experimentais, então usamos as `Tabs` estáveis com `tabBarPosition: 'top'` e a nossa barra no `tabBar`, mantendo o visual do DESIGN.md. O fade entre abas é a opção `animation: 'fade'`.
 - **`jest-expo` em vez do preset `react-native`**: mocka os módulos nativos do Expo automaticamente, sem `transformIgnorePatterns` manual.
 - **ESLint flat config com `eslint-config-expo`**: caminho oficial do Expo; substituiu 6 plugins instalados à mão.
 - **`react-native-safe-area-context`**: o `SafeAreaView` do `react-native` está depreciado.
@@ -106,6 +112,7 @@ Build de produção/publicação: via **EAS (Expo Application Services)** — ai
 - **Zod valida o histórico ao ler**: o que vem do aparelho pode ter sido gravado por uma versão antiga ou estar corrompido. Itens inválidos são descartados um a um, sem perder o resto. Mudou o formato? Crie a v3 em `historySchema.ts` e uma migração da v2, nunca altere a v2 no lugar.
 - **Tempo máximo de 99:59:59**: o campo de horas tem 2 dígitos e o limite cobre ultramaratonas (coerente com os 500 km de distância).
 - **Pace arredondado ao segundo** (não truncado): mesmo critério do cálculo de tempo, para as abas baterem entre si.
+- **`react-dom` fixado em 19.1.0, mesmo sem versão web**: o `expo-router` traz componentes web (Radix) que exigem `react-dom`. Sem fixar, o npm instala a versão mais nova, que pede um React mais novo que o do SDK 54, e o `npm ci` do CI quebra. Não remover; atualizar junto com o `react` quando o SDK mudar.
 - **Lockfile gerado com npm 11** (o mesmo do Node 24 do CI): npm de versões diferentes escrevem o `package-lock.json` de formas diferentes e o `npm ci` quebra.
 
 ## O que NUNCA fazer neste repositório

@@ -10,6 +10,12 @@ PaceFlow é uma ferramenta simples e intuitiva para corredores calcularem seu pa
 
 ```
 Paceflow/
+├── app/                     # Rotas do Expo Router (uma aba por arquivo)
+│   ├── _layout.tsx          # Layout raiz: fontes, logo e barra de abas
+│   ├── index.tsx            # Aba Pace (rota "/")
+│   ├── time.tsx             # Aba Tempo
+│   ├── table.tsx            # Aba Tabela
+│   └── history.tsx          # Aba Histórico
 ├── src/
 │   ├── components/          # Componentes das abas do app
 │   │   ├── Header.tsx
@@ -23,6 +29,7 @@ Paceflow/
 │   │       ├── ButtonRow.tsx
 │   │       ├── Card.tsx
 │   │       ├── InputField.tsx
+│   │       ├── KeyboardScreen.tsx
 │   │       ├── ResultCard.tsx
 │   │       ├── ScreenHeader.tsx
 │   │       └── TimeInput.tsx
@@ -43,17 +50,14 @@ Paceflow/
 │   │   └── rules.ts
 │   ├── hooks/               # Hooks reutilizáveis
 │   │   └── useMaskedField.ts
-│   ├── types.ts             # Tipos compartilhados de UI
 │   └── utils/               # Efeitos colaterais: storage e feedback
 │       ├── storage.ts
 │       ├── historySchema.ts
 │       └── feedback.ts
-│   (cada pasta tem seus testes em __tests__/)
+│   (cada pasta tem seus testes em __tests__/; src/__tests__ tem os testes de navegação)
 ├── assets/                  # Imagens e recursos
 ├── docs/AUDITORIA.md        # Auditoria técnica e roadmap do revamp
 ├── .github/workflows/ci.yml # CI: lint + tipos + formatação + testes + expo-doctor
-├── App.tsx                  # Componente raiz (abas e navegação)
-├── index.js                 # Ponto de entrada
 ├── app.json                 # Configuração do Expo
 ├── tsconfig.json            # Configuração do TypeScript
 ├── jest.config.js           # Configuração dos testes (preset jest-expo)
@@ -67,6 +71,7 @@ Paceflow/
 
 - **React Native + Expo (SDK 54)** - Framework para desenvolvimento mobile
 - **TypeScript** - Superset JavaScript com tipagem estática
+- **Expo Router** - Navegação baseada em arquivos (cada aba é um arquivo em `app/`)
 - **AsyncStorage** - Persistência local do histórico
 - **Zod** - Validação do formato do histórico salvo no aparelho
 - **Geist Sans / Geist Mono** - Tipografia da interface e dos números

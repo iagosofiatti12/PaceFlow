@@ -2,6 +2,7 @@
   "expo": {
     "name": "PaceFlow",
     "slug": "PaceFlow",
+    "scheme": "paceflow",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -25,6 +26,6 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["expo-font"]
+    "plugins": ["expo-router", "expo-font"]
   }
 }
