@@ -31,11 +31,14 @@ Paceflow/
 │       ├── paceHelpers.ts
 │       ├── storage.ts
 │       ├── feedback.ts
+│       ├── dates.ts
 │       └── __tests__/
+│           ├── dates.test.ts
 │           ├── paceHelpers.test.ts
 │           └── storage.test.ts
 ├── assets/                  # Imagens e recursos
-├── .github/workflows/ci.yml # CI: lint + tipos + formatação + testes
+├── docs/AUDITORIA.md        # Auditoria técnica e roadmap do revamp
+├── .github/workflows/ci.yml # CI: lint + tipos + formatação + testes + expo-doctor
 ├── App.tsx                  # Componente raiz (abas e navegação)
 ├── index.js                 # Ponto de entrada
 ├── app.json                 # Configuração do Expo
@@ -87,12 +90,11 @@ npm run ios
 
 ### Desenvolvimento e Execução
 
-| Comando           | O que faz               | Quando usar                                      |
-| ----------------- | ----------------------- | ------------------------------------------------ |
-| `npm start`       | Inicia o servidor Expo  | Toda vez que for desenvolver/testar o app        |
-| `npm run android` | Abre o app no Android   | Quando quiser testar no emulador/celular Android |
-| `npm run ios`     | Abre o app no iOS       | Quando quiser testar no emulador/iPhone (só Mac) |
-| `npm run web`     | Abre o app no navegador | Para testes rápidos no navegador                 |
+| Comando           | O que faz              | Quando usar                                      |
+| ----------------- | ---------------------- | ------------------------------------------------ |
+| `npm start`       | Inicia o servidor Expo | Toda vez que for desenvolver/testar o app        |
+| `npm run android` | Abre o app no Android  | Quando quiser testar no emulador/celular Android |
+| `npm run ios`     | Abre o app no iOS      | Quando quiser testar no emulador/iPhone (só Mac) |
 
 ### Testes e Verificações
 
@@ -161,4 +163,4 @@ Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou pull r
 
 ## 📄 Licença
 
-Este projeto é open source e está disponível sob a licença MIT.
+Este projeto é open source e está disponível sob a licença MIT (ver arquivo `LICENSE`).
