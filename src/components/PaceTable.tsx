@@ -2,72 +2,58 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '../constants/theme';
-import {
-  formatDistanceInput,
-  formatPaceInput,
-  validateDistance,
-  validatePaceFormat,
-  paceToSeconds,
-  generatePaceTable,
-  PaceTableRow,
-} from '../utils/paceHelpers';
+import { generateSplits, type Split } from '../domain/splits';
+import { formatDistanceInput, formatPaceInput } from '../format/masks';
+import { formatSecondsToTime } from '../format/time';
+import { validateDistance, validatePace } from '../validation/rules';
+import { useMaskedField } from '../hooks/useMaskedField';
 import { showValidationError, notifySuccess } from '../utils/feedback';
 import Card from './ui/Card';
+import ScreenHeader from './ui/ScreenHeader';
 import InputField from './ui/InputField';
 import Button from './ui/Button';
 import ButtonRow from './ui/ButtonRow';
 
 const PaceTable: React.FC = () => {
-  const [distance, setDistance] = useState<string>('');
-  const [pace, setPace] = useState<string>('');
-  const [table, setTable] = useState<PaceTableRow[] | null>(null);
-
-  const handleDistanceChange = (value: string): void => {
-    const formatted = formatDistanceInput(value);
-    if (formatted !== null) {
-      setDistance(formatted);
-    }
-  };
+  const distance = useMaskedField(formatDistanceInput);
+  const pace = useMaskedField(formatPaceInput);
+  const [splits, setSplits] = useState<Split[] | null>(null);
 
   const handleClear = (): void => {
-    setDistance('');
-    setPace('');
-    setTable(null);
+    distance.clear();
+    pace.clear();
+    setSplits(null);
   };
 
-  const generateTable = (): void => {
-    const distanceValidation = validateDistance(distance);
-    if (!distanceValidation.valid) {
-      showValidationError(distanceValidation.message);
+  const handleGenerate = (): void => {
+    const distanceResult = validateDistance(distance.value);
+    if (!distanceResult.valid) {
+      showValidationError(distanceResult.error);
       return;
     }
 
-    const paceValidation = validatePaceFormat(pace);
-    if (!paceValidation.valid) {
-      showValidationError(paceValidation.message);
+    const paceResult = validatePace(pace.value);
+    if (!paceResult.valid) {
+      showValidationError(paceResult.error);
       return;
     }
-
-    const dist = parseFloat(distance);
-    const paceInSeconds = paceToSeconds(pace);
-    const tableData = generatePaceTable(dist, paceInSeconds);
 
     notifySuccess();
-    setTable(tableData);
+    setSplits(generateSplits(distanceResult.value, paceResult.value));
   };
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <Card style={styles.calculatorCard}>
-        <Text style={styles.sectionTitle}>Tabela de ritmo</Text>
-        <Text style={styles.sectionDescription}>
-          Gere uma tabela km a km para acompanhar sua prova
-        </Text>
+        <ScreenHeader
+          title="Tabela de ritmo"
+          description="Gere uma tabela km a km para acompanhar sua prova"
+        />
 
         <InputField
           label="Distância da prova"
-          value={distance}
-          onChangeText={handleDistanceChange}
+          value={distance.value}
+          onChangeText={distance.onChangeText}
           unit="km"
           placeholder="10.0"
           accessibilityLabel="Campo de distância da prova"
@@ -76,8 +62,8 @@ const PaceTable: React.FC = () => {
 
         <InputField
           label="Pace desejado"
-          value={pace}
-          onChangeText={(value) => setPace(formatPaceInput(value))}
+          value={pace.value}
+          onChangeText={pace.onChangeText}
           unit="/km"
           placeholder="5:30"
           keyboardType="number-pad"
@@ -91,7 +77,7 @@ const PaceTable: React.FC = () => {
           <Button
             title="Gerar tabela"
             icon="list"
-            onPress={generateTable}
+            onPress={handleGenerate}
             accessibilityLabel="Gerar tabela"
             accessibilityHint="Toque para gerar a tabela de ritmo"
           />
@@ -106,7 +92,7 @@ const PaceTable: React.FC = () => {
         </ButtonRow>
       </Card>
 
-      {table && table.length > 0 && (
+      {splits && splits.length > 0 && (
         <View style={styles.tableContainer}>
           <View style={styles.tableHeader}>
             <Text style={styles.tableHeaderText}>KM</Text>
@@ -114,21 +100,22 @@ const PaceTable: React.FC = () => {
             <Text style={styles.tableHeaderText}>Total</Text>
           </View>
 
-          {table.map((row, index) => (
+          {splits.map((row, index) => (
             <View
-              key={index}
+              // O km é único em cada linha: chave estável (o índice mudaria o sentido ao regerar)
+              key={row.km}
               style={[
                 styles.tableRow,
                 index % 2 === 0 && styles.tableRowEven,
-                index === table.length - 1 && styles.tableRowLast,
+                index === splits.length - 1 && styles.tableRowLast,
               ]}
             >
               <Text style={styles.tableCell}>
                 {Number.isInteger(row.km) ? row.km : row.km.toFixed(1)}
               </Text>
-              <Text style={styles.tableCellTime}>{row.time}</Text>
+              <Text style={styles.tableCellTime}>{formatSecondsToTime(row.splitSeconds)}</Text>
               <Text style={[styles.tableCellTime, styles.tableCellTotal]}>
-                {row.cumulativeTime}
+                {formatSecondsToTime(row.cumulativeSeconds)}
               </Text>
             </View>
           ))}
@@ -136,7 +123,7 @@ const PaceTable: React.FC = () => {
           <View style={styles.tableSummary}>
             <Ionicons name="flag" size={18} color={COLORS.primary} />
             <Text style={styles.summaryText}>
-              Tempo final: {table[table.length - 1].cumulativeTime}
+              Tempo final: {formatSecondsToTime(splits[splits.length - 1].cumulativeSeconds)}
             </Text>
           </View>
         </View>
@@ -153,19 +140,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.lg,
-  },
-  sectionDescription: {
-    color: COLORS.text.secondary,
-    fontFamily: FONTS.regular,
-    fontSize: FONT_SIZES.md,
-    lineHeight: 22,
-    marginBottom: SPACING.lg,
-  },
-  sectionTitle: {
-    color: COLORS.text.primary,
-    fontFamily: FONTS.semiBold,
-    fontSize: FONT_SIZES.xxl,
-    marginBottom: SPACING.sm,
   },
   summaryText: {
     color: COLORS.primary,

@@ -1,71 +1,56 @@
 import React, { useState } from 'react';
-import { Text, StyleSheet } from 'react-native';
-import { COLORS, SPACING, FONT_SIZES, FONTS } from '../constants/theme';
-import {
-  formatDistanceInput,
-  formatPaceInput,
-  validateDistance,
-  validatePaceFormat,
-  paceToSeconds,
-  calculateTime,
-} from '../utils/paceHelpers';
+import { calculateTotalTime } from '../domain/pace';
+import { formatDistanceInput, formatPaceInput } from '../format/masks';
+import { formatSecondsToTime } from '../format/time';
+import { validateDistance, validatePace } from '../validation/rules';
+import { useMaskedField } from '../hooks/useMaskedField';
 import { showValidationError, notifySuccess } from '../utils/feedback';
 import Card from './ui/Card';
+import ScreenHeader from './ui/ScreenHeader';
 import InputField from './ui/InputField';
 import Button from './ui/Button';
 import ButtonRow from './ui/ButtonRow';
 import ResultCard from './ui/ResultCard';
 
 const TimeCalculator: React.FC = () => {
-  const [distance, setDistance] = useState<string>('');
-  const [pace, setPace] = useState<string>('');
-  const [result, setResult] = useState<string | null>(null);
-
-  const handleDistanceChange = (value: string): void => {
-    const formatted = formatDistanceInput(value);
-    if (formatted !== null) {
-      setDistance(formatted);
-    }
-  };
+  const distance = useMaskedField(formatDistanceInput);
+  const pace = useMaskedField(formatPaceInput);
+  const [totalSeconds, setTotalSeconds] = useState<number | null>(null);
 
   const handleClear = (): void => {
-    setDistance('');
-    setPace('');
-    setResult(null);
+    distance.clear();
+    pace.clear();
+    setTotalSeconds(null);
   };
 
-  const calculateTimeTotal = (): void => {
-    const distanceValidation = validateDistance(distance);
-    if (!distanceValidation.valid) {
-      showValidationError(distanceValidation.message);
+  const handleCalculate = (): void => {
+    const distanceResult = validateDistance(distance.value);
+    if (!distanceResult.valid) {
+      showValidationError(distanceResult.error);
       return;
     }
 
-    const paceValidation = validatePaceFormat(pace);
-    if (!paceValidation.valid) {
-      showValidationError(paceValidation.message);
+    const paceResult = validatePace(pace.value);
+    if (!paceResult.valid) {
+      showValidationError(paceResult.error);
       return;
     }
-
-    const dist = parseFloat(distance);
-    const paceInSeconds = paceToSeconds(pace);
-    const { formatted } = calculateTime(dist, paceInSeconds);
 
     notifySuccess();
-    setResult(formatted);
+    setTotalSeconds(calculateTotalTime(distanceResult.value, paceResult.value));
   };
 
   return (
     <Card>
-      <Text style={styles.sectionTitle}>Calcular tempo</Text>
-      <Text style={styles.sectionDescription}>
-        Insira a distância e seu pace para descobrir quanto tempo levará
-      </Text>
+      <ScreenHeader
+        title="Calcular tempo"
+        description="Insira a distância e seu pace para descobrir quanto tempo levará"
+      />
 
       <InputField
         label="Distância"
-        value={distance}
-        onChangeText={handleDistanceChange}
+        value={distance.value}
+        onChangeText={distance.onChangeText}
         unit="km"
         placeholder="5.0"
         accessibilityLabel="Campo de distância em quilômetros"
@@ -74,8 +59,8 @@ const TimeCalculator: React.FC = () => {
 
       <InputField
         label="Pace desejado"
-        value={pace}
-        onChangeText={(value) => setPace(formatPaceInput(value))}
+        value={pace.value}
+        onChangeText={pace.onChangeText}
         unit="/km"
         placeholder="5:30"
         keyboardType="number-pad"
@@ -89,7 +74,7 @@ const TimeCalculator: React.FC = () => {
         <Button
           title="Calcular"
           icon="timer"
-          onPress={calculateTimeTotal}
+          onPress={handleCalculate}
           accessibilityLabel="Calcular tempo"
           accessibilityHint="Toque para calcular o tempo total"
         />
@@ -103,31 +88,16 @@ const TimeCalculator: React.FC = () => {
         />
       </ButtonRow>
 
-      {result && (
+      {totalSeconds !== null && (
         <ResultCard
           label="Tempo estimado"
-          value={result}
-          subtext={result.split(':').length === 3 ? 'horas' : 'minutos'}
+          value={formatSecondsToTime(totalSeconds)}
+          // Decide pelo número, e não contando os ":" do texto formatado
+          subtext={totalSeconds >= 3600 ? 'horas' : 'minutos'}
         />
       )}
     </Card>
   );
 };
-
-const styles = StyleSheet.create({
-  sectionDescription: {
-    color: COLORS.text.secondary,
-    fontFamily: FONTS.regular,
-    fontSize: FONT_SIZES.md,
-    lineHeight: 22,
-    marginBottom: SPACING.lg,
-  },
-  sectionTitle: {
-    color: COLORS.text.primary,
-    fontFamily: FONTS.semiBold,
-    fontSize: FONT_SIZES.xxl,
-    marginBottom: SPACING.sm,
-  },
-});
 
 export default TimeCalculator;

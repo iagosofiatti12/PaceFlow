@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Text, Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '../../constants/theme';
 
@@ -28,8 +28,11 @@ const Button: React.FC<ButtonProps> = ({
   const isPrimary = variant === 'primary';
 
   return (
-    <TouchableOpacity
-      style={isPrimary ? styles.primaryButton : styles.secondaryButton}
+    <Pressable
+      style={({ pressed }) => [
+        isPrimary ? styles.primaryButton : styles.secondaryButton,
+        pressed && styles.pressed,
+      ]}
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? title}
@@ -44,13 +47,17 @@ const Button: React.FC<ButtonProps> = ({
         />
       )}
       <Text style={isPrimary ? styles.primaryButtonText : styles.secondaryButtonText}>{title}</Text>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   buttonIcon: {
     marginRight: SPACING.xs,
+  },
+  // Retorno visual ao tocar (o TouchableOpacity fazia isso sozinho com opacidade 0.2)
+  pressed: {
+    opacity: 0.8,
   },
   primaryButton: {
     alignItems: 'center',
