@@ -42,6 +42,23 @@ temas, cada combinação de texto e fundo usada no app (mínimo 4.5:1 para texto
 com o laranja, e um laranja mais luminoso para texto e ícones. O cabeçalho da tabela usa
 `inverseSurface`, que é escuro no tema claro e claro no escuro.
 
+## Fonte ampliada, números em pt-BR e splash (vale para todo código novo)
+
+**Fonte ampliada (acessibilidade do celular):** texto corrido (títulos, descrições, histórico)
+cresce sem limite, porque quebra linha. Elementos de largura fixa recebem um teto com
+`maxFontSizeMultiplier`, usando os tokens `FONT_SCALE` do `theme.ts`:
+
+- `FONT_SCALE.display` (1.3): o número grande do resultado. Ele também usa `numberOfLines={1}`
+  e `adjustsFontSizeToFit`, para encolher em vez de quebrar.
+- `FONT_SCALE.control` (1.4): botões, abas, campos, unidades e células da tabela.
+
+**Distância com vírgula:** o app mostra "10,5 km", como o brasileiro escreve. O campo aceita
+vírgula ou ponto e sempre exibe vírgula. Para mostrar uma distância, use `formatKm()`
+(`src/format/distance.ts`), nunca `toString()`. Tempo e pace continuam com ":" ("5:30").
+
+**Splash:** o logo sobre o fundo do tema (`#FAF8F5` no claro, `#121110` no escuro), configurada
+no plugin `expo-splash-screen` do `app.json`. Ela fica na tela até as fontes carregarem.
+
 # Auditoria de Design — PaceFlow
 
 Nota geral: 3.3/5. Base de produto madura e com personalidade; maior ganho está em tipografia e consistência de sistema.

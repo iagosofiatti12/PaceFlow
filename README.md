@@ -45,6 +45,7 @@ Paceflow/
 │   ├── format/              # Texto ↔ número: máscaras, tempo, datas
 │   │   ├── masks.ts
 │   │   ├── time.ts
+│   │   ├── distance.ts
 │   │   └── dates.ts
 │   ├── validation/          # Validação dos campos (devolve número ou código de erro)
 │   │   └── rules.ts
@@ -156,6 +157,7 @@ Além disso, o **CI no GitHub** (`.github/workflows/ci.yml`) roda lint, verifica
 - ✅ Histórico dos últimos 10 cálculos (persistido no aparelho)
 - ✅ Validação de entradas com feedback tátil (vibração)
 - ✅ Modo escuro automático (segue o tema do celular)
+- ✅ Distâncias com vírgula decimal ("10,5 km") e suporte à fonte ampliada do celular
 - ✅ Interface responsiva e acessível (contraste WCAG AA verificado por teste)
 
 ## 🏗️ Arquitetura e Boas Práticas
