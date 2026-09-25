@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '../constants/theme';
 import { getHistory, deleteHistoryItem, clearHistory, type HistoryItem } from '../utils/storage';
+import { formatRelativeDate } from '../utils/dates';
 import Card from './ui/Card';
 
 interface HistoryTabProps {
@@ -56,58 +57,53 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ onSelectItem }) => {
     ]);
   };
 
-  const formatDate = (isoDate: string): string => {
-    const date = new Date(isoDate);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  // A linha é um container comum com dois botões irmãos (restaurar e excluir).
+  // Botão dentro de botão confunde o leitor de tela, que não sabe qual ação anunciar.
+  const renderItem = ({ item }: { item: HistoryItem }): React.ReactElement => {
+    const relativeDate = formatRelativeDate(item.date);
 
-    if (diffDays === 0) return 'Hoje';
-    if (diffDays === 1) return 'Ontem';
-    if (diffDays < 7) return `${diffDays} dias atrás`;
-
-    return date.toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: '2-digit',
-    });
-  };
-
-  const renderItem = ({ item }: { item: HistoryItem }): React.ReactElement => (
-    <TouchableOpacity
-      style={styles.historyItem}
-      onPress={() => onSelectItem(item)}
-      activeOpacity={0.7}
-    >
-      <View style={styles.itemContent}>
-        <View style={styles.itemHeader}>
-          <Ionicons name="speedometer" size={16} color={COLORS.primary} />
-          <Text style={styles.itemPace}>{item.pace} /km</Text>
-        </View>
-
-        <View style={styles.itemDetails}>
-          <View style={styles.detailRow}>
-            <Ionicons name="navigate" size={12} color={COLORS.text.secondary} />
-            <Text style={styles.detailText}>{item.distance} km</Text>
+    return (
+      <View style={styles.historyItem}>
+        <TouchableOpacity
+          style={styles.itemContent}
+          onPress={() => onSelectItem(item)}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={`Pace ${item.pace} por km, ${item.distance} km em ${item.time}, ${relativeDate}`}
+          accessibilityHint="Toque para abrir este cálculo na aba Pace"
+        >
+          <View style={styles.itemHeader}>
+            <Ionicons name="speedometer" size={16} color={COLORS.primary} />
+            <Text style={styles.itemPace}>{item.pace} /km</Text>
           </View>
-          <View style={styles.detailRow}>
-            <Ionicons name="time" size={12} color={COLORS.text.secondary} />
-            <Text style={styles.detailText}>{item.time}</Text>
-          </View>
-        </View>
 
-        <Text style={styles.itemDate}>{formatDate(item.date)}</Text>
+          <View style={styles.itemDetails}>
+            <View style={styles.detailRow}>
+              <Ionicons name="navigate" size={12} color={COLORS.text.secondary} />
+              <Text style={styles.detailText}>{item.distance} km</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Ionicons name="time" size={12} color={COLORS.text.secondary} />
+              <Text style={styles.detailText}>{item.time}</Text>
+            </View>
+          </View>
+
+          <Text style={styles.itemDate}>{relativeDate}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => handleDelete(item.id)}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          accessibilityRole="button"
+          accessibilityLabel={`Excluir cálculo de ${item.distance} km`}
+          accessibilityHint="Pede confirmação antes de excluir"
+        >
+          <Ionicons name="trash-outline" size={20} color={COLORS.danger} />
+        </TouchableOpacity>
       </View>
-
-      <TouchableOpacity
-        style={styles.deleteButton}
-        onPress={() => handleDelete(item.id)}
-        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-      >
-        <Ionicons name="trash-outline" size={20} color={COLORS.danger} />
-      </TouchableOpacity>
-    </TouchableOpacity>
-  );
+    );
+  };
 
   if (history.length === 0) {
     return (
@@ -125,7 +121,13 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ onSelectItem }) => {
     <Card style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Histórico</Text>
-        <TouchableOpacity onPress={handleClearAll} style={styles.clearButton}>
+        <TouchableOpacity
+          onPress={handleClearAll}
+          style={styles.clearButton}
+          accessibilityRole="button"
+          accessibilityLabel="Limpar todo o histórico"
+          accessibilityHint="Pede confirmação antes de apagar todos os cálculos"
+        >
           <Text style={styles.clearButtonText}>Limpar tudo</Text>
         </TouchableOpacity>
       </View>
