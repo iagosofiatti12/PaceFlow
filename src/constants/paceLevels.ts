@@ -1,5 +1,5 @@
 import type { PaceLevel } from '../domain/levels';
-import { COLORS } from './theme';
+import { PACE_LEVEL_COLORS } from './theme';
 
 export interface PaceLevelStyle {
   /** Texto do selo, sem emoji (é o que o leitor de tela lê) */
@@ -12,9 +12,9 @@ export interface PaceLevelStyle {
   textColor: string;
 }
 
-const colors = COLORS.paceFeedback;
-const light = COLORS.white;
-const dark = COLORS.paceFeedbackDarkText;
+const colors = PACE_LEVEL_COLORS;
+const light = PACE_LEVEL_COLORS.lightText;
+const dark = PACE_LEVEL_COLORS.darkText;
 
 // Aparência de cada nível. A regra de QUAL nível é fica em src/domain/levels.ts
 export const PACE_LEVELS: Record<PaceLevel, PaceLevelStyle> = {

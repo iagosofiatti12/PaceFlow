@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '../../constants/theme';
+import { View, Text } from 'react-native';
+import { SPACING, RADIUS, FONT_SIZES, FONTS } from '../../constants/theme';
 import type { PaceLevel } from '../../domain/levels';
 import { PACE_LEVELS } from '../../constants/paceLevels';
+import { createThemedStyles } from '../../hooks/useTheme';
 
 interface ResultCardProps {
   label: string;
@@ -18,6 +19,7 @@ interface ResultCardProps {
  * unidade opcional ao lado, texto de apoio e selo de nível opcionais.
  */
 const ResultCard: React.FC<ResultCardProps> = ({ label, value, unit, subtext, level }) => {
+  const styles = useStyles();
   const levelStyle = level ? PACE_LEVELS[level] : null;
 
   return (
@@ -44,7 +46,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ label, value, unit, subtext, le
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((colors) => ({
   feedbackBadge: {
     borderRadius: RADIUS.xl,
     marginTop: SPACING.md,
@@ -57,18 +59,18 @@ const styles = StyleSheet.create({
   },
   resultCard: {
     alignItems: 'center',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.accentStrong,
     borderRadius: RADIUS.xl,
     elevation: 6,
     marginTop: SPACING.xl,
     padding: SPACING.xl,
-    shadowColor: COLORS.primary,
+    shadowColor: colors.accent,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
     shadowRadius: 16,
   },
   resultLabel: {
-    color: COLORS.white,
+    color: colors.onAccent,
     fontFamily: FONTS.medium,
     fontSize: FONT_SIZES.sm,
     letterSpacing: 0.5,
@@ -76,21 +78,21 @@ const styles = StyleSheet.create({
     opacity: 0.95,
   },
   resultSubtext: {
-    color: COLORS.white,
+    color: colors.onAccent,
     fontFamily: FONTS.regular,
     fontSize: FONT_SIZES.sm,
     marginTop: SPACING.xs,
     opacity: 0.85,
   },
   resultUnit: {
-    color: COLORS.white,
+    color: colors.onAccent,
     fontFamily: FONTS.mono,
     fontSize: FONT_SIZES.xl + 4,
     marginLeft: SPACING.xs,
     opacity: 0.9,
   },
   resultValue: {
-    color: COLORS.white,
+    color: colors.onAccent,
     fontFamily: FONTS.mono,
     fontSize: FONT_SIZES.xxxl,
     fontVariant: ['tabular-nums'],
@@ -100,6 +102,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginBottom: SPACING.sm,
   },
-});
+}));
 
 export default ResultCard;

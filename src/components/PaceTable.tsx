@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '../constants/theme';
+import { SPACING, RADIUS, FONT_SIZES, FONTS } from '../constants/theme';
 import { generateSplits, type Split } from '../domain/splits';
 import { formatDistanceInput, formatPaceInput } from '../format/masks';
 import { formatSecondsToTime } from '../format/time';
@@ -13,8 +13,11 @@ import ScreenHeader from './ui/ScreenHeader';
 import InputField from './ui/InputField';
 import Button from './ui/Button';
 import ButtonRow from './ui/ButtonRow';
+import { createThemedStyles, useColors } from '../hooks/useTheme';
 
 const PaceTable: React.FC = () => {
+  const styles = useStyles();
+  const colors = useColors();
   const distance = useMaskedField(formatDistanceInput);
   const pace = useMaskedField(formatPaceInput);
   const [splits, setSplits] = useState<Split[] | null>(null);
@@ -121,7 +124,7 @@ const PaceTable: React.FC = () => {
           ))}
 
           <View style={styles.tableSummary}>
-            <Ionicons name="flag" size={18} color={COLORS.primary} />
+            <Ionicons name="flag" size={18} color={colors.accent} />
             <Text style={styles.summaryText}>
               Tempo final: {formatSecondsToTime(splits[splits.length - 1].cumulativeSeconds)}
             </Text>
@@ -132,7 +135,7 @@ const PaceTable: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((colors) => ({
   calculatorCard: {
     marginBottom: SPACING.lg,
   },
@@ -142,14 +145,14 @@ const styles = StyleSheet.create({
     paddingTop: SPACING.lg,
   },
   summaryText: {
-    color: COLORS.primary,
+    color: colors.accentText,
     fontFamily: FONTS.monoSemiBold,
     fontSize: FONT_SIZES.md,
     fontVariant: ['tabular-nums'],
     marginLeft: SPACING.xs,
   },
   tableCell: {
-    color: COLORS.text.primary,
+    color: colors.text.primary,
     flex: 1,
     fontFamily: FONTS.monoSemiBold,
     fontSize: FONT_SIZES.lg,
@@ -157,7 +160,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   tableCellTime: {
-    color: COLORS.text.secondary,
+    color: colors.text.secondary,
     flex: 1,
     fontFamily: FONTS.mono,
     fontSize: FONT_SIZES.md,
@@ -165,16 +168,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   tableCellTotal: {
-    color: COLORS.primary,
+    color: colors.accentText,
     fontFamily: FONTS.monoSemiBold,
   },
   tableContainer: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.surface,
     borderRadius: RADIUS.xxl,
     elevation: 3,
     marginBottom: SPACING.xl,
     overflow: 'hidden',
-    shadowColor: COLORS.shadow,
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 16,
@@ -182,12 +185,12 @@ const styles = StyleSheet.create({
   // Header neutro/escuro (ver DESIGN.md): o laranja fica reservado
   // para os números que importam (coluna Total e resumo)
   tableHeader: {
-    backgroundColor: COLORS.text.primary,
+    backgroundColor: colors.inverseSurface,
     flexDirection: 'row',
     padding: SPACING.md,
   },
   tableHeaderText: {
-    color: COLORS.white,
+    color: colors.onInverse,
     flex: 1,
     fontFamily: FONTS.medium,
     fontSize: FONT_SIZES.sm,
@@ -195,27 +198,27 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   tableRow: {
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
     borderBottomWidth: 1,
     flexDirection: 'row',
     padding: SPACING.md,
   },
   tableRowEven: {
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   tableRowLast: {
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: colors.accentSoft,
     borderBottomWidth: 0,
   },
   tableSummary: {
     alignItems: 'center',
-    backgroundColor: COLORS.primaryLight,
-    borderTopColor: COLORS.primary,
+    backgroundColor: colors.accentSoft,
+    borderTopColor: colors.accent,
     borderTopWidth: 2,
     flexDirection: 'row',
     justifyContent: 'center',
     padding: SPACING.md,
   },
-});
+}));
 
 export default PaceTable;

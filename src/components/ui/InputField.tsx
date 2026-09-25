@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, TextInput, StyleSheet, KeyboardTypeOptions } from 'react-native';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '../../constants/theme';
+import { View, Text, TextInput, KeyboardTypeOptions } from 'react-native';
+import { SPACING, RADIUS, FONT_SIZES, FONTS } from '../../constants/theme';
+import { createThemedStyles, useColors } from '../../hooks/useTheme';
 
 interface InputFieldProps {
   label: string;
@@ -30,36 +31,40 @@ const InputField: React.FC<InputFieldProps> = ({
   hint,
   accessibilityLabel,
   accessibilityHint,
-}) => (
-  <View style={styles.inputGroup}>
-    <Text style={styles.label}>{label}</Text>
-    <View style={styles.inputWrapper}>
-      <TextInput
-        style={styles.input}
-        value={value}
-        onChangeText={onChangeText}
-        keyboardType={keyboardType}
-        placeholder={placeholder}
-        placeholderTextColor={COLORS.text.light}
-        maxLength={maxLength}
-        accessibilityLabel={accessibilityLabel ?? label}
-        accessibilityHint={accessibilityHint}
-      />
-      {unit && <Text style={styles.inputUnit}>{unit}</Text>}
+}) => {
+  const styles = useStyles();
+  const colors = useColors();
+  return (
+    <View style={styles.inputGroup}>
+      <Text style={styles.label}>{label}</Text>
+      <View style={styles.inputWrapper}>
+        <TextInput
+          style={styles.input}
+          value={value}
+          onChangeText={onChangeText}
+          keyboardType={keyboardType}
+          placeholder={placeholder}
+          placeholderTextColor={colors.text.placeholder}
+          maxLength={maxLength}
+          accessibilityLabel={accessibilityLabel ?? label}
+          accessibilityHint={accessibilityHint}
+        />
+        {unit && <Text style={styles.inputUnit}>{unit}</Text>}
+      </View>
+      {hint && <Text style={styles.hint}>{hint}</Text>}
     </View>
-    {hint && <Text style={styles.hint}>{hint}</Text>}
-  </View>
-);
+  );
+};
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((colors) => ({
   hint: {
-    color: COLORS.text.light,
+    color: colors.text.tertiary,
     fontFamily: FONTS.regular,
     fontSize: FONT_SIZES.xs,
     marginTop: SPACING.xs,
   },
   input: {
-    color: COLORS.text.primary,
+    color: colors.text.primary,
     flex: 1,
     fontFamily: FONTS.mono,
     fontSize: FONT_SIZES.xl,
@@ -70,26 +75,26 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.lg,
   },
   inputUnit: {
-    color: COLORS.primary,
+    color: colors.accentText,
     fontFamily: FONTS.medium,
     fontSize: FONT_SIZES.md,
   },
   inputWrapper: {
     alignItems: 'center',
-    backgroundColor: COLORS.input,
-    borderColor: COLORS.border,
+    backgroundColor: colors.surfaceMuted,
+    borderColor: colors.border,
     borderRadius: RADIUS.md,
     borderWidth: 2,
     flexDirection: 'row',
     paddingRight: SPACING.md,
   },
   label: {
-    color: COLORS.text.label,
+    color: colors.text.label,
     fontFamily: FONTS.medium,
     fontSize: FONT_SIZES.md,
     letterSpacing: 0.3,
     marginBottom: SPACING.sm,
   },
-});
+}));
 
 export default InputField;

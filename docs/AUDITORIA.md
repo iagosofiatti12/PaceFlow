@@ -87,6 +87,8 @@ mais trabalho é a experiência de uso.
 | `#ff6b6b` ("Limpar tudo")                | 2.78:1    | ❌                            |
 | `#AAA` (placeholders, data do histórico) | 2.2:1     | ❌                            |
 
+_(Fase 2a: resolvido. Todas as combinações passam no AA nos dois temas, com teste no CI.)_
+
 Soluções: laranja de texto `#BF4B17` (4.96:1), cinzas `#6B6B6B` (5.3:1), vermelho mais escuro.
 Também: modo escuro, `maxFontSizeMultiplier` no número grande, vírgula decimal ("5,0"),
 ícone do app real.
