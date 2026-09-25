@@ -46,6 +46,7 @@ Paceflow/
 │   ├── types.ts             # Tipos compartilhados de UI
 │   └── utils/               # Efeitos colaterais: storage e feedback
 │       ├── storage.ts
+│       ├── historySchema.ts
 │       └── feedback.ts
 │   (cada pasta tem seus testes em __tests__/)
 ├── assets/                  # Imagens e recursos
@@ -67,6 +68,7 @@ Paceflow/
 - **React Native + Expo (SDK 54)** - Framework para desenvolvimento mobile
 - **TypeScript** - Superset JavaScript com tipagem estática
 - **AsyncStorage** - Persistência local do histórico
+- **Zod** - Validação do formato do histórico salvo no aparelho
 - **Geist Sans / Geist Mono** - Tipografia da interface e dos números
 - **ESLint (eslint-config-expo)** - Análise de código e boas práticas
 - **Prettier** - Formatador automático de código
