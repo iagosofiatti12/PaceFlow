@@ -27,3 +27,22 @@ export const paceToSeconds = (pace: string): number => {
   const [minutes, seconds] = pace.split(':').map(Number);
   return minutes * 60 + seconds;
 };
+
+export interface DurationFields {
+  hours: string;
+  minutes: string;
+  seconds: string;
+}
+
+/**
+ * Segundos → texto dos três campos de tempo, para preencher a aba Pace
+ * ao restaurar um cálculo. Horas zeradas ficam vazias (mostra o placeholder).
+ */
+export const splitDuration = (totalSeconds: number): DurationFields => {
+  const hours = Math.floor(totalSeconds / 3600);
+  return {
+    hours: hours > 0 ? hours.toString() : '',
+    minutes: pad2(Math.floor((totalSeconds % 3600) / 60)),
+    seconds: pad2(totalSeconds % 60),
+  };
+};

@@ -18,6 +18,7 @@ Público: corredores amadores brasileiros. Todo texto de UI é em **português b
 - **Expo SDK 54** (managed workflow — as pastas `/android` e `/ios` são geradas, nunca editadas ou commitadas)
 - **React Native 0.81 + React 19 + TypeScript estrito**
 - **AsyncStorage** (`@react-native-async-storage/async-storage`) para o histórico
+- **Zod 4** para validar o formato do histórico ao ler do aparelho
 - **Fontes**: Geist Sans e Geist Mono via `@expo-google-fonts/*`, carregadas com `useFonts` no `App.tsx`
 - **Lint**: ESLint 9 flat config (`eslint.config.js`) com `eslint-config-expo` + `eslint-config-prettier`
 - **Testes**: Jest com preset `jest-expo` + `@testing-library/react-native` (hooks); testes em `src/**/__tests__/*.test.ts`
@@ -39,6 +40,7 @@ src/validation/rules.ts    → valida o texto dos campos e devolve o número con
 src/hooks/useMaskedField.ts→ estado de um campo com máscara (value, onChangeText, clear)
 src/types.ts               → tipos compartilhados de UI (TabKey)
 src/utils/storage.ts       → persistência do histórico (AsyncStorage)
+src/utils/historySchema.ts → formato do histórico (schema Zod v2) e migração da v1
 src/utils/feedback.ts      → vibração + alerta padrão de validação
 docs/AUDITORIA.md          → auditoria técnica e roadmap do revamp (fases 0–5)
 ```
@@ -100,6 +102,8 @@ Build de produção/publicação: via **EAS (Expo Application Services)** — ai
 - **`Pressable` em vez de `TouchableOpacity`**: API atual do React Native, com estilo de "pressionado" controlado por nós.
 - **Id do histórico = timestamp + sufixo aleatório**: `Date.now()` sozinho colidia em cálculos no mesmo milissegundo.
 - **Histórico limitado a 10 itens**: mantém o AsyncStorage leve e a lista útil.
+- **Histórico guarda dados brutos (v2)**: `{ version: 2, items: [{ id, distanceKm, durationSeconds, createdAt }] }`. O pace e os textos são recalculados na hora de mostrar. A v1 (texto já formatado) é migrada e regravada automaticamente na primeira leitura.
+- **Zod valida o histórico ao ler**: o que vem do aparelho pode ter sido gravado por uma versão antiga ou estar corrompido. Itens inválidos são descartados um a um, sem perder o resto. Mudou o formato? Crie a v3 em `historySchema.ts` e uma migração da v2, nunca altere a v2 no lugar.
 - **Tempo máximo de 99:59:59**: o campo de horas tem 2 dígitos e o limite cobre ultramaratonas (coerente com os 500 km de distância).
 - **Pace arredondado ao segundo** (não truncado): mesmo critério do cálculo de tempo, para as abas baterem entre si.
 - **Lockfile gerado com npm 11** (o mesmo do Node 24 do CI): npm de versões diferentes escrevem o `package-lock.json` de formas diferentes e o `npm ci` quebra.
