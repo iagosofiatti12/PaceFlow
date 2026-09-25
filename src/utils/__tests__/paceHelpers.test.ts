@@ -11,6 +11,7 @@ import {
   calculateTime,
   formatSecondsToTime,
   generatePaceTable,
+  MAX_TIME_SECONDS,
 } from '../paceHelpers';
 
 describe('paceHelpers', () => {
@@ -63,10 +64,23 @@ describe('paceHelpers', () => {
       expect(result.message).toBe('Por favor, insira um tempo válido');
     });
 
-    it('deve rejeitar tempo maior que 24 horas', () => {
+    it('deve aceitar tempos acima de 24 horas (ultramaratonas)', () => {
       const result = validateTime('25', '0', '0');
+      expect(result.valid).toBe(true);
+      expect(result.totalSeconds).toBe(90000);
+    });
+
+    it('deve aceitar exatamente o limite de 99:59:59', () => {
+      const result = validateTime('99', '59', '59');
+      expect(result.valid).toBe(true);
+      expect(result.totalSeconds).toBe(MAX_TIME_SECONDS);
+    });
+
+    it('deve rejeitar tempo maior que 99:59:59', () => {
+      // formatTimeInput já impede isso na digitação; a validação é a segunda barreira
+      const result = validateTime('100', '0', '0');
       expect(result.valid).toBe(false);
-      expect(result.message).toBe('O tempo deve ser menor que 24 horas');
+      expect(result.message).toBe('O tempo deve ser de no máximo 99:59:59');
     });
 
     it('deve tratar campos vazios como zero', () => {
@@ -182,6 +196,18 @@ describe('paceHelpers', () => {
       const result = calculatePaceValue(1805, 5); // 30:05 para 5km
       expect(result.formatted).toBe('6:01');
     });
+
+    it('deve arredondar para o segundo mais próximo, como o calculateTime', () => {
+      // 1499,5 s em 5 km = 299,9 s/km: arredonda para 5:00 (antes truncava para 4:59)
+      expect(calculatePaceValue(1499.5, 5).formatted).toBe('5:00');
+      // 1802 s em 5 km = 360,4 s/km: arredonda para 6:00
+      expect(calculatePaceValue(1802, 5).formatted).toBe('6:00');
+    });
+
+    it('não deve gerar "X:60" ao arredondar', () => {
+      // 359,8 s/km arredonda para 360 s = 6:00, e não "5:60"
+      expect(calculatePaceValue(1799, 5).formatted).toBe('6:00');
+    });
   });
 
   describe('calculateTime', () => {
@@ -238,6 +264,12 @@ describe('paceHelpers', () => {
       const result = getPaceFeedback(230); // 3:50 min/km
       expect(result.text).toContain('elite');
       expect(result.color).toBeDefined();
+    });
+
+    it('deve ter texto de acessibilidade sem emoji', () => {
+      const result = getPaceFeedback(150); // 2:30 min/km
+      expect(result.text).toContain('👽');
+      expect(result.accessibilityText).toBe('Alienígena!');
     });
 
     it('deve retornar feedback avançado para pace entre 4-5 min/km', () => {

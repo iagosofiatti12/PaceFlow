@@ -35,6 +35,8 @@ src/types.ts               → tipos compartilhados (TabKey, PaceFeedback)
 src/utils/paceHelpers.ts   → cálculos, validações e máscaras (funções puras, todas testadas)
 src/utils/storage.ts       → persistência do histórico (AsyncStorage)
 src/utils/feedback.ts      → vibração + alerta padrão de validação
+src/utils/dates.ts         → datas relativas do histórico (Hoje/Ontem/N dias atrás)
+docs/AUDITORIA.md          → auditoria técnica e roadmap do revamp (fases 0–5)
 ```
 
 Padrões estabelecidos:
@@ -91,6 +93,9 @@ Build de produção/publicação: via **EAS (Expo Application Services)** — ai
 - **Cores do feedback de pace com `textColor` dinâmico**: fundos claros recebem texto escuro para cumprir contraste WCAG.
 - **Id do histórico = timestamp + sufixo aleatório**: `Date.now()` sozinho colidia em cálculos no mesmo milissegundo.
 - **Histórico limitado a 10 itens**: mantém o AsyncStorage leve e a lista útil.
+- **Tempo máximo de 99:59:59**: o campo de horas tem 2 dígitos e o limite cobre ultramaratonas (coerente com os 500 km de distância).
+- **Pace arredondado ao segundo** (não truncado): mesmo critério do cálculo de tempo, para as abas baterem entre si.
+- **Lockfile gerado com npm 11** (o mesmo do Node 24 do CI): npm de versões diferentes escrevem o `package-lock.json` de formas diferentes e o `npm ci` quebra.
 
 ## O que NUNCA fazer neste repositório
 

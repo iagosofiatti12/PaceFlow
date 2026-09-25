@@ -101,7 +101,7 @@ const PaceCalculator: React.FC<PaceCalculatorProps> = ({ initialItem }) => {
             <TextInput
               style={styles.timeInput}
               value={hours}
-              onChangeText={(val) => setHours(formatTimeInput(val, 23))}
+              onChangeText={(val) => setHours(formatTimeInput(val, 99))}
               keyboardType="number-pad"
               placeholder="0"
               placeholderTextColor={COLORS.text.light}

@@ -1,17 +1,20 @@
 import React from 'react';
-import { View, Image, StyleSheet, Dimensions } from 'react-native';
+import { View, Image, StyleSheet, useWindowDimensions } from 'react-native';
 import { COLORS, SPACING } from '../constants/theme';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
 const Header: React.FC = () => {
+  // useWindowDimensions (e não Dimensions.get fora do componente) acompanha
+  // rotação, tablets e celulares dobráveis: a largura se atualiza sozinha
+  const { width } = useWindowDimensions();
+
   return (
     <View style={styles.header}>
       <Image
         source={require('../../assets/logo.png')}
-        style={styles.logo}
+        style={[styles.logo, { width: width * 0.28 }]}
         resizeMode="contain"
-        accessibilityLabel="Logo do aplicativo Pace Calculator"
+        accessibilityRole="image"
+        accessibilityLabel="PaceFlow"
       />
     </View>
   );
@@ -29,7 +32,6 @@ const styles = StyleSheet.create({
   logo: {
     height: 44,
     maxWidth: 110,
-    width: SCREEN_WIDTH * 0.28,
   },
 });
 

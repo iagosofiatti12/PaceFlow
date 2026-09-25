@@ -20,6 +20,10 @@ web-build/
 # Metro
 .metro-health-check*
 
+# relatório de cobertura dos testes (gerado por npm run test:coverage).
+# O Prettier 3 também respeita o .gitignore, então o format:check deixa de olhar esta pasta
+coverage/
+
 # debug
 npm-debug.*
 yarn-debug.*
