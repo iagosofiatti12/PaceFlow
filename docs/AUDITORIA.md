@@ -96,8 +96,8 @@ Também: modo escuro, `maxFontSizeMultiplier` no número grande, vírgula decima
 ## 5. UX
 
 1. Cálculo ao vivo; salvar no histórico vira ação explícita. _(Fase 3a: feito, com erros no próprio campo.)_
-2. Distâncias prontas: `5K · 10K · 21,1K · 42,2K`.
-3. Campo de tempo com pulo automático de foco.
+2. Distâncias prontas: `5K · 10K · 21,1K · 42,2K`. _(Fase 3b: feito.)_
+3. Campo de tempo com pulo automático de foco. _(Fase 3b: feito.)_
 4. km ↔ milhas e velocidade em km/h.
 5. Previsão de prova (fórmula de Riegel).
 6. Tabela de parciais com estratégias (constante, negative split) e compartilhamento.

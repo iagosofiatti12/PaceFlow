@@ -33,16 +33,18 @@ app/_layout.tsx            → layout raiz: fontes, área segura, logo e navegad
 app/index.tsx              → aba Pace (rota "/"); recebe ?restore=<id> para restaurar um cálculo
 app/time.tsx, table.tsx, history.tsx → abas Tempo, Tabela e Histórico (rotas /time, /table, /history)
 src/components/            → um componente por aba (cada um gerencia o PRÓPRIO estado) + Header e TabBar
-src/components/ui/         → componentes reutilizáveis: Card, ScreenHeader, InputField, TimeInput, FieldError, Button, ButtonRow, ResultCard, KeyboardScreen
+src/components/ui/         → componentes reutilizáveis: Card, ScreenHeader, InputField, TimeInput, FieldError, DistancePresets, Button, ButtonRow, ResultCard, KeyboardScreen
 src/constants/theme.ts     → TODOS os tokens: paletas LIGHT_COLORS/DARK_COLORS, PACE_LEVEL_COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE
 src/constants/messages.ts  → textos das mensagens de validação (um por código de erro)
 src/constants/paceLevels.ts→ aparência de cada nível de pace (rótulo, emoji, cores)
+src/constants/raceDistances.ts → distâncias dos atalhos (5K, 10K, meia 21,0975, maratona 42,195)
 src/domain/                → regra de negócio pura, só números: pace, parciais, níveis, limites
 src/format/                → texto ↔ número: máscaras de digitação, tempo, distância (vírgula decimal), datas relativas
 src/validation/rules.ts    → valida o texto dos campos e devolve o número convertido ou um código de erro
 src/validation/forms.ts    → avalia o formulário inteiro para o cálculo ao vivo + quando mostrar cada erro
 src/hooks/useMaskedField.ts→ estado de um campo com máscara (value, onChangeText, clear)
 src/hooks/useTheme.ts      → useColors() e createThemedStyles(): cores do tema claro/escuro
+src/hooks/useAutoAdvance.ts→ pula o cursor para o próximo campo de tempo quando o atual fica completo
 src/utils/storage.ts       → persistência do histórico (AsyncStorage)
 src/utils/historySchema.ts → formato do histórico (schema Zod v2) e migração da v1
 src/utils/feedback.ts      → vibração de sucesso (ao salvar no histórico)
@@ -115,6 +117,8 @@ Build de produção/publicação: via **EAS (Expo Application Services)** — ai
 - **Contraste testado no CI** (`contrast.test.ts`): cor nova tem que passar no WCAG AA nos dois temas.
 - **Geist Sans/Mono com `tabular-nums`**: decisão do `DESIGN.md` — números com largura fixa alinham em tabelas e não "dançam" ao digitar.
 - **Nível de pace separado da aparência**: `domain/levels.ts` só diz qual é o nível (`'elite'`, `'beginner'`...); texto, emoji e cor ficam em `constants/paceLevels.ts`. A mesma regra serve para modo escuro ou outro idioma. Fundos claros recebem texto escuro para cumprir contraste WCAG.
+- **Cursor que anda sozinho só quando a pessoa digita**: `useAutoAdvance` pula de horas para minutos e de minutos para segundos, mas só se o texto cresceu e o campo está com foco. Apagar um dígito ou abrir um cálculo restaurado não move o cursor.
+- **Atalhos de distância preenchem o próprio campo** (via `onChangeText`), em vez de ter um estado separado: o atalho fica destacado sempre que o campo tem aquela distância, digitada ou tocada.
 - **Distância com dois códigos de limite** (`distance.min` e `distance.max`): "0" é o começo de "0,5" e não pode acender erro na hora; "600" é erro de verdade e acende.
 - **Validação devolve código de erro, não texto**: a regra não muda se a frase mudar, e o `Record<ValidationError, string>` obriga todo código novo a ter mensagem.
 - **`Pressable` em vez de `TouchableOpacity`**: API atual do React Native, com estilo de "pressionado" controlado por nós.
