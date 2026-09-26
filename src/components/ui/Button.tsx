@@ -11,6 +11,8 @@ interface ButtonProps {
   variant?: 'primary' | 'secondary';
   accessibilityLabel?: string;
   accessibilityHint?: string;
+  /** Desabilitado: não responde ao toque e fica esmaecido */
+  disabled?: boolean;
 }
 
 /**
@@ -25,6 +27,7 @@ const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
   accessibilityLabel,
   accessibilityHint,
+  disabled = false,
 }) => {
   const styles = useStyles();
   const colors = useColors();
@@ -35,8 +38,11 @@ const Button: React.FC<ButtonProps> = ({
       style={({ pressed }) => [
         isPrimary ? styles.primaryButton : styles.secondaryButton,
         pressed && styles.pressed,
+        disabled && styles.disabled,
       ]}
       onPress={onPress}
+      disabled={disabled}
+      accessibilityState={{ disabled }}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? title}
       accessibilityHint={accessibilityHint}
@@ -63,6 +69,10 @@ const Button: React.FC<ButtonProps> = ({
 const useStyles = createThemedStyles((colors) => ({
   buttonIcon: {
     marginRight: SPACING.xs,
+  },
+  // Esmaecido quando desabilitado (a WCAG dispensa contraste em controles inativos)
+  disabled: {
+    opacity: 0.45,
   },
   // Retorno visual ao tocar (o TouchableOpacity fazia isso sozinho com opacidade 0.2)
   pressed: {

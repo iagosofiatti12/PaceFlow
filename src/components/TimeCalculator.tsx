@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
-import { calculateTotalTime } from '../domain/pace';
+import React from 'react';
 import { formatDistanceInput, formatPaceInput } from '../format/masks';
 import { formatSecondsToTime } from '../format/time';
-import { validateDistance, validatePace } from '../validation/rules';
+import { evaluateDistancePaceForm, shouldShowError } from '../validation/forms';
+import { VALIDATION_MESSAGES } from '../constants/messages';
 import { useMaskedField } from '../hooks/useMaskedField';
-import { showValidationError, notifySuccess } from '../utils/feedback';
 import Card from './ui/Card';
 import ScreenHeader from './ui/ScreenHeader';
 import InputField from './ui/InputField';
@@ -15,42 +14,35 @@ import ResultCard from './ui/ResultCard';
 const TimeCalculator: React.FC = () => {
   const distance = useMaskedField(formatDistanceInput);
   const pace = useMaskedField(formatPaceInput);
-  const [totalSeconds, setTotalSeconds] = useState<number | null>(null);
+
+  // Cálculo ao vivo: o tempo total aparece assim que os dois campos são válidos
+  const form = evaluateDistancePaceForm({ distance: distance.value, pace: pace.value });
+
+  const distanceError = shouldShowError(form.errors.distance, distance.touched)
+    ? VALIDATION_MESSAGES[form.errors.distance]
+    : null;
+  const paceError = shouldShowError(form.errors.pace, pace.touched)
+    ? VALIDATION_MESSAGES[form.errors.pace]
+    : null;
 
   const handleClear = (): void => {
     distance.clear();
     pace.clear();
-    setTotalSeconds(null);
-  };
-
-  const handleCalculate = (): void => {
-    const distanceResult = validateDistance(distance.value);
-    if (!distanceResult.valid) {
-      showValidationError(distanceResult.error);
-      return;
-    }
-
-    const paceResult = validatePace(pace.value);
-    if (!paceResult.valid) {
-      showValidationError(paceResult.error);
-      return;
-    }
-
-    notifySuccess();
-    setTotalSeconds(calculateTotalTime(distanceResult.value, paceResult.value));
   };
 
   return (
     <Card>
       <ScreenHeader
         title="Calcular tempo"
-        description="Insira a distância e seu pace para descobrir quanto tempo levará"
+        description="Insira a distância e seu pace: o tempo de prova aparece na hora"
       />
 
       <InputField
         label="Distância"
         value={distance.value}
         onChangeText={distance.onChangeText}
+        onBlur={distance.onBlur}
+        error={distanceError}
         unit="km"
         placeholder="5,0"
         accessibilityLabel="Campo de distância em quilômetros"
@@ -61,6 +53,8 @@ const TimeCalculator: React.FC = () => {
         label="Pace desejado"
         value={pace.value}
         onChangeText={pace.onChangeText}
+        onBlur={pace.onBlur}
+        error={paceError}
         unit="/km"
         placeholder="5:30"
         keyboardType="number-pad"
@@ -70,14 +64,15 @@ const TimeCalculator: React.FC = () => {
         accessibilityHint="Digite o pace em minutos e segundos"
       />
 
-      <ButtonRow>
-        <Button
-          title="Calcular"
-          icon="timer"
-          onPress={handleCalculate}
-          accessibilityLabel="Calcular tempo"
-          accessibilityHint="Toque para calcular o tempo total"
+      {form.value && (
+        <ResultCard
+          label="Tempo estimado"
+          value={formatSecondsToTime(form.value.totalSeconds)}
+          subtext={form.value.totalSeconds >= 3600 ? 'horas' : 'minutos'}
         />
+      )}
+
+      <ButtonRow>
         <Button
           title="Limpar"
           icon="trash-outline"
@@ -87,15 +82,6 @@ const TimeCalculator: React.FC = () => {
           accessibilityHint="Toque para limpar todos os campos"
         />
       </ButtonRow>
-
-      {totalSeconds !== null && (
-        <ResultCard
-          label="Tempo estimado"
-          value={formatSecondsToTime(totalSeconds)}
-          // Decide pelo número, e não contando os ":" do texto formatado
-          subtext={totalSeconds >= 3600 ? 'horas' : 'minutos'}
-        />
-      )}
     </Card>
   );
 };
