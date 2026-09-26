@@ -1,10 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE } from '../constants/theme';
-import { generateSplits } from '../domain/splits';
+import { generateSplits, negativeSplitPaces, type SplitStrategy } from '../domain/splits';
 import { formatDistanceInput, formatPaceInput } from '../format/masks';
-import { formatSecondsToTime } from '../format/time';
+import { formatPace, formatSecondsToTime } from '../format/time';
 import { formatKm } from '../format/distance';
 import { evaluateDistancePaceForm, shouldShowError } from '../validation/forms';
 import { VALIDATION_MESSAGES } from '../constants/messages';
@@ -13,15 +13,26 @@ import Card from './ui/Card';
 import ScreenHeader from './ui/ScreenHeader';
 import InputField from './ui/InputField';
 import DistancePresets from './ui/DistancePresets';
+import SegmentedControl, { type SegmentOption } from './ui/SegmentedControl';
 import Button from './ui/Button';
 import ButtonRow from './ui/ButtonRow';
 import { createThemedStyles, useColors } from '../hooks/useTheme';
+
+const STRATEGIES: readonly SegmentOption<SplitStrategy>[] = [
+  { value: 'even', label: 'Ritmo constante', accessibilityLabel: 'Plano com ritmo constante' },
+  {
+    value: 'negative',
+    label: 'Negative split',
+    accessibilityLabel: 'Plano com negative split: segunda metade mais rápida',
+  },
+];
 
 const PaceTable: React.FC = () => {
   const styles = useStyles();
   const colors = useColors();
   const distance = useMaskedField(formatDistanceInput);
   const pace = useMaskedField(formatPaceInput);
+  const [strategy, setStrategy] = useState<SplitStrategy>('even');
 
   // Tabela ao vivo: aparece e se atualiza assim que os dois campos são válidos
   const form = evaluateDistancePaceForm({ distance: distance.value, pace: pace.value });
@@ -33,10 +44,13 @@ const PaceTable: React.FC = () => {
   const splits = useMemo(
     () =>
       distanceKm !== undefined && paceSeconds !== undefined
-        ? generateSplits(distanceKm, paceSeconds)
+        ? generateSplits(distanceKm, paceSeconds, strategy)
         : null,
-    [distanceKm, paceSeconds],
+    [distanceKm, paceSeconds, strategy],
   );
+  // Paces das duas metades, arredondados ao segundo só para mostrar
+  const halves =
+    strategy === 'negative' && paceSeconds !== undefined ? negativeSplitPaces(paceSeconds) : null;
 
   const distanceError = shouldShowError(form.errors.distance, distance.touched)
     ? VALIDATION_MESSAGES[form.errors.distance]
@@ -86,6 +100,20 @@ const PaceTable: React.FC = () => {
           accessibilityLabel="Campo de pace desejado"
           accessibilityHint="Digite o pace objetivo"
         />
+
+        <SegmentedControl options={STRATEGIES} value={strategy} onChange={setStrategy} />
+
+        {/* Negative split: larga contido e acelera na segunda metade, no mesmo tempo final */}
+        {halves && (
+          <View style={styles.plan}>
+            <Ionicons name="trending-up-outline" size={18} color={colors.accent} />
+            <Text style={styles.planText}>
+              1ª metade a {formatPace(Math.round(halves.firstHalf))}/km e 2ª metade a{' '}
+              {formatPace(Math.round(halves.secondHalf))}/km. Largar contido poupa energia para o
+              final, e o tempo total é o mesmo.
+            </Text>
+          </View>
+        )}
 
         <ButtonRow>
           <Button
@@ -158,6 +186,22 @@ const useStyles = createThemedStyles((colors) => ({
     flex: 1,
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.lg,
+  },
+  plan: {
+    alignItems: 'flex-start',
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: RADIUS.sm,
+    flexDirection: 'row',
+    gap: SPACING.sm,
+    marginBottom: SPACING.lg,
+    padding: SPACING.md,
+  },
+  planText: {
+    color: colors.text.secondary,
+    flex: 1,
+    fontFamily: FONTS.regular,
+    fontSize: FONT_SIZES.sm,
+    lineHeight: 20,
   },
   summaryText: {
     color: colors.accentText,

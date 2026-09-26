@@ -137,4 +137,17 @@ describe('aba Tabela', () => {
     expect(screen.getByText('Tempo final: 27:30')).toBeTruthy();
     expect(screen.getByText('5,5')).toBeTruthy();
   });
+
+  it('negative split: mesmo tempo final, primeira metade mais lenta', () => {
+    render(<PaceTable />);
+    fireEvent.changeText(screen.getByLabelText('Campo de distância da prova'), '10');
+    fireEvent.changeText(screen.getByLabelText('Campo de pace desejado'), '5:30');
+    expect(screen.getByLabelText('Plano com ritmo constante')).toBeChecked();
+    expect(screen.queryByText(/1ª metade/)).toBeNull();
+
+    fireEvent.press(screen.getByLabelText('Plano com negative split: segunda metade mais rápida'));
+    expect(screen.getByText(/1ª metade a 5:33\/km e 2ª metade a\s+5:27\/km/)).toBeTruthy();
+    expect(screen.getByText('Tempo final: 55:00')).toBeTruthy();
+    expect(screen.getAllByText('5:33').length).toBeGreaterThan(0); // parcial do 1º km
+  });
 });
