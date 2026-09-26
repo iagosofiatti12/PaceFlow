@@ -101,6 +101,11 @@ ação, depois a informação extra), separada por uma linha fina. Uma linha por
 `surfaceMuted`: sigla em `accentText` e nome embaixo à esquerda; tempo em Geist Mono semibold e
 pace menor à direita. Termina com uma nota curta dizendo que é estimativa.
 
+**Ritmos de treino:** logo depois da previsão de prova, no mesmo visual (linha fina em cima,
+uma linha `surfaceMuted` por zona). Nome da zona em `accentText` e para que serve embaixo, à
+esquerda; pace em Geist Mono semibold à direita. O leve é uma faixa ("6:07 – 6:43 /km"); as
+outras zonas são um ritmo só. Termina com uma nota curta sobre o método.
+
 **Aba Esteira:** a troca de modo ("Sei a velocidade" / "Sei o pace") usa o `SegmentedControl`,
 com o mesmo visual da aba ativa (pílula `accentSoft` + texto `accentText` sobre fundo
 `surfaceMuted`). Abaixo do resultado vem uma dica em caixa `surfaceMuted` com ícone de lâmpada

@@ -6,7 +6,7 @@ Este arquivo define como qualquer IA ou pessoa deve trabalhar neste repositório
 
 **PaceFlow** é uma calculadora de pace para corredores (React Native + Expo). Cinco abas:
 
-- **Pace**: distância + tempo → ritmo em min/km calculado enquanto digita, com feedback (elite/avançado/etc.), previsão de prova (5K/10K/21K/42K) e botão para salvar no histórico
+- **Pace**: distância + tempo → ritmo em min/km calculado enquanto digita, com feedback (elite/avançado/etc.), previsão de prova (5K/10K/21K/42K), ritmos de treino (leve, maratona, limiar, intervalado, repetição) e botão para salvar no histórico
 - **Tempo**: distância + pace → tempo total estimado (ao vivo)
 - **Tabela**: tabela km a km com tempos parciais e acumulados (ao vivo), em ritmo constante ou negative split
 - **Esteira**: velocidade do painel (km/h) ↔ pace, com tabela de consulta rápida (8 a 16 km/h) e dica de inclinação
@@ -33,13 +33,14 @@ Público: corredores amadores brasileiros. Todo texto de UI é em **português b
 app/_layout.tsx            → layout raiz: fontes, área segura, logo e navegador de abas (Tabs)
 app/index.tsx              → aba Pace (rota "/"); recebe ?restore=<id> para restaurar um cálculo
 app/time.tsx, table.tsx, treadmill.tsx, history.tsx → abas Tempo, Tabela, Esteira e Histórico (rotas /time, /table, /treadmill, /history)
-src/components/            → um componente por aba (cada um gerencia o PRÓPRIO estado) + Header, TabBar e RacePredictions
+src/components/            → um componente por aba (cada um gerencia o PRÓPRIO estado) + Header, TabBar, RacePredictions e TrainingPaces
 src/components/ui/         → componentes reutilizáveis: Card, ScreenHeader, InputField, TimeInput, FieldError, DistancePresets, SegmentedControl, Button, ButtonRow, ResultCard, KeyboardScreen
 src/constants/theme.ts     → TODOS os tokens: paletas LIGHT_COLORS/DARK_COLORS, PACE_LEVEL_COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE
 src/constants/messages.ts  → textos das mensagens de validação (um por código de erro)
 src/constants/paceLevels.ts→ aparência de cada nível de pace (rótulo, emoji, cores)
 src/constants/raceDistances.ts → distâncias dos atalhos (5K, 10K, meia 21,0975, maratona 42,195)
-src/domain/                → regra de negócio pura, só números: pace, parciais, níveis, limites, previsão de prova (Riegel), esteira (km/h ↔ pace)
+src/constants/trainingZones.ts → nome e descrição de cada zona de treino
+src/domain/                → regra de negócio pura, só números: pace, parciais, níveis, limites, previsão de prova (Riegel), ritmos de treino (VDOT de Daniels), esteira (km/h ↔ pace)
 src/format/                → texto ↔ número: máscaras de digitação, tempo, distância e velocidade (vírgula decimal), datas relativas
 src/validation/rules.ts    → valida o texto dos campos e devolve o número convertido ou um código de erro
 src/validation/forms.ts    → avalia o formulário inteiro para o cálculo ao vivo + quando mostrar cada erro
@@ -130,6 +131,7 @@ Build de produção/publicação: via **EAS (Expo Application Services)** — ai
 - **Nível de pace separado da aparência**: `domain/levels.ts` só diz qual é o nível (`'elite'`, `'beginner'`...); texto, emoji e cor ficam em `constants/paceLevels.ts`. A mesma regra serve para modo escuro ou outro idioma. Fundos claros recebem texto escuro para cumprir contraste WCAG.
 - **Esteira em aba própria**: é outro momento de uso (em cima da esteira, na academia), então fica separada da aba Tempo. Velocidade sempre com 1 casa decimal, como no painel (`formatSpeed`), entre 3 e 30 km/h (3 km/h = pace máximo de 20:00/km).
 - **Previsão de prova pela fórmula de Riegel** (`T2 = T1 × (D2/D1)^1,06`): é a mais usada e fácil de explicar. Só aparece com base de 3 km ou mais (tiro curto não prevê maratona) e vem com aviso de que é estimativa e costuma ser otimista para a maratona.
+- **Ritmos de treino pelo VDOT de Jack Daniels** (`domain/trainingZones.ts`): é o método mais conhecido entre corredores e treinadores. O resultado vira um VDOT (fórmula de Daniels e Gilbert), e cada zona é uma fração dele (`ZONE_INTENSITY`, calibrada para bater com as tabelas publicadas; teste com margem de ±3 s). Mesma regra da previsão: só com base de 3 km ou mais, e só com VDOT entre 20 e 85. Nome e descrição de cada zona ficam em `constants/trainingZones.ts`, separados da conta.
 - **Negative split com a segunda metade 2% mais rápida** (`NEGATIVE_SPLIT_FACTOR` em `domain/splits.ts`): o tempo final é o mesmo do ritmo constante, só muda a distribuição. A metade é pela distância (não por km inteiro), então o km que cruza a metade mistura os dois paces. O parcial de cada linha é a diferença entre acumulados já arredondados, para a soma dos parciais bater com o tempo final.
 - **Cursor que anda sozinho só quando a pessoa digita**: `useAutoAdvance` pula de horas para minutos e de minutos para segundos, mas só se o texto cresceu e o campo está com foco. Apagar um dígito ou abrir um cálculo restaurado não move o cursor.
 - **Atalhos de distância preenchem o próprio campo** (via `onChangeText`), em vez de ter um estado separado: o atalho fica destacado sempre que o campo tem aquela distância, digitada ou tocada.
