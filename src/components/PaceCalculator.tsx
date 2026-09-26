@@ -17,6 +17,7 @@ import Button from './ui/Button';
 import ButtonRow from './ui/ButtonRow';
 import ResultCard from './ui/ResultCard';
 import RacePredictions from './RacePredictions';
+import TrainingPaces from './TrainingPaces';
 
 interface PaceCalculatorProps {
   /** Item do histórico para preencher os campos ao restaurar um cálculo salvo */
@@ -140,10 +141,16 @@ const PaceCalculator: React.FC<PaceCalculatorProps> = ({ initialItem }) => {
       </ButtonRow>
 
       {form.value && (
-        <RacePredictions
-          distanceKm={form.value.distanceKm}
-          durationSeconds={form.value.durationSeconds}
-        />
+        <>
+          <RacePredictions
+            distanceKm={form.value.distanceKm}
+            durationSeconds={form.value.durationSeconds}
+          />
+          <TrainingPaces
+            distanceKm={form.value.distanceKm}
+            durationSeconds={form.value.durationSeconds}
+          />
+        </>
       )}
     </Card>
   );
