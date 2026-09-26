@@ -16,6 +16,7 @@ import TimeInput from './ui/TimeInput';
 import Button from './ui/Button';
 import ButtonRow from './ui/ButtonRow';
 import ResultCard from './ui/ResultCard';
+import RacePredictions from './RacePredictions';
 
 interface PaceCalculatorProps {
   /** Item do histórico para preencher os campos ao restaurar um cálculo salvo */
@@ -137,6 +138,13 @@ const PaceCalculator: React.FC<PaceCalculatorProps> = ({ initialItem }) => {
           accessibilityHint="Toque para limpar todos os campos"
         />
       </ButtonRow>
+
+      {form.value && (
+        <RacePredictions
+          distanceKm={form.value.distanceKm}
+          durationSeconds={form.value.durationSeconds}
+        />
+      )}
     </Card>
   );
 };
