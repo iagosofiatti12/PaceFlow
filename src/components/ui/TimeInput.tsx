@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { View, Text, TextInput } from 'react-native';
 import { SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE } from '../../constants/theme';
 import type { MaskedField } from '../../hooks/useMaskedField';
+import { useAutoAdvance } from '../../hooks/useAutoAdvance';
 import { createThemedStyles, useColors } from '../../hooks/useTheme';
 import FieldError from './FieldError';
 
@@ -21,6 +22,10 @@ interface TimeBlockProps {
   accessibilityLabel: string;
   accessibilityHint: string;
   hasError: boolean;
+  /** Referência ao campo, para o cursor poder pular até ele */
+  inputRef: React.RefObject<TextInput | null>;
+  /** Campo seguinte (ao tocar em "próximo" no teclado); ausente no último */
+  nextRef?: React.RefObject<TextInput | null>;
 }
 
 /** Um dos três campos (h, min ou seg), com a unidade embaixo */
@@ -31,12 +36,15 @@ const TimeBlock: React.FC<TimeBlockProps> = ({
   accessibilityLabel,
   accessibilityHint,
   hasError,
+  inputRef,
+  nextRef,
 }) => {
   const styles = useStyles();
   const colors = useColors();
   return (
     <View style={styles.timeBlock}>
       <TextInput
+        ref={inputRef}
         maxFontSizeMultiplier={FONT_SCALE.control}
         style={[styles.timeInput, hasError ? styles.timeInputError : null]}
         value={field.value}
@@ -46,6 +54,10 @@ const TimeBlock: React.FC<TimeBlockProps> = ({
         placeholder={placeholder}
         placeholderTextColor={colors.text.placeholder}
         maxLength={2}
+        // Teclados com tecla "próximo" (ex: Android) levam ao campo seguinte
+        returnKeyType={nextRef ? 'next' : 'done'}
+        submitBehavior={nextRef ? 'submit' : 'blurAndSubmit'}
+        onSubmitEditing={() => nextRef?.current?.focus()}
         accessibilityLabel={accessibilityLabel}
         accessibilityHint={accessibilityHint}
       />
@@ -59,6 +71,13 @@ const TimeBlock: React.FC<TimeBlockProps> = ({
 /** Campo de tempo total no formato h : min : seg (extraído do PaceCalculator). */
 const TimeInput: React.FC<TimeInputProps> = ({ label, hours, minutes, seconds, error }) => {
   const styles = useStyles();
+  const hoursRef = useRef<TextInput>(null);
+  const minutesRef = useRef<TextInput>(null);
+  const secondsRef = useRef<TextInput>(null);
+
+  // Cursor anda sozinho: horas completas → minutos; minutos completos → segundos
+  useAutoAdvance(hours.value, 'hours', hoursRef, minutesRef);
+  useAutoAdvance(minutes.value, 'minutes', minutesRef, secondsRef);
 
   return (
     <View style={styles.inputGroup}>
@@ -66,6 +85,8 @@ const TimeInput: React.FC<TimeInputProps> = ({ label, hours, minutes, seconds, e
       <View style={styles.timeRow}>
         <TimeBlock
           field={hours}
+          inputRef={hoursRef}
+          nextRef={minutesRef}
           placeholder="0"
           unit="h"
           hasError={Boolean(error)}
@@ -77,6 +98,8 @@ const TimeInput: React.FC<TimeInputProps> = ({ label, hours, minutes, seconds, e
         </Text>
         <TimeBlock
           field={minutes}
+          inputRef={minutesRef}
+          nextRef={secondsRef}
           placeholder="00"
           unit="min"
           hasError={Boolean(error)}
@@ -88,6 +111,7 @@ const TimeInput: React.FC<TimeInputProps> = ({ label, hours, minutes, seconds, e
         </Text>
         <TimeBlock
           field={seconds}
+          inputRef={secondsRef}
           placeholder="00"
           unit="seg"
           hasError={Boolean(error)}
