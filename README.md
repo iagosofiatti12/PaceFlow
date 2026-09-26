@@ -23,6 +23,7 @@ Paceflow/
 │   │   ├── PaceCalculator.tsx
 │   │   ├── TimeCalculator.tsx
 │   │   ├── PaceTable.tsx
+│   │   ├── RacePredictions.tsx
 │   │   ├── HistoryTab.tsx
 │   │   └── ui/              # Componentes de UI reutilizáveis
 │   │       ├── Button.tsx
@@ -44,6 +45,7 @@ Paceflow/
 │   │   ├── pace.ts
 │   │   ├── splits.ts
 │   │   ├── levels.ts
+│   │   ├── prediction.ts
 │   │   └── limits.ts
 │   ├── format/              # Texto ↔ número: máscaras, tempo, datas
 │   │   ├── masks.ts
@@ -158,6 +160,7 @@ Além disso, o **CI no GitHub** (`.github/workflows/ci.yml`) roda lint, verifica
 
 - ✅ Cálculo ao vivo: o resultado aparece enquanto você digita
 - ✅ Atalhos para 5K, 10K, meia maratona e maratona
+- ✅ Previsão de prova: do seu resultado, estima o tempo em 5K, 10K, meia e maratona
 - ✅ Cursor que pula sozinho entre horas, minutos e segundos
 - ✅ Cálculo de pace (min/km) com feedback baseado no ritmo
 - ✅ Cálculo de tempo estimado a partir de distância e pace

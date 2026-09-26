@@ -71,6 +71,11 @@ até o cálculo mudar. Nas abas Tempo e Tabela, o único botão é "Limpar".
 distância atual fica destacado com `accentSoft`, borda `accent` e texto `accentText`, igual à
 aba ativa. O leitor de tela lê o nome completo ("Meia maratona, 21,0975 km").
 
+**Previsão de prova:** no fim do cartão da aba Pace, depois dos botões (primeiro o resultado e a
+ação, depois a informação extra), separada por uma linha fina. Uma linha por prova em fundo
+`surfaceMuted`: sigla em `accentText` e nome embaixo à esquerda; tempo em Geist Mono semibold e
+pace menor à direita. Termina com uma nota curta dizendo que é estimativa.
+
 **Campos de tempo:** o cursor pula sozinho de horas para minutos (2 dígitos) e de minutos
 para segundos (2 dígitos, ou 1 dígito de 6 a 9).
 

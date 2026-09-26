@@ -6,7 +6,7 @@ Este arquivo define como qualquer IA ou pessoa deve trabalhar neste repositório
 
 **PaceFlow** é uma calculadora de pace para corredores (React Native + Expo). Quatro abas:
 
-- **Pace**: distância + tempo → ritmo em min/km calculado enquanto digita, com feedback (elite/avançado/etc.) e botão para salvar no histórico
+- **Pace**: distância + tempo → ritmo em min/km calculado enquanto digita, com feedback (elite/avançado/etc.), previsão de prova (5K/10K/21K/42K) e botão para salvar no histórico
 - **Tempo**: distância + pace → tempo total estimado (ao vivo)
 - **Tabela**: tabela km a km com tempos parciais e acumulados (ao vivo)
 - **Histórico**: últimos 10 cálculos de pace, persistidos no aparelho; tocar num item restaura o cálculo na aba Pace
@@ -32,13 +32,13 @@ Público: corredores amadores brasileiros. Todo texto de UI é em **português b
 app/_layout.tsx            → layout raiz: fontes, área segura, logo e navegador de abas (Tabs)
 app/index.tsx              → aba Pace (rota "/"); recebe ?restore=<id> para restaurar um cálculo
 app/time.tsx, table.tsx, history.tsx → abas Tempo, Tabela e Histórico (rotas /time, /table, /history)
-src/components/            → um componente por aba (cada um gerencia o PRÓPRIO estado) + Header e TabBar
+src/components/            → um componente por aba (cada um gerencia o PRÓPRIO estado) + Header, TabBar e RacePredictions
 src/components/ui/         → componentes reutilizáveis: Card, ScreenHeader, InputField, TimeInput, FieldError, DistancePresets, Button, ButtonRow, ResultCard, KeyboardScreen
 src/constants/theme.ts     → TODOS os tokens: paletas LIGHT_COLORS/DARK_COLORS, PACE_LEVEL_COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE
 src/constants/messages.ts  → textos das mensagens de validação (um por código de erro)
 src/constants/paceLevels.ts→ aparência de cada nível de pace (rótulo, emoji, cores)
 src/constants/raceDistances.ts → distâncias dos atalhos (5K, 10K, meia 21,0975, maratona 42,195)
-src/domain/                → regra de negócio pura, só números: pace, parciais, níveis, limites
+src/domain/                → regra de negócio pura, só números: pace, parciais, níveis, limites, previsão de prova (Riegel)
 src/format/                → texto ↔ número: máscaras de digitação, tempo, distância (vírgula decimal), datas relativas
 src/validation/rules.ts    → valida o texto dos campos e devolve o número convertido ou um código de erro
 src/validation/forms.ts    → avalia o formulário inteiro para o cálculo ao vivo + quando mostrar cada erro
@@ -126,6 +126,7 @@ Build de produção/publicação: via **EAS (Expo Application Services)** — ai
 - **Contraste testado no CI** (`contrast.test.ts`): cor nova tem que passar no WCAG AA nos dois temas.
 - **Geist Sans/Mono com `tabular-nums`**: decisão do `DESIGN.md` — números com largura fixa alinham em tabelas e não "dançam" ao digitar.
 - **Nível de pace separado da aparência**: `domain/levels.ts` só diz qual é o nível (`'elite'`, `'beginner'`...); texto, emoji e cor ficam em `constants/paceLevels.ts`. A mesma regra serve para modo escuro ou outro idioma. Fundos claros recebem texto escuro para cumprir contraste WCAG.
+- **Previsão de prova pela fórmula de Riegel** (`T2 = T1 × (D2/D1)^1,06`): é a mais usada e fácil de explicar. Só aparece com base de 3 km ou mais (tiro curto não prevê maratona) e vem com aviso de que é estimativa e costuma ser otimista para a maratona.
 - **Cursor que anda sozinho só quando a pessoa digita**: `useAutoAdvance` pula de horas para minutos e de minutos para segundos, mas só se o texto cresceu e o campo está com foco. Apagar um dígito ou abrir um cálculo restaurado não move o cursor.
 - **Atalhos de distância preenchem o próprio campo** (via `onChangeText`), em vez de ter um estado separado: o atalho fica destacado sempre que o campo tem aquela distância, digitada ou tocada.
 - **Distância com dois códigos de limite** (`distance.min` e `distance.max`): "0" é o começo de "0,5" e não pode acender erro na hora; "600" é erro de verdade e acende.
