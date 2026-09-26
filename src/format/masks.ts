@@ -53,3 +53,16 @@ export const formatHoursInput = (value: string): string => formatTimeInput(value
 
 /** Campo de minutos ou segundos: até 59 */
 export const formatMinutesInput = (value: string): string => formatTimeInput(value, 59);
+
+/**
+ * Diz se um campo de tempo já está completo, para o cursor pular sozinho
+ * para o próximo (horas → minutos → segundos).
+ * - horas: 2 dígitos ("1" pode virar "12", então espera)
+ * - minutos/segundos: 2 dígitos, ou 1 dígito de 6 a 9 (nenhum minuto de dois
+ *   dígitos começa com 6 ou mais, então "7" só pode ser 7 minutos)
+ */
+export const isTimeFieldComplete = (value: string, field: 'hours' | 'minutes'): boolean => {
+  if (value.length >= 2) return true;
+  if (field === 'minutes' && value.length === 1) return Number(value) >= 6;
+  return false;
+};

@@ -4,6 +4,7 @@ import {
   formatPaceInput,
   formatHoursInput,
   formatMinutesInput,
+  isTimeFieldComplete,
 } from '../masks';
 
 describe('formatTimeInput', () => {
@@ -76,5 +77,33 @@ describe('formatHoursInput / formatMinutesInput', () => {
   it('deve limitar minutos e segundos a 59', () => {
     expect(formatMinutesInput('59')).toBe('59');
     expect(formatMinutesInput('60')).toBe('59');
+  });
+});
+
+describe('isTimeFieldComplete', () => {
+  it('horas: completa só com 2 dígitos', () => {
+    expect(isTimeFieldComplete('', 'hours')).toBe(false);
+    expect(isTimeFieldComplete('1', 'hours')).toBe(false);
+    expect(isTimeFieldComplete('9', 'hours')).toBe(false); // pode ser 9h ou 99h
+    expect(isTimeFieldComplete('12', 'hours')).toBe(true);
+  });
+
+  it('minutos/segundos: 2 dígitos', () => {
+    expect(isTimeFieldComplete('05', 'minutes')).toBe(true);
+    expect(isTimeFieldComplete('59', 'minutes')).toBe(true);
+  });
+
+  it('minutos/segundos: 1 dígito de 0 a 5 ainda pode ganhar outro dígito', () => {
+    expect(isTimeFieldComplete('0', 'minutes')).toBe(false);
+    expect(isTimeFieldComplete('5', 'minutes')).toBe(false);
+  });
+
+  it('minutos/segundos: 1 dígito de 6 a 9 já está completo', () => {
+    expect(isTimeFieldComplete('6', 'minutes')).toBe(true);
+    expect(isTimeFieldComplete('9', 'minutes')).toBe(true);
+  });
+
+  it('campo vazio nunca está completo', () => {
+    expect(isTimeFieldComplete('', 'minutes')).toBe(false);
   });
 });

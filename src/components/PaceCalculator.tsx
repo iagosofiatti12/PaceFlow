@@ -11,6 +11,7 @@ import { saveCalculation, type HistoryItem } from '../utils/storage';
 import Card from './ui/Card';
 import ScreenHeader from './ui/ScreenHeader';
 import InputField from './ui/InputField';
+import DistancePresets from './ui/DistancePresets';
 import TimeInput from './ui/TimeInput';
 import Button from './ui/Button';
 import ButtonRow from './ui/ButtonRow';
@@ -97,6 +98,8 @@ const PaceCalculator: React.FC<PaceCalculatorProps> = ({ initialItem }) => {
         accessibilityLabel="Campo de distância em quilômetros"
         accessibilityHint="Digite a distância percorrida"
       />
+
+      <DistancePresets value={distance.value} onSelect={distance.onChangeText} />
 
       <TimeInput
         label="Tempo total"

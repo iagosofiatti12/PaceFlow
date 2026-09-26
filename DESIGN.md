@@ -66,6 +66,14 @@ de cada aba é: campos → cartão de resultado → botões. Na aba Pace, o bot�
 "Salvar no histórico": fica esmaecido sem resultado e vira "Salvo" (com ✓) depois de salvo,
 até o cálculo mudar. Nas abas Tempo e Tabela, o único botão é "Limpar".
 
+**Atalhos de distância:** embaixo do campo de distância, quatro "chips" do mesmo tamanho
+(5K, 10K, 21K, 42K) em Geist Mono. Neutros por padrão (`surfaceMuted` + borda `border`); o da
+distância atual fica destacado com `accentSoft`, borda `accent` e texto `accentText`, igual à
+aba ativa. O leitor de tela lê o nome completo ("Meia maratona, 21,0975 km").
+
+**Campos de tempo:** o cursor pula sozinho de horas para minutos (2 dígitos) e de minutos
+para segundos (2 dígitos, ou 1 dígito de 6 a 9).
+
 **Erros embaixo do campo, nunca em alerta:** borda do campo em `danger` e a mensagem logo
 abaixo, no lugar da dica. Campo vazio nunca mostra erro. Erro de limite ("máximo 500 km")
 aparece na hora; erro de digitação em andamento ("5:" antes de "5:30") só depois que a pessoa

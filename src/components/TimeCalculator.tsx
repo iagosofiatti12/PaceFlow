@@ -7,6 +7,7 @@ import { useMaskedField } from '../hooks/useMaskedField';
 import Card from './ui/Card';
 import ScreenHeader from './ui/ScreenHeader';
 import InputField from './ui/InputField';
+import DistancePresets from './ui/DistancePresets';
 import Button from './ui/Button';
 import ButtonRow from './ui/ButtonRow';
 import ResultCard from './ui/ResultCard';
@@ -48,6 +49,8 @@ const TimeCalculator: React.FC = () => {
         accessibilityLabel="Campo de distância em quilômetros"
         accessibilityHint="Digite a distância da prova"
       />
+
+      <DistancePresets value={distance.value} onSelect={distance.onChangeText} />
 
       <InputField
         label="Pace desejado"

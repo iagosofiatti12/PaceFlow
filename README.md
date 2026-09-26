@@ -28,6 +28,7 @@ Paceflow/
 │   │       ├── Button.tsx
 │   │       ├── ButtonRow.tsx
 │   │       ├── Card.tsx
+│   │       ├── DistancePresets.tsx
 │   │       ├── FieldError.tsx
 │   │       ├── InputField.tsx
 │   │       ├── KeyboardScreen.tsx
@@ -37,6 +38,7 @@ Paceflow/
 │   ├── constants/           # Tokens de design, mensagens e aparência dos níveis
 │   │   ├── theme.ts
 │   │   ├── messages.ts
+│   │   ├── raceDistances.ts
 │   │   └── paceLevels.ts
 │   ├── domain/              # Regra de negócio pura (só números)
 │   │   ├── pace.ts
@@ -52,6 +54,7 @@ Paceflow/
 │   │   ├── rules.ts
 │   │   └── forms.ts
 │   ├── hooks/               # Hooks reutilizáveis
+│   │   ├── useAutoAdvance.ts
 │   │   ├── useMaskedField.ts
 │   │   └── useTheme.ts
 │   └── utils/               # Efeitos colaterais: storage e feedback
@@ -154,6 +157,8 @@ Além disso, o **CI no GitHub** (`.github/workflows/ci.yml`) roda lint, verifica
 ## ✨ Funcionalidades
 
 - ✅ Cálculo ao vivo: o resultado aparece enquanto você digita
+- ✅ Atalhos para 5K, 10K, meia maratona e maratona
+- ✅ Cursor que pula sozinho entre horas, minutos e segundos
 - ✅ Cálculo de pace (min/km) com feedback baseado no ritmo
 - ✅ Cálculo de tempo estimado a partir de distância e pace
 - ✅ Tabela de ritmo km a km com tempos parciais e acumulados
