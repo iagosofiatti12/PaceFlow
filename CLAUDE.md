@@ -8,7 +8,7 @@ Este arquivo define como qualquer IA ou pessoa deve trabalhar neste repositório
 
 - **Pace**: distância + tempo → ritmo em min/km calculado enquanto digita, com feedback (elite/avançado/etc.), previsão de prova (5K/10K/21K/42K) e botão para salvar no histórico
 - **Tempo**: distância + pace → tempo total estimado (ao vivo)
-- **Tabela**: tabela km a km com tempos parciais e acumulados (ao vivo)
+- **Tabela**: tabela km a km com tempos parciais e acumulados (ao vivo), em ritmo constante ou negative split
 - **Esteira**: velocidade do painel (km/h) ↔ pace, com tabela de consulta rápida (8 a 16 km/h) e dica de inclinação
 - **Histórico**: últimos 10 cálculos de pace, persistidos no aparelho; tocar num item restaura o cálculo na aba Pace
 
@@ -130,6 +130,7 @@ Build de produção/publicação: via **EAS (Expo Application Services)** — ai
 - **Nível de pace separado da aparência**: `domain/levels.ts` só diz qual é o nível (`'elite'`, `'beginner'`...); texto, emoji e cor ficam em `constants/paceLevels.ts`. A mesma regra serve para modo escuro ou outro idioma. Fundos claros recebem texto escuro para cumprir contraste WCAG.
 - **Esteira em aba própria**: é outro momento de uso (em cima da esteira, na academia), então fica separada da aba Tempo. Velocidade sempre com 1 casa decimal, como no painel (`formatSpeed`), entre 3 e 30 km/h (3 km/h = pace máximo de 20:00/km).
 - **Previsão de prova pela fórmula de Riegel** (`T2 = T1 × (D2/D1)^1,06`): é a mais usada e fácil de explicar. Só aparece com base de 3 km ou mais (tiro curto não prevê maratona) e vem com aviso de que é estimativa e costuma ser otimista para a maratona.
+- **Negative split com a segunda metade 2% mais rápida** (`NEGATIVE_SPLIT_FACTOR` em `domain/splits.ts`): o tempo final é o mesmo do ritmo constante, só muda a distribuição. A metade é pela distância (não por km inteiro), então o km que cruza a metade mistura os dois paces. O parcial de cada linha é a diferença entre acumulados já arredondados, para a soma dos parciais bater com o tempo final.
 - **Cursor que anda sozinho só quando a pessoa digita**: `useAutoAdvance` pula de horas para minutos e de minutos para segundos, mas só se o texto cresceu e o campo está com foco. Apagar um dígito ou abrir um cálculo restaurado não move o cursor.
 - **Atalhos de distância preenchem o próprio campo** (via `onChangeText`), em vez de ter um estado separado: o atalho fica destacado sempre que o campo tem aquela distância, digitada ou tocada.
 - **Distância com dois códigos de limite** (`distance.min` e `distance.max`): "0" é o começo de "0,5" e não pode acender erro na hora; "600" é erro de verdade e acende.
