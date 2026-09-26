@@ -3,12 +3,15 @@ import { View, Text, TextInput } from 'react-native';
 import { SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE } from '../../constants/theme';
 import type { MaskedField } from '../../hooks/useMaskedField';
 import { createThemedStyles, useColors } from '../../hooks/useTheme';
+import FieldError from './FieldError';
 
 interface TimeInputProps {
   label: string;
   hours: MaskedField;
   minutes: MaskedField;
   seconds: MaskedField;
+  /** Mensagem de erro do tempo (vale para os três campos juntos) */
+  error?: string | null;
 }
 
 interface TimeBlockProps {
@@ -17,6 +20,7 @@ interface TimeBlockProps {
   unit: string;
   accessibilityLabel: string;
   accessibilityHint: string;
+  hasError: boolean;
 }
 
 /** Um dos três campos (h, min ou seg), com a unidade embaixo */
@@ -26,6 +30,7 @@ const TimeBlock: React.FC<TimeBlockProps> = ({
   unit,
   accessibilityLabel,
   accessibilityHint,
+  hasError,
 }) => {
   const styles = useStyles();
   const colors = useColors();
@@ -33,9 +38,10 @@ const TimeBlock: React.FC<TimeBlockProps> = ({
     <View style={styles.timeBlock}>
       <TextInput
         maxFontSizeMultiplier={FONT_SCALE.control}
-        style={styles.timeInput}
+        style={[styles.timeInput, hasError ? styles.timeInputError : null]}
         value={field.value}
         onChangeText={field.onChangeText}
+        onBlur={field.onBlur}
         keyboardType="number-pad"
         placeholder={placeholder}
         placeholderTextColor={colors.text.placeholder}
@@ -51,7 +57,7 @@ const TimeBlock: React.FC<TimeBlockProps> = ({
 };
 
 /** Campo de tempo total no formato h : min : seg (extraído do PaceCalculator). */
-const TimeInput: React.FC<TimeInputProps> = ({ label, hours, minutes, seconds }) => {
+const TimeInput: React.FC<TimeInputProps> = ({ label, hours, minutes, seconds, error }) => {
   const styles = useStyles();
 
   return (
@@ -62,6 +68,7 @@ const TimeInput: React.FC<TimeInputProps> = ({ label, hours, minutes, seconds })
           field={hours}
           placeholder="0"
           unit="h"
+          hasError={Boolean(error)}
           accessibilityLabel="Horas"
           accessibilityHint="Digite as horas"
         />
@@ -72,6 +79,7 @@ const TimeInput: React.FC<TimeInputProps> = ({ label, hours, minutes, seconds })
           field={minutes}
           placeholder="00"
           unit="min"
+          hasError={Boolean(error)}
           accessibilityLabel="Minutos"
           accessibilityHint="Digite os minutos"
         />
@@ -82,10 +90,12 @@ const TimeInput: React.FC<TimeInputProps> = ({ label, hours, minutes, seconds })
           field={seconds}
           placeholder="00"
           unit="seg"
+          hasError={Boolean(error)}
           accessibilityLabel="Segundos"
           accessibilityHint="Digite os segundos"
         />
       </View>
+      <FieldError message={error} />
     </View>
   );
 };
@@ -117,6 +127,9 @@ const useStyles = createThemedStyles((colors) => ({
     padding: SPACING.md,
     textAlign: 'center',
     width: '100%',
+  },
+  timeInputError: {
+    borderColor: colors.danger,
   },
   timeRow: {
     alignItems: 'center',

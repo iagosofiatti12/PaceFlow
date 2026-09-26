@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import type { PaceLevel } from '../domain/levels';
 import { getPaceLevel } from '../domain/levels';
-import { calculatePace } from '../domain/pace';
 import { formatDistanceInput, formatHoursInput, formatMinutesInput } from '../format/masks';
 import { formatPace, splitDuration } from '../format/time';
 import { formatKm } from '../format/distance';
-import { validateDistance, validateTime } from '../validation/rules';
+import { evaluatePaceForm, shouldShowError } from '../validation/forms';
+import { VALIDATION_MESSAGES } from '../constants/messages';
 import { useMaskedField } from '../hooks/useMaskedField';
-import { showValidationError, notifySuccess } from '../utils/feedback';
+import { notifySuccess } from '../utils/feedback';
 import { saveCalculation, type HistoryItem } from '../utils/storage';
 import Card from './ui/Card';
 import ScreenHeader from './ui/ScreenHeader';
@@ -22,13 +21,13 @@ interface PaceCalculatorProps {
   initialItem?: HistoryItem | null;
 }
 
+/** Identifica um cálculo pelos dados brutos, para saber se ele já foi salvo */
+const calculationKey = (distanceKm: number, durationSeconds: number): string =>
+  `${distanceKm}|${durationSeconds}`;
+
 const PaceCalculator: React.FC<PaceCalculatorProps> = ({ initialItem }) => {
-  // Se veio um item do histórico, os campos já nascem preenchidos e o
-  // resultado é recalculado a partir dos dados brutos (km e segundos)
+  // Se veio um item do histórico, os campos já nascem preenchidos
   const initialTime = initialItem ? splitDuration(initialItem.durationSeconds) : null;
-  const initialPace = initialItem
-    ? calculatePace(initialItem.durationSeconds, initialItem.distanceKm)
-    : null;
 
   const distance = useMaskedField(
     formatDistanceInput,
@@ -38,71 +37,93 @@ const PaceCalculator: React.FC<PaceCalculatorProps> = ({ initialItem }) => {
   const minutes = useMaskedField(formatMinutesInput, initialTime?.minutes ?? '');
   const seconds = useMaskedField(formatMinutesInput, initialTime?.seconds ?? '');
 
-  const [result, setResult] = useState<string | null>(
-    initialPace !== null ? formatPace(initialPace) : null,
+  // Cálculo ao vivo: a cada tecla o formulário é reavaliado. Não precisa de
+  // estado para o resultado; ele é sempre "o que os campos dizem agora".
+  const form = evaluatePaceForm({
+    distance: distance.value,
+    hours: hours.value,
+    minutes: minutes.value,
+    seconds: seconds.value,
+  });
+  const currentKey = form.value
+    ? calculationKey(form.value.distanceKm, form.value.durationSeconds)
+    : null;
+
+  // Último cálculo salvo: evita salvar o mesmo resultado duas vezes seguidas.
+  // Um item restaurado do histórico já nasce "salvo".
+  const [savedKey, setSavedKey] = useState<string | null>(
+    initialItem ? calculationKey(initialItem.distanceKm, initialItem.durationSeconds) : null,
   );
-  const [level, setLevel] = useState<PaceLevel | null>(
-    initialPace !== null ? getPaceLevel(initialPace) : null,
-  );
+  const isSaved = currentKey !== null && currentKey === savedKey;
+
+  const timeTouched = hours.touched || minutes.touched || seconds.touched;
+  const distanceError = shouldShowError(form.errors.distance, distance.touched)
+    ? VALIDATION_MESSAGES[form.errors.distance]
+    : null;
+  const timeError = shouldShowError(form.errors.time, timeTouched)
+    ? VALIDATION_MESSAGES[form.errors.time]
+    : null;
+
+  const handleSave = async (): Promise<void> => {
+    if (!form.value || isSaved) return;
+    const { distanceKm, durationSeconds } = form.value;
+    await saveCalculation(distanceKm, durationSeconds);
+    notifySuccess();
+    setSavedKey(calculationKey(distanceKm, durationSeconds));
+  };
 
   const handleClear = (): void => {
     distance.clear();
     hours.clear();
     minutes.clear();
     seconds.clear();
-    setResult(null);
-    setLevel(null);
-  };
-
-  const handleCalculate = async (): Promise<void> => {
-    const distanceResult = validateDistance(distance.value);
-    if (!distanceResult.valid) {
-      showValidationError(distanceResult.error);
-      return;
-    }
-
-    const timeResult = validateTime(hours.value, minutes.value, seconds.value);
-    if (!timeResult.valid) {
-      showValidationError(timeResult.error);
-      return;
-    }
-
-    const paceSeconds = calculatePace(timeResult.value, distanceResult.value);
-    const formatted = formatPace(paceSeconds);
-
-    notifySuccess();
-    setResult(formatted);
-    setLevel(getPaceLevel(paceSeconds));
-
-    await saveCalculation(distanceResult.value, timeResult.value);
   };
 
   return (
     <Card>
       <ScreenHeader
         title="Calcular pace"
-        description="Insira a distância e o tempo para descobrir seu ritmo médio"
+        description="Insira a distância e o tempo: o ritmo médio aparece na hora"
       />
 
       <InputField
         label="Distância"
         value={distance.value}
         onChangeText={distance.onChangeText}
+        onBlur={distance.onBlur}
+        error={distanceError}
         unit="km"
         placeholder="5,0"
         accessibilityLabel="Campo de distância em quilômetros"
         accessibilityHint="Digite a distância percorrida"
       />
 
-      <TimeInput label="Tempo total" hours={hours} minutes={minutes} seconds={seconds} />
+      <TimeInput
+        label="Tempo total"
+        hours={hours}
+        minutes={minutes}
+        seconds={seconds}
+        error={timeError}
+      />
+
+      {form.value && (
+        <ResultCard
+          label="Seu pace médio"
+          value={formatPace(form.value.paceSeconds)}
+          unit="/km"
+          subtext="min por quilômetro"
+          level={getPaceLevel(form.value.paceSeconds)}
+        />
+      )}
 
       <ButtonRow>
         <Button
-          title="Calcular"
-          icon="calculator"
-          onPress={handleCalculate}
-          accessibilityLabel="Calcular pace"
-          accessibilityHint="Toque para calcular o pace médio"
+          title={isSaved ? 'Salvo' : 'Salvar no histórico'}
+          icon={isSaved ? 'checkmark-circle' : 'bookmark-outline'}
+          onPress={handleSave}
+          disabled={!form.value || isSaved}
+          accessibilityLabel={isSaved ? 'Cálculo salvo no histórico' : 'Salvar no histórico'}
+          accessibilityHint="Guarda este cálculo na aba Histórico"
         />
         <Button
           title="Limpar"
@@ -113,16 +134,6 @@ const PaceCalculator: React.FC<PaceCalculatorProps> = ({ initialItem }) => {
           accessibilityHint="Toque para limpar todos os campos"
         />
       </ButtonRow>
-
-      {result && (
-        <ResultCard
-          label="Seu pace médio"
-          value={result}
-          unit="/km"
-          subtext="min por quilômetro"
-          level={level}
-        />
-      )}
     </Card>
   );
 };

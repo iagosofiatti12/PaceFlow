@@ -59,6 +59,18 @@ vírgula ou ponto e sempre exibe vírgula. Para mostrar uma distância, use `for
 **Splash:** o logo sobre o fundo do tema (`#FAF8F5` no claro, `#121110` no escuro), configurada
 no plugin `expo-splash-screen` do `app.json`. Ela fica na tela até as fontes carregarem.
 
+## Cálculo ao vivo e erros no campo (vale para todo código novo)
+
+**Sem botão "Calcular":** o resultado aparece e se atualiza enquanto a pessoa digita. A ordem
+de cada aba é: campos → cartão de resultado → botões. Na aba Pace, o botão principal é
+"Salvar no histórico": fica esmaecido sem resultado e vira "Salvo" (com ✓) depois de salvo,
+até o cálculo mudar. Nas abas Tempo e Tabela, o único botão é "Limpar".
+
+**Erros embaixo do campo, nunca em alerta:** borda do campo em `danger` e a mensagem logo
+abaixo, no lugar da dica. Campo vazio nunca mostra erro. Erro de limite ("máximo 500 km")
+aparece na hora; erro de digitação em andamento ("5:" antes de "5:30") só depois que a pessoa
+sai do campo. Assim a tela não fica vermelha enquanto alguém ainda está digitando.
+
 # Auditoria de Design — PaceFlow
 
 Nota geral: 3.3/5. Base de produto madura e com personalidade; maior ganho está em tipografia e consistência de sistema.

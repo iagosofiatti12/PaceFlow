@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE } from '../constants/theme';
-import { generateSplits, type Split } from '../domain/splits';
+import { generateSplits } from '../domain/splits';
 import { formatDistanceInput, formatPaceInput } from '../format/masks';
 import { formatSecondsToTime } from '../format/time';
 import { formatKm } from '../format/distance';
-import { validateDistance, validatePace } from '../validation/rules';
+import { evaluateDistancePaceForm, shouldShowError } from '../validation/forms';
+import { VALIDATION_MESSAGES } from '../constants/messages';
 import { useMaskedField } from '../hooks/useMaskedField';
-import { showValidationError, notifySuccess } from '../utils/feedback';
 import Card from './ui/Card';
 import ScreenHeader from './ui/ScreenHeader';
 import InputField from './ui/InputField';
@@ -21,29 +21,32 @@ const PaceTable: React.FC = () => {
   const colors = useColors();
   const distance = useMaskedField(formatDistanceInput);
   const pace = useMaskedField(formatPaceInput);
-  const [splits, setSplits] = useState<Split[] | null>(null);
+
+  // Tabela ao vivo: aparece e se atualiza assim que os dois campos são válidos
+  const form = evaluateDistancePaceForm({ distance: distance.value, pace: pace.value });
+
+  // useMemo: uma ultramaratona pode ter 500 linhas; só recalcula a tabela
+  // quando a distância ou o pace mudam de fato, e não a cada renderização
+  const distanceKm = form.value?.distanceKm;
+  const paceSeconds = form.value?.paceSeconds;
+  const splits = useMemo(
+    () =>
+      distanceKm !== undefined && paceSeconds !== undefined
+        ? generateSplits(distanceKm, paceSeconds)
+        : null,
+    [distanceKm, paceSeconds],
+  );
+
+  const distanceError = shouldShowError(form.errors.distance, distance.touched)
+    ? VALIDATION_MESSAGES[form.errors.distance]
+    : null;
+  const paceError = shouldShowError(form.errors.pace, pace.touched)
+    ? VALIDATION_MESSAGES[form.errors.pace]
+    : null;
 
   const handleClear = (): void => {
     distance.clear();
     pace.clear();
-    setSplits(null);
-  };
-
-  const handleGenerate = (): void => {
-    const distanceResult = validateDistance(distance.value);
-    if (!distanceResult.valid) {
-      showValidationError(distanceResult.error);
-      return;
-    }
-
-    const paceResult = validatePace(pace.value);
-    if (!paceResult.valid) {
-      showValidationError(paceResult.error);
-      return;
-    }
-
-    notifySuccess();
-    setSplits(generateSplits(distanceResult.value, paceResult.value));
   };
 
   return (
@@ -51,13 +54,15 @@ const PaceTable: React.FC = () => {
       <Card style={styles.calculatorCard}>
         <ScreenHeader
           title="Tabela de ritmo"
-          description="Gere uma tabela km a km para acompanhar sua prova"
+          description="Informe a prova e o pace: a tabela km a km aparece na hora"
         />
 
         <InputField
           label="Distância da prova"
           value={distance.value}
           onChangeText={distance.onChangeText}
+          onBlur={distance.onBlur}
+          error={distanceError}
           unit="km"
           placeholder="10,0"
           accessibilityLabel="Campo de distância da prova"
@@ -68,6 +73,8 @@ const PaceTable: React.FC = () => {
           label="Pace desejado"
           value={pace.value}
           onChangeText={pace.onChangeText}
+          onBlur={pace.onBlur}
+          error={paceError}
           unit="/km"
           placeholder="5:30"
           keyboardType="number-pad"
@@ -78,13 +85,6 @@ const PaceTable: React.FC = () => {
         />
 
         <ButtonRow>
-          <Button
-            title="Gerar tabela"
-            icon="list"
-            onPress={handleGenerate}
-            accessibilityLabel="Gerar tabela"
-            accessibilityHint="Toque para gerar a tabela de ritmo"
-          />
           <Button
             title="Limpar"
             icon="trash-outline"

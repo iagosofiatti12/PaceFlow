@@ -60,13 +60,13 @@ describe('navegação', () => {
     expect(screen.getByLabelText('Aba Tempo')).toBeSelected();
   });
 
-  it('deve mostrar no Histórico um cálculo feito agora na aba Pace', async () => {
+  it('deve mostrar no Histórico um cálculo salvo agora na aba Pace', async () => {
     renderRouter(routes, { initialUrl: '/' });
 
     fireEvent.changeText(await screen.findByLabelText('Campo de distância em quilômetros'), '10');
     fireEvent.changeText(screen.getByLabelText('Minutos'), '50');
     await act(async () => {
-      fireEvent.press(screen.getByLabelText('Calcular pace'));
+      fireEvent.press(screen.getByLabelText('Salvar no histórico'));
     });
 
     fireEvent.press(screen.getByLabelText('Aba Histórico'));

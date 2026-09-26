@@ -6,9 +6,9 @@ Este arquivo define como qualquer IA ou pessoa deve trabalhar neste repositório
 
 **PaceFlow** é uma calculadora de pace para corredores (React Native + Expo). Quatro abas:
 
-- **Pace**: distância + tempo → ritmo em min/km, com feedback (elite/avançado/etc.) e gravação no histórico
-- **Tempo**: distância + pace → tempo total estimado
-- **Tabela**: gera tabela km a km com tempos parciais e acumulados
+- **Pace**: distância + tempo → ritmo em min/km calculado enquanto digita, com feedback (elite/avançado/etc.) e botão para salvar no histórico
+- **Tempo**: distância + pace → tempo total estimado (ao vivo)
+- **Tabela**: tabela km a km com tempos parciais e acumulados (ao vivo)
 - **Histórico**: últimos 10 cálculos de pace, persistidos no aparelho; tocar num item restaura o cálculo na aba Pace
 
 Público: corredores amadores brasileiros. Todo texto de UI é em **português brasileiro**.
@@ -33,18 +33,19 @@ app/_layout.tsx            → layout raiz: fontes, área segura, logo e navegad
 app/index.tsx              → aba Pace (rota "/"); recebe ?restore=<id> para restaurar um cálculo
 app/time.tsx, table.tsx, history.tsx → abas Tempo, Tabela e Histórico (rotas /time, /table, /history)
 src/components/            → um componente por aba (cada um gerencia o PRÓPRIO estado) + Header e TabBar
-src/components/ui/         → componentes reutilizáveis: Card, ScreenHeader, InputField, TimeInput, Button, ButtonRow, ResultCard, KeyboardScreen
+src/components/ui/         → componentes reutilizáveis: Card, ScreenHeader, InputField, TimeInput, FieldError, Button, ButtonRow, ResultCard, KeyboardScreen
 src/constants/theme.ts     → TODOS os tokens: paletas LIGHT_COLORS/DARK_COLORS, PACE_LEVEL_COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE
 src/constants/messages.ts  → textos das mensagens de validação (um por código de erro)
 src/constants/paceLevels.ts→ aparência de cada nível de pace (rótulo, emoji, cores)
 src/domain/                → regra de negócio pura, só números: pace, parciais, níveis, limites
 src/format/                → texto ↔ número: máscaras de digitação, tempo, distância (vírgula decimal), datas relativas
 src/validation/rules.ts    → valida o texto dos campos e devolve o número convertido ou um código de erro
+src/validation/forms.ts    → avalia o formulário inteiro para o cálculo ao vivo + quando mostrar cada erro
 src/hooks/useMaskedField.ts→ estado de um campo com máscara (value, onChangeText, clear)
 src/hooks/useTheme.ts      → useColors() e createThemedStyles(): cores do tema claro/escuro
 src/utils/storage.ts       → persistência do histórico (AsyncStorage)
 src/utils/historySchema.ts → formato do histórico (schema Zod v2) e migração da v1
-src/utils/feedback.ts      → vibração + alerta padrão de validação
+src/utils/feedback.ts      → vibração de sucesso (ao salvar no histórico)
 docs/AUDITORIA.md          → auditoria técnica e roadmap do revamp (fases 0–5)
 ```
 
@@ -54,8 +55,10 @@ Padrões estabelecidos:
 - **Navegação pela rota**: para mandar algo de uma aba para outra, use parâmetros de rota. Ex: o Histórico chama `router.navigate({ pathname: '/', params: { restore: id, t } })` e a aba Pace lê com `useLocalSearchParams`. Os arquivos em `app/` são finos: só montam a tela com os componentes de `src/components/`.
 - **Abas ficam montadas ao trocar**: os campos não se apagam ao mudar de aba. Tela que mostra dados salvos (Histórico) recarrega com `useFocusEffect`, e não com `useEffect`.
 - **Camadas de lógica pura**: componentes não fazem cálculo. `domain/` só trabalha com números (sem texto de tela nem cores), `format/` converte texto ↔ número e `validation/` valida os campos. Toda função nova nessas pastas (e em `hooks/`) nasce com teste; o CI exige cobertura mínima de 90% nelas.
-- **Fluxo de validação**: `const r = validateDistance(texto)` → se `!r.valid`, `showValidationError(r.error)` (o código vira texto via `constants/messages.ts`) → se válido, usar `r.value` (já é número) e chamar `notifySuccess()`.
-- **Campos com máscara**: `const distance = useMaskedField(formatDistanceInput)` em vez de `useState` + handler manual.
+- **Cálculo ao vivo (sem botão "Calcular")**: a cada render a tela chama `evaluatePaceForm` / `evaluateDistancePaceForm` (`validation/forms.ts`), que devolve `value` (resultado pronto ou `null`) e `errors` por campo. Campo vazio não é erro. O resultado não vai para um `useState`: é sempre "o que os campos dizem agora".
+- **Erro no campo, nunca em `Alert`**: `shouldShowError(erro, campo.touched)` decide se o erro aparece. Erros de limite (`distance.max`, `time.max`, `pace.range`) aparecem na hora; erros de digitação em andamento (`pace.format`, `distance.min`...) esperam a pessoa sair do campo. O texto vem de `VALIDATION_MESSAGES[código]` e vai na prop `error` do `InputField`/`TimeInput`, que mostra o `FieldError` e o anuncia ao leitor de tela.
+- **Salvar no histórico é explícito**: botão "Salvar no histórico" na aba Pace, desabilitado sem resultado e depois de salvo (até o cálculo mudar). `notifySuccess()` vibra só ao salvar.
+- **Campos com máscara**: `const distance = useMaskedField(formatDistanceInput)` em vez de `useState` + handler manual. Passe `onBlur={distance.onBlur}` para o campo: é o que marca `touched`.
 
 ## Convenções de código
 
@@ -112,6 +115,7 @@ Build de produção/publicação: via **EAS (Expo Application Services)** — ai
 - **Contraste testado no CI** (`contrast.test.ts`): cor nova tem que passar no WCAG AA nos dois temas.
 - **Geist Sans/Mono com `tabular-nums`**: decisão do `DESIGN.md` — números com largura fixa alinham em tabelas e não "dançam" ao digitar.
 - **Nível de pace separado da aparência**: `domain/levels.ts` só diz qual é o nível (`'elite'`, `'beginner'`...); texto, emoji e cor ficam em `constants/paceLevels.ts`. A mesma regra serve para modo escuro ou outro idioma. Fundos claros recebem texto escuro para cumprir contraste WCAG.
+- **Distância com dois códigos de limite** (`distance.min` e `distance.max`): "0" é o começo de "0,5" e não pode acender erro na hora; "600" é erro de verdade e acende.
 - **Validação devolve código de erro, não texto**: a regra não muda se a frase mudar, e o `Record<ValidationError, string>` obriga todo código novo a ter mensagem.
 - **`Pressable` em vez de `TouchableOpacity`**: API atual do React Native, com estilo de "pressionado" controlado por nós.
 - **Id do histórico = timestamp + sufixo aleatório**: `Date.now()` sozinho colidia em cálculos no mesmo milissegundo.

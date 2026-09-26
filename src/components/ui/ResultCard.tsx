@@ -75,7 +75,8 @@ const useStyles = createThemedStyles((colors) => ({
     backgroundColor: colors.accentStrong,
     borderRadius: RADIUS.xl,
     elevation: 6,
-    marginTop: SPACING.xl,
+    // Fica entre os campos (que já têm margem embaixo) e os botões
+    marginBottom: SPACING.md,
     padding: SPACING.xl,
     shadowColor: colors.accent,
     shadowOffset: { width: 0, height: 8 },

@@ -28,6 +28,7 @@ Paceflow/
 │   │       ├── Button.tsx
 │   │       ├── ButtonRow.tsx
 │   │       ├── Card.tsx
+│   │       ├── FieldError.tsx
 │   │       ├── InputField.tsx
 │   │       ├── KeyboardScreen.tsx
 │   │       ├── ResultCard.tsx
@@ -48,7 +49,8 @@ Paceflow/
 │   │   ├── distance.ts
 │   │   └── dates.ts
 │   ├── validation/          # Validação dos campos (devolve número ou código de erro)
-│   │   └── rules.ts
+│   │   ├── rules.ts
+│   │   └── forms.ts
 │   ├── hooks/               # Hooks reutilizáveis
 │   │   ├── useMaskedField.ts
 │   │   └── useTheme.ts
@@ -151,11 +153,12 @@ Além disso, o **CI no GitHub** (`.github/workflows/ci.yml`) roda lint, verifica
 
 ## ✨ Funcionalidades
 
+- ✅ Cálculo ao vivo: o resultado aparece enquanto você digita
 - ✅ Cálculo de pace (min/km) com feedback baseado no ritmo
 - ✅ Cálculo de tempo estimado a partir de distância e pace
 - ✅ Tabela de ritmo km a km com tempos parciais e acumulados
 - ✅ Histórico dos últimos 10 cálculos (persistido no aparelho)
-- ✅ Validação de entradas com feedback tátil (vibração)
+- ✅ Validação com mensagens de erro no próprio campo (anunciadas ao leitor de tela)
 - ✅ Modo escuro automático (segue o tema do celular)
 - ✅ Distâncias com vírgula decimal ("10,5 km") e suporte à fonte ampliada do celular
 - ✅ Interface responsiva e acessível (contraste WCAG AA verificado por teste)

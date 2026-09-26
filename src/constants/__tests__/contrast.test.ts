@@ -60,6 +60,7 @@ const iconPairs = (c: ColorPalette): Pair[] => [
   ['accent / surface', c.accent, c.surface],
   ['accent / background', c.accent, c.background],
   ['onAccent / accentStrong (ícone do botão)', c.onAccent, c.accentStrong],
+  ['danger / surfaceMuted (borda de campo com erro)', c.danger, c.surfaceMuted],
 ];
 
 describe.each([

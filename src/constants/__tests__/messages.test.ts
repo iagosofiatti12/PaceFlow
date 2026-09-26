@@ -5,7 +5,8 @@ import { PACE_LEVELS } from '../paceLevels';
 describe('VALIDATION_MESSAGES', () => {
   it('deve manter os textos de erro exibidos ao usuário', () => {
     expect(VALIDATION_MESSAGES['distance.empty']).toBe('Por favor, insira uma distância válida');
-    expect(VALIDATION_MESSAGES['distance.range']).toBe('A distância deve estar entre 0,1 e 500 km');
+    expect(VALIDATION_MESSAGES['distance.min']).toBe('A distância mínima é 0,1 km');
+    expect(VALIDATION_MESSAGES['distance.max']).toBe('A distância máxima é 500 km');
     expect(VALIDATION_MESSAGES['time.empty']).toBe('Por favor, insira um tempo válido');
     expect(VALIDATION_MESSAGES['time.max']).toBe('O tempo deve ser de no máximo 99:59:59');
     expect(VALIDATION_MESSAGES['pace.empty']).toBe('Por favor, insira um pace válido');

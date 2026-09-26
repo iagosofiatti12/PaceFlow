@@ -17,15 +17,15 @@ describe('validateDistance', () => {
   });
 
   it('deve rejeitar distância maior que 500km', () => {
-    expect(validateDistance('501')).toEqual({ valid: false, error: 'distance.range' });
+    expect(validateDistance('501')).toEqual({ valid: false, error: 'distance.max' });
   });
 
   it('deve rejeitar distância zero', () => {
-    expect(validateDistance('0')).toEqual({ valid: false, error: 'distance.range' });
+    expect(validateDistance('0')).toEqual({ valid: false, error: 'distance.min' });
   });
 
   it('deve rejeitar distância menor que 0.1 km', () => {
-    expect(validateDistance('0.05')).toEqual({ valid: false, error: 'distance.range' });
+    expect(validateDistance('0.05')).toEqual({ valid: false, error: 'distance.min' });
   });
 
   it('deve aceitar exatamente os limites 0.1 e 500', () => {
