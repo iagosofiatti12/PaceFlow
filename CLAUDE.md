@@ -121,6 +121,7 @@ Build de produção/publicação: via **EAS (Expo Application Services)** — ai
 - **`react-native-safe-area-context`**: o `SafeAreaView` do `react-native` está depreciado.
 - **Prettier com `endOfLine: "auto"`**: o desenvolvimento acontece no Windows (CRLF); sem isso o format:check briga com o git.
 - **Modo escuro seguindo o celular**: `userInterfaceStyle: "automatic"` no `app.json` + `useColorScheme` do React Native. O `expo-system-ui` é obrigatório para isso funcionar em builds de Android (documentação do Expo).
+- **Ícone do app a partir do tênis do logo** (`assets/icon-shoe.svg`, linhas engrossadas para aparecer em 48 px): branco sobre `#E75713`, com ícone adaptativo e monocromático para Android (detalhes e como regenerar no DESIGN.md). O ícone só aparece em build de preview/produção; o Expo Go mostra o dele.
 - **Splash com `expo-splash-screen`**: o plugin no `app.json` define a splash clara e a escura, e o `app/_layout.tsx` a segura na tela (`preventAutoHideAsync`) até as fontes carregarem. Se as fontes falharem, o app abre mesmo assim, com a fonte do sistema. A splash só aparece de verdade em build de preview/produção; o Expo Go mostra a dele.
 - **Teto de ampliação só onde a largura é fixa** (`FONT_SCALE`): respeita quem aumenta a fonte do celular sem deixar botão, aba ou número grande estourar a tela.
 - **`createThemedStyles` monta os dois StyleSheets uma vez**: o hook só escolhe entre o claro e o escuro, sem recriar estilos a cada render.
