@@ -22,7 +22,7 @@ SplashScreen.setOptions({ duration: 300, fade: true });
 
 // Layout raiz do Expo Router: tudo o que aparece em TODAS as telas mora aqui
 // (fontes, área segura, logo e barra de abas). Cada aba é um arquivo desta pasta:
-// index.tsx (Pace), time.tsx, table.tsx e history.tsx.
+// index.tsx (Pace), time.tsx, table.tsx, treadmill.tsx e history.tsx.
 export default function RootLayout(): React.ReactElement | null {
   // Estilos do tema atual (claro ou escuro, segue o celular)
   const styles = useStyles();
@@ -71,6 +71,7 @@ export default function RootLayout(): React.ReactElement | null {
           <Tabs.Screen name="index" options={{ title: 'Pace' }} />
           <Tabs.Screen name="time" options={{ title: 'Tempo' }} />
           <Tabs.Screen name="table" options={{ title: 'Tabela' }} />
+          <Tabs.Screen name="treadmill" options={{ title: 'Esteira' }} />
           <Tabs.Screen name="history" options={{ title: 'Histórico' }} />
         </Tabs>
       </SafeAreaView>

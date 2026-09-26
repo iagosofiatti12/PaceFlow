@@ -7,6 +7,7 @@ import RootLayout from '../../app/_layout';
 import PaceScreen from '../../app/index';
 import TimeScreen from '../../app/time';
 import TableScreen from '../../app/table';
+import TreadmillScreen from '../../app/treadmill';
 import HistoryScreen from '../../app/history';
 
 // Testes de integração da navegação: montam o app com as rotas reais de app/
@@ -22,6 +23,7 @@ const routes = {
   index: PaceScreen,
   time: TimeScreen,
   table: TableScreen,
+  treadmill: TreadmillScreen,
   history: HistoryScreen,
 };
 
@@ -58,6 +60,15 @@ describe('navegação', () => {
     expect(await screen.findByText('Calcular tempo')).toBeTruthy();
     expect(screen).toHavePathname('/time');
     expect(screen.getByLabelText('Aba Tempo')).toBeSelected();
+  });
+
+  it('deve abrir a aba Esteira pela barra', async () => {
+    renderRouter(routes, { initialUrl: '/' });
+
+    fireEvent.press(await screen.findByLabelText('Aba Esteira'));
+
+    expect(await screen.findByText('Consulta rápida')).toBeTruthy();
+    expect(screen).toHavePathname('/treadmill');
   });
 
   it('deve mostrar no Histórico um cálculo salvo agora na aba Pace', async () => {
