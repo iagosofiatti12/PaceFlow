@@ -33,7 +33,7 @@ export interface ColorPalette {
   };
   /** Ícones secundários (abas inativas, estado vazio) — mínimo 3:1 */
   iconMuted: string;
-  /** Laranja da marca para ícones e detalhes (sem texto por cima) */
+  /** Laranja da marca (a mesma cor do logo) para ícones e detalhes, sem texto por cima */
   accent: string;
   /** Laranja de fundo com texto branco por cima: botões e cartão de resultado */
   accentStrong: string;
@@ -65,7 +65,7 @@ export const LIGHT_COLORS: ColorPalette = {
     placeholder: '#6E6E6E',
   },
   iconMuted: '#8A8A8A',
-  accent: '#E8662E',
+  accent: '#E75713',
   accentStrong: '#BF4B17',
   accentText: '#BF4B17',
   accentSoft: '#FFF5F0',
