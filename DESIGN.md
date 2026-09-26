@@ -107,6 +107,11 @@ com o mesmo visual da aba ativa (pílula `accentSoft` + texto `accentText` sobre
 em `accent`, e a "Consulta rápida": tabela listrada de 8 a 16 km/h em Geist Mono, com a linha da
 velocidade atual destacada em `accentSoft`/`accentText`.
 
+**Plano de prova na aba Tabela:** abaixo do pace, um `SegmentedControl` escolhe entre
+"Ritmo constante" e "Negative split". No negative split aparece uma caixa `surfaceMuted` com
+ícone `trending-up-outline` em `accent`, dizendo o pace de cada metade; a tabela e o tempo final
+seguem o mesmo visual de sempre.
+
 **Campos de tempo:** o cursor pula sozinho de horas para minutos (2 dígitos) e de minutos
 para segundos (2 dígitos, ou 1 dígito de 6 a 9).
 
