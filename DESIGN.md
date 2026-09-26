@@ -31,9 +31,9 @@ O fundo do ícone adaptativo é a cor `#E75713` (`android.adaptiveIcon.backgroun
 `app.json`). Para regenerar: renderizar `assets/icon-shoe.svg` centralizado a 1024×1024 (56% da
 altura sobre `#E75713` no `icon.png`; 50% sobre fundo transparente no adaptativo e no monocromático).
 
-**Laranja do app × laranja do logo:** o app usa `#E8662E` (`accent`) e o logo usa `#E75713`. São
-próximos, mas não iguais. Unificar é uma decisão em aberto; se for feita, o
-`contrast.test.ts` confere se as combinações continuam passando.
+**Laranja da marca unificado:** o `accent` do tema claro usa `#E75713`, a mesma cor do logo e do
+ícone (antes era `#E8662E`, um tom um pouco diferente). O `#E75713` ainda tem mais contraste
+que o antigo (3,64:1 contra 3,3:1 sobre branco).
 
 ## Cores por papel e modo escuro (vale para todo código novo)
 
@@ -47,14 +47,14 @@ cinza-escuro no escuro. Nos componentes, as cores vêm de `useColors()` ou de
 
 | Token          | Claro     | Escuro    | Onde usar                                                             |
 | -------------- | --------- | --------- | --------------------------------------------------------------------- |
-| `accent`       | `#E8662E` | `#F07A45` | Ícones e detalhes sem texto (bordas, bandeira da tabela)              |
+| `accent`       | `#E75713` | `#F07A45` | Ícones e detalhes sem texto (bordas, bandeira da tabela)              |
 | `accentStrong` | `#BF4B17` | `#BF4B17` | Fundo com texto branco por cima: botão principal, cartão de resultado |
 | `accentText`   | `#BF4B17` | `#F07A45` | Texto laranja sobre os fundos do app ("km", coluna Total)             |
 | `accentSoft`   | `#FFF5F0` | `#3A2418` | Fundo laranja-claro: aba ativa, linha final da tabela                 |
 
-O `#E8662E` com texto branco tinha contraste 3.3:1 (o mínimo é 4.5:1). Por isso botões e o
+O laranja da marca com texto branco não chega a 4.5:1 (o mínimo para texto). Por isso botões e o
 cartão de resultado passaram a usar o `#BF4B17`, um tom mais queimado da mesma cor, e o
-`#E8662E` ficou para o que não tem texto por cima.
+laranja da marca (`#E75713`) ficou para o que não tem texto por cima.
 
 **Contraste é garantido por teste:** `src/constants/__tests__/contrast.test.ts` mede, nos dois
 temas, cada combinação de texto e fundo usada no app (mínimo 4.5:1 para texto e 3:1 para
@@ -131,14 +131,14 @@ Nota geral: 3.3/5. Base de produto madura e com personalidade; maior ganho está
 
 ## O que já funciona
 
-- **Restrição de cor**: um único laranja (#E8662E) como acento, usado com disciplina.
+- **Restrição de cor**: um único laranja (#E75713, a cor do logo) como acento, usado com disciplina.
 - **Card de resultado forte**: bloco laranja com número grande é um ótimo ponto focal.
 - **Acessibilidade exemplar**: accessibilityLabel, hint, role em quase tudo, além de SafeAreaView.
 - **Haptics + microanimação**: feedback tátil no sucesso/erro e fade entre abas.
 
 ## A marca / logo
 
-Logo em handlettering/brush, "Pace" e "Flow" empilhados, cor #E8662E, com um pé/tênis em outline correndo sob a palavra. Expressivo e com movimento — a UI atual (fonte de sistema genérica) não honra essa promessa.
+Logo em handlettering/brush, "Pace" e "Flow" empilhados, cor #E75713, com um pé/tênis em outline correndo sob a palavra. Expressivo e com movimento — a UI atual (fonte de sistema genérica) não honra essa promessa.
 **Oportunidade**: isolar o símbolo do tênis como ícone de app, em vez do placeholder atual.
 
 ## Achados (por prioridade)
