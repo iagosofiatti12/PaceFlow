@@ -99,7 +99,7 @@ Também: modo escuro, `maxFontSizeMultiplier` no número grande, vírgula decima
 2. Distâncias prontas: `5K · 10K · 21,1K · 42,2K`. _(Fase 3b: feito.)_
 3. Campo de tempo com pulo automático de foco. _(Fase 3b: feito.)_
 4. km ↔ milhas e velocidade em km/h.
-5. Previsão de prova (fórmula de Riegel).
+5. Previsão de prova (fórmula de Riegel). _(feito)_
 6. Tabela de parciais com estratégias (constante, negative split) e compartilhamento.
 7. Feedback que considera a distância, sem rótulos condescendentes.
 8. Histórico: deslizar para apagar, desfazer, agrupar por data, gráfico de evolução.
