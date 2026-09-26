@@ -12,7 +12,8 @@ import { parseKm } from '../format/distance';
 // a regra ("distância fora do limite") não muda se a frase mudar.
 export type ValidationError =
   | 'distance.empty'
-  | 'distance.range'
+  | 'distance.min'
+  | 'distance.max'
   | 'time.empty'
   | 'time.max'
   | 'pace.empty'
@@ -35,7 +36,8 @@ const fail = (error: ValidationError): { valid: false; error: ValidationError } 
 export const validateDistance = (distance: string): ValidationResult<number> => {
   const km = parseKm(distance);
   if (!distance || isNaN(km)) return fail('distance.empty');
-  if (km < MIN_DISTANCE_KM || km > MAX_DISTANCE_KM) return fail('distance.range');
+  if (km < MIN_DISTANCE_KM) return fail('distance.min');
+  if (km > MAX_DISTANCE_KM) return fail('distance.max');
   return { valid: true, value: km };
 };
 

@@ -7,6 +7,14 @@ export interface MaskedField {
   value: string;
   /** Passar direto para o onChangeText do TextInput */
   onChangeText: (value: string) => void;
+  /** Passar direto para o onBlur do TextInput: marca o campo como visitado */
+  onBlur: () => void;
+  /**
+   * true depois que a pessoa sai do campo pela primeira vez. Erros só aparecem
+   * em campos visitados: ninguém quer ver "formato inválido" no meio da
+   * digitação de "5:30", logo depois do "5:".
+   */
+  touched: boolean;
   clear: () => void;
 }
 
@@ -15,10 +23,11 @@ export interface MaskedField {
  * useState + handleXChange que se repetia em todas as abas.
  *
  * Ex: const distance = useMaskedField(formatDistanceInput);
- *     <InputField value={distance.value} onChangeText={distance.onChangeText} />
+ *     <InputField value={distance.value} onChangeText={distance.onChangeText} onBlur={distance.onBlur} />
  */
 export const useMaskedField = (mask: InputMask, initialValue = ''): MaskedField => {
   const [value, setValue] = useState<string>(initialValue);
+  const [touched, setTouched] = useState<boolean>(false);
 
   const onChangeText = useCallback(
     (text: string): void => {
@@ -28,7 +37,13 @@ export const useMaskedField = (mask: InputMask, initialValue = ''): MaskedField 
     [mask],
   );
 
-  const clear = useCallback((): void => setValue(''), []);
+  const onBlur = useCallback((): void => setTouched(true), []);
 
-  return { value, onChangeText, clear };
+  // Limpar também "esquece" a visita: o campo volta ao estado inicial
+  const clear = useCallback((): void => {
+    setValue('');
+    setTouched(false);
+  }, []);
+
+  return { value, onChangeText, onBlur, touched, clear };
 };

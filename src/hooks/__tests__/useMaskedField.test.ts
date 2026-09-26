@@ -31,4 +31,22 @@ describe('useMaskedField', () => {
     act(() => result.current.clear());
     expect(result.current.value).toBe('');
   });
+
+  it('deve começar sem ter sido visitado', () => {
+    const { result } = renderHook(() => useMaskedField(formatDistanceInput));
+    expect(result.current.touched).toBe(false);
+  });
+
+  it('deve marcar como visitado ao sair do campo', () => {
+    const { result } = renderHook(() => useMaskedField(formatDistanceInput));
+    act(() => result.current.onBlur());
+    expect(result.current.touched).toBe(true);
+  });
+
+  it('limpar deve esquecer a visita', () => {
+    const { result } = renderHook(() => useMaskedField(formatDistanceInput, '10'));
+    act(() => result.current.onBlur());
+    act(() => result.current.clear());
+    expect(result.current.touched).toBe(false);
+  });
 });
