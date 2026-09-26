@@ -66,3 +66,15 @@ export const isTimeFieldComplete = (value: string, field: 'hours' | 'minutes'): 
   if (field === 'minutes' && value.length === 1) return Number(value) >= 6;
   return false;
 };
+
+/**
+ * Campo de velocidade da esteira: até 2 dígitos inteiros e 1 decimal ("12,5"),
+ * como no painel. Aceita ponto ou vírgula e sempre mostra vírgula.
+ */
+export const formatSpeedInput = (value: string): string | null => {
+  const normalized = value.replace('.', ',');
+  if (normalized === '' || /^\d{0,2}(,\d?)?$/.test(normalized)) {
+    return normalized;
+  }
+  return null;
+};

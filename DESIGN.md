@@ -76,6 +76,12 @@ ação, depois a informação extra), separada por uma linha fina. Uma linha por
 `surfaceMuted`: sigla em `accentText` e nome embaixo à esquerda; tempo em Geist Mono semibold e
 pace menor à direita. Termina com uma nota curta dizendo que é estimativa.
 
+**Aba Esteira:** a troca de modo ("Sei a velocidade" / "Sei o pace") usa o `SegmentedControl`,
+com o mesmo visual da aba ativa (pílula `accentSoft` + texto `accentText` sobre fundo
+`surfaceMuted`). Abaixo do resultado vem uma dica em caixa `surfaceMuted` com ícone de lâmpada
+em `accent`, e a "Consulta rápida": tabela listrada de 8 a 16 km/h em Geist Mono, com a linha da
+velocidade atual destacada em `accentSoft`/`accentText`.
+
 **Campos de tempo:** o cursor pula sozinho de horas para minutos (2 dígitos) e de minutos
 para segundos (2 dígitos, ou 1 dígito de 6 a 9).
 

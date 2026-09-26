@@ -15,6 +15,7 @@ const TAB_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   index: 'speedometer-outline',
   time: 'time-outline',
   table: 'list-outline',
+  treadmill: 'walk-outline',
   history: 'archive-outline',
 };
 
@@ -63,7 +64,7 @@ const TabBar: React.FC<TabBarProps> = ({ state, descriptors, navigation }) => {
               color={isActive ? colors.accent : colors.iconMuted}
               style={styles.tabIcon}
             />
-            {/* Quatro abas dividem a largura: com fonte ampliada, o rótulo
+            {/* Cinco abas dividem a largura: com fonte ampliada, o rótulo
                 encolhe para caber numa linha em vez de quebrar */}
             <Text
               style={[styles.tabText, isActive && styles.tabTextActive]}

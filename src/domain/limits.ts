@@ -14,3 +14,9 @@ export const MAX_HOURS = 99;
 
 /** Pace mais lento aceito: 20:00/km (caminhada lenta) */
 export const MAX_PACE_SECONDS = 20 * 60;
+
+/** Menor velocidade de esteira aceita: 3 km/h = pace de 20:00/km (o limite de pace) */
+export const MIN_SPEED_KMH = 3;
+
+/** Maior velocidade de esteira aceita (as de academia vão até ~20-25 km/h) */
+export const MAX_SPEED_KMH = 30;

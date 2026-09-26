@@ -15,6 +15,7 @@ Paceflow/
 │   ├── index.tsx            # Aba Pace (rota "/")
 │   ├── time.tsx             # Aba Tempo
 │   ├── table.tsx            # Aba Tabela
+│   ├── treadmill.tsx        # Aba Esteira
 │   └── history.tsx          # Aba Histórico
 ├── src/
 │   ├── components/          # Componentes das abas do app
@@ -24,6 +25,7 @@ Paceflow/
 │   │   ├── TimeCalculator.tsx
 │   │   ├── PaceTable.tsx
 │   │   ├── RacePredictions.tsx
+│   │   ├── TreadmillCalculator.tsx
 │   │   ├── HistoryTab.tsx
 │   │   └── ui/              # Componentes de UI reutilizáveis
 │   │       ├── Button.tsx
@@ -35,6 +37,7 @@ Paceflow/
 │   │       ├── KeyboardScreen.tsx
 │   │       ├── ResultCard.tsx
 │   │       ├── ScreenHeader.tsx
+│   │       ├── SegmentedControl.tsx
 │   │       └── TimeInput.tsx
 │   ├── constants/           # Tokens de design, mensagens e aparência dos níveis
 │   │   ├── theme.ts
@@ -46,11 +49,13 @@ Paceflow/
 │   │   ├── splits.ts
 │   │   ├── levels.ts
 │   │   ├── prediction.ts
+│   │   ├── treadmill.ts
 │   │   └── limits.ts
 │   ├── format/              # Texto ↔ número: máscaras, tempo, datas
 │   │   ├── masks.ts
 │   │   ├── time.ts
 │   │   ├── distance.ts
+│   │   ├── speed.ts
 │   │   └── dates.ts
 │   ├── validation/          # Validação dos campos (devolve número ou código de erro)
 │   │   ├── rules.ts
@@ -161,6 +166,7 @@ Além disso, o **CI no GitHub** (`.github/workflows/ci.yml`) roda lint, verifica
 - ✅ Cálculo ao vivo: o resultado aparece enquanto você digita
 - ✅ Atalhos para 5K, 10K, meia maratona e maratona
 - ✅ Previsão de prova: do seu resultado, estima o tempo em 5K, 10K, meia e maratona
+- ✅ Esteira: converte a velocidade do painel (km/h) em pace e vice-versa, com tabela de consulta
 - ✅ Cursor que pula sozinho entre horas, minutos e segundos
 - ✅ Cálculo de pace (min/km) com feedback baseado no ritmo
 - ✅ Cálculo de tempo estimado a partir de distância e pace

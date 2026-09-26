@@ -99,7 +99,7 @@ export const evaluateDistancePaceForm = ({
 
 /**
  * Erros que acontecem naturalmente no MEIO da digitação ("5:" antes de "5:30",
- * "0" antes de "0,5"). Só aparecem depois que a pessoa sai do campo.
+ * "0" antes de "0,5", "1" antes de "12" km/h). Só aparecem depois que a pessoa sai do campo.
  */
 const IN_PROGRESS_ERRORS: readonly ValidationError[] = [
   'distance.empty',
@@ -108,6 +108,8 @@ const IN_PROGRESS_ERRORS: readonly ValidationError[] = [
   'pace.empty',
   'pace.format',
   'pace.zero',
+  'speed.empty',
+  'speed.min',
 ];
 
 /**

@@ -12,4 +12,7 @@ export const VALIDATION_MESSAGES: Record<ValidationError, string> = {
   'pace.format': 'Formato inválido. Use: minutos:segundos (ex: 5:30)',
   'pace.range': 'Pace deve estar entre 0:01 e 20:00 por km',
   'pace.zero': 'Pace não pode ser zero',
+  'speed.empty': 'Por favor, insira uma velocidade válida',
+  'speed.min': 'A velocidade mínima é 3 km/h',
+  'speed.max': 'A velocidade máxima é 30 km/h',
 };

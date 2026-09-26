@@ -1,4 +1,6 @@
 import {
+  MAX_SPEED_KMH,
+  MIN_SPEED_KMH,
   MAX_DISTANCE_KM,
   MAX_PACE_SECONDS,
   MAX_TIME_SECONDS,
@@ -6,6 +8,7 @@ import {
 } from '../domain/limits';
 import { paceToSeconds } from '../format/time';
 import { parseKm } from '../format/distance';
+import { parseSpeed } from '../format/speed';
 
 // A validação devolve um CÓDIGO de erro, e não o texto da mensagem.
 // O texto mora em src/constants/messages.ts, perto da interface:
@@ -19,7 +22,10 @@ export type ValidationError =
   | 'pace.empty'
   | 'pace.format'
   | 'pace.range'
-  | 'pace.zero';
+  | 'pace.zero'
+  | 'speed.empty'
+  | 'speed.min'
+  | 'speed.max';
 
 // Quando é válido, já devolve o número convertido: o componente
 // não precisa chamar parseFloat de novo (e não corre o risco de esquecer)
@@ -66,4 +72,13 @@ export const validatePace = (pace: string): ValidationResult<number> => {
   if (paceSeconds === 0) return fail('pace.zero');
   if (paceSeconds > MAX_PACE_SECONDS) return fail('pace.range');
   return { valid: true, value: paceSeconds };
+};
+
+/** Velocidade da esteira (texto do campo, com vírgula ou ponto) → km/h */
+export const validateSpeed = (speed: string): ValidationResult<number> => {
+  const kmh = parseSpeed(speed);
+  if (!speed || isNaN(kmh)) return fail('speed.empty');
+  if (kmh < MIN_SPEED_KMH) return fail('speed.min');
+  if (kmh > MAX_SPEED_KMH) return fail('speed.max');
+  return { valid: true, value: kmh };
 };

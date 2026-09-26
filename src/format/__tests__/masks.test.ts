@@ -5,6 +5,7 @@ import {
   formatHoursInput,
   formatMinutesInput,
   isTimeFieldComplete,
+  formatSpeedInput,
 } from '../masks';
 
 describe('formatTimeInput', () => {
@@ -105,5 +106,23 @@ describe('isTimeFieldComplete', () => {
 
   it('campo vazio nunca está completo', () => {
     expect(isTimeFieldComplete('', 'minutes')).toBe(false);
+  });
+});
+
+describe('formatSpeedInput', () => {
+  it('aceita até 2 dígitos e 1 casa decimal, com vírgula', () => {
+    expect(formatSpeedInput('12')).toBe('12');
+    expect(formatSpeedInput('12,5')).toBe('12,5');
+    expect(formatSpeedInput('9.5')).toBe('9,5');
+    expect(formatSpeedInput('')).toBe('');
+  });
+
+  it('ignora o terceiro dígito inteiro e a segunda casa decimal', () => {
+    expect(formatSpeedInput('123')).toBeNull();
+    expect(formatSpeedInput('12,55')).toBeNull();
+  });
+
+  it('ignora letras', () => {
+    expect(formatSpeedInput('1a')).toBeNull();
   });
 });

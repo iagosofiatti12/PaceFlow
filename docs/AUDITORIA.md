@@ -104,6 +104,7 @@ Também: modo escuro, `maxFontSizeMultiplier` no número grande, vírgula decima
 7. Feedback que considera a distância, sem rótulos condescendentes.
 8. Histórico: deslizar para apagar, desfazer, agrupar por data, gráfico de evolução.
 9. Onboarding de uma tela e tela de Configurações.
+10. Calculadora de esteira (km/h ↔ pace), sugerida na análise de mercado. _(feito)_
 
 ## 6. Roadmap
 
