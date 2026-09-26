@@ -69,7 +69,7 @@ Paceflow/
 │       ├── historySchema.ts
 │       └── feedback.ts
 │   (cada pasta tem seus testes em __tests__/; src/__tests__ tem os testes de navegação)
-├── assets/                  # Imagens e recursos
+├── assets/                  # Imagens: logo (logo.svg é a fonte oficial), ícones do app e fonte do ícone (icon-shoe.svg)
 ├── docs/AUDITORIA.md        # Auditoria técnica e roadmap do revamp
 ├── .github/workflows/ci.yml # CI: lint + tipos + formatação + testes + expo-doctor
 ├── app.json                 # Configuração do Expo

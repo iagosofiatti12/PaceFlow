@@ -7,8 +7,33 @@
 
 > **Status (setembro/2026):** os "ganhos rápidos" 1–4 e os estruturais 5 e 7 já foram
 > implementados. A Fase 2 do revamp (`docs/AUDITORIA.md`) trouxe o modo escuro e o sistema de
-> cores por papel (seção abaixo). Pendentes: variar o tratamento do resultado por contexto
-> (estrutural 6) e desenhar o ícone de app a partir do símbolo do tênis (estrutural 8).
+> cores por papel (seção abaixo) e o ícone do app a partir do tênis do logo (estrutural 8).
+> Pendente: variar o tratamento do resultado por contexto (estrutural 6).
+
+## Logo e ícone do app
+
+**Fonte oficial do logo:** `assets/logo.svg`, exportado do Canva (o arquivo original), sem o fundo
+bege e sem margem. A cor do logo é **`#E75713`**. O `logo.png` usado no app e na splash é o mesmo
+desenho em bitmap.
+
+**Ícone (opção A, escolhida entre três propostas):** o tênis do logo em branco sobre `#E75713`,
+ocupando ~56% da altura. As linhas do tênis foram engrossadas com um contorno na mesma cor
+(`assets/icon-shoe.svg`): no tamanho real da tela inicial (48–64 px), as linhas originais sumiam.
+
+| Arquivo               | Uso                         | Regra                                                                            |
+| --------------------- | --------------------------- | -------------------------------------------------------------------------------- |
+| `icon.png`            | iOS e padrão                | 1024×1024, sem transparência (o sistema arredonda os cantos)                     |
+| `adaptive-icon.png`   | Android: camada da frente   | Tênis branco em fundo transparente, dentro da zona segura central (~61% do raio) |
+| `monochrome-icon.png` | Android 13+: ícone temático | Mesmo desenho; o sistema pinta com as cores do papel de parede                   |
+| `favicon.png`         | Web                         | 48×48                                                                            |
+
+O fundo do ícone adaptativo é a cor `#E75713` (`android.adaptiveIcon.backgroundColor` no
+`app.json`). Para regenerar: renderizar `assets/icon-shoe.svg` centralizado a 1024×1024 (56% da
+altura sobre `#E75713` no `icon.png`; 50% sobre fundo transparente no adaptativo e no monocromático).
+
+**Laranja do app × laranja do logo:** o app usa `#E8662E` (`accent`) e o logo usa `#E75713`. São
+próximos, mas não iguais. Unificar é uma decisão em aberto; se for feita, o
+`contrast.test.ts` confere se as combinações continuam passando.
 
 ## Cores por papel e modo escuro (vale para todo código novo)
 
