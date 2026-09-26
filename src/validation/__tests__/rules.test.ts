@@ -1,4 +1,4 @@
-import { validateDistance, validateTime, validatePace } from '../rules';
+import { validateDistance, validateTime, validatePace, validateSpeed } from '../rules';
 import { MAX_TIME_SECONDS } from '../../domain/limits';
 
 describe('validateDistance', () => {
@@ -86,5 +86,28 @@ describe('validatePace', () => {
 
   it('deve rejeitar pace zero', () => {
     expect(validatePace('0:00')).toEqual({ valid: false, error: 'pace.zero' });
+  });
+});
+
+describe('validateSpeed', () => {
+  it('aceita velocidade válida com vírgula ou ponto', () => {
+    expect(validateSpeed('10')).toEqual({ valid: true, value: 10 });
+    expect(validateSpeed('12,5')).toEqual({ valid: true, value: 12.5 });
+    expect(validateSpeed('9.5')).toEqual({ valid: true, value: 9.5 });
+  });
+
+  it('rejeita campo vazio ou só vírgula', () => {
+    expect(validateSpeed('')).toEqual({ valid: false, error: 'speed.empty' });
+    expect(validateSpeed(',')).toEqual({ valid: false, error: 'speed.empty' });
+  });
+
+  it('rejeita abaixo de 3 km/h e acima de 30 km/h', () => {
+    expect(validateSpeed('2,9')).toEqual({ valid: false, error: 'speed.min' });
+    expect(validateSpeed('31')).toEqual({ valid: false, error: 'speed.max' });
+  });
+
+  it('aceita exatamente os limites', () => {
+    expect(validateSpeed('3').valid).toBe(true);
+    expect(validateSpeed('30').valid).toBe(true);
   });
 });

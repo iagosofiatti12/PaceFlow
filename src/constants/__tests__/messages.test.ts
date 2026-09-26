@@ -11,6 +11,7 @@ describe('VALIDATION_MESSAGES', () => {
     expect(VALIDATION_MESSAGES['time.max']).toBe('O tempo deve ser de no máximo 99:59:59');
     expect(VALIDATION_MESSAGES['pace.empty']).toBe('Por favor, insira um pace válido');
     expect(VALIDATION_MESSAGES['pace.zero']).toBe('Pace não pode ser zero');
+    expect(VALIDATION_MESSAGES['speed.max']).toBe('A velocidade máxima é 30 km/h');
   });
 });
 

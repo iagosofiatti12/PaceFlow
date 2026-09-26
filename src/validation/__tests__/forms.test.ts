@@ -111,6 +111,9 @@ describe('shouldShowError', () => {
     // "0" é o começo de "0,5": abaixo do mínimo também espera sair do campo
     expect(shouldShowError('distance.min', false)).toBe(false);
     expect(shouldShowError('distance.min', true)).toBe(true);
+    // "1" é o começo de "12" km/h
+    expect(shouldShowError('speed.min', false)).toBe(false);
+    expect(shouldShowError('speed.max', false)).toBe(true);
     expect(shouldShowError('distance.empty', true)).toBe(true);
   });
 });
