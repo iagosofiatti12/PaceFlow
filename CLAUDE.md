@@ -76,7 +76,16 @@ Padrões estabelecidos:
 ## Regras obrigatórias
 
 1. **Nunca commitar direto na `main`.** Toda mudança nasce numa branch descritiva (`fix/...`, `feat/...`, `refactor/...`, `chore/...`, `design/...`, `docs/...`, `test/...`).
-2. **Commits saem apenas com a autoria do dono do repositório.** Não adicionar `Co-Authored-By` nem qualquer assinatura de IA nas mensagens.
+2. **Todo commit e todo PR feito por uma IA sai no nome do dono do repositório (Iago Sofiatti).** Nada pode deixar visível que foi uma IA:
+   - **Autoria do commit**: configurar antes do primeiro commit da sessão:
+     ```bash
+     git config user.name "Iago Sofiatti"
+     git config user.email "138143929+iagosofiatti12@users.noreply.github.com"
+     ```
+     Conferir com `git log --format='%an <%ae>' -1` antes do push.
+   - **Mensagens**: sem `Co-Authored-By`, "Generated with..." ou qualquer assinatura de IA.
+   - **Branches**: nomes descritivos (`feat/...`, `fix/...`), nunca com o nome da ferramenta de IA (ex: `claude/...`).
+   - **PRs**: descrição sem rodapé de IA (se a ferramenta adicionar um automaticamente, remover) e com `iagosofiatti12` como assignee.
 3. **Nunca usar `git add -A` ou `git add .`** — adicionar arquivos explicitamente, para não arrastar trabalho não relacionado do dono do repo.
 4. **Antes de mexer em qualquer estilo/layout/cor, ler o arquivo `DESIGN.md`** na raiz — é a fonte da verdade das decisões visuais.
 5. **Consultar documentação atualizada (Context7 ou docs oficiais) antes de usar API de biblioteca** — não confiar só em conhecimento de treinamento para versões do Expo/RN.
@@ -130,7 +139,7 @@ Build de produção/publicação: via **EAS (Expo Application Services)** — ai
 ## O que NUNCA fazer neste repositório
 
 - Commitar na `main` ou fazer push forçado
-- Adicionar assinatura de IA (`Co-Authored-By`, "Generated with...") em commits ou PRs
+- Adicionar assinatura de IA (`Co-Authored-By`, "Generated with...") em commits ou PRs, commitar com autoria que não seja a do dono do repositório ou criar branch com nome de ferramenta de IA
 - Hardcodar cores/tamanhos/fontes fora do `theme.ts`
 - Editar ou commitar pastas nativas (`/android`, `/ios`) — são geradas pelo Expo
 - Remover validações de entrada ou os feedbacks de acessibilidade
