@@ -1,10 +1,13 @@
 import React from 'react';
 import { View, Text } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { RACE_DISTANCES } from '../constants/raceDistances';
 import { FONT_SCALE, FONT_SIZES, FONTS, RADIUS, SPACING } from '../constants/theme';
 import { predictRaces } from '../domain/prediction';
 import { formatPace, formatSecondsToTime } from '../format/time';
 import { createThemedStyles } from '../hooks/useTheme';
+import Card from './ui/Card';
+import { enterItem } from './ui/motion';
 
 interface RacePredictionsProps {
   /** Distância do resultado que serve de base (km) */
@@ -29,19 +32,20 @@ const RacePredictions: React.FC<RacePredictionsProps> = ({ distanceKm, durationS
   if (predictions.length === 0) return null;
 
   return (
-    <View style={styles.container}>
+    <Card appear style={styles.container}>
       <Text style={styles.title} accessibilityRole="header">
         Previsão de prova
       </Text>
       <Text style={styles.subtitle}>Mantendo esse nível, você faria:</Text>
 
-      {predictions.map((prediction) => {
+      {predictions.map((prediction, index) => {
         const race = RACE_DISTANCES.find((r) => r.km === prediction.km);
         const time = formatSecondsToTime(prediction.seconds);
         const pace = formatPace(prediction.paceSeconds);
         return (
-          <View
+          <Animated.View
             key={prediction.km}
+            entering={enterItem(index + 1)}
             style={styles.row}
             accessible
             accessibilityLabel={`${race?.name ?? ''}: ${time}, pace ${pace} por km`}
@@ -60,7 +64,7 @@ const RacePredictions: React.FC<RacePredictionsProps> = ({ distanceKm, durationS
                 {pace} /km
               </Text>
             </View>
-          </View>
+          </Animated.View>
         );
       })}
 
@@ -68,16 +72,14 @@ const RacePredictions: React.FC<RacePredictionsProps> = ({ distanceKm, durationS
         Estimativa pela fórmula de Riegel. Considera treino adequado para cada distância; para a
         maratona, costuma ser otimista.
       </Text>
-    </View>
+    </Card>
   );
 };
 
 const useStyles = createThemedStyles((colors) => ({
+  // Seção própria, abaixo do resultado
   container: {
-    borderTopColor: colors.border,
-    borderTopWidth: 1,
-    marginTop: SPACING.lg,
-    paddingTop: SPACING.lg,
+    marginTop: SPACING.md,
   },
   footnote: {
     color: colors.text.tertiary,

@@ -1,19 +1,27 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, FlatList, Pressable, Alert } from 'react-native';
+import { View, Text, Alert } from 'react-native';
+import Animated, { FadeOutLeft } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
-import { SPACING, RADIUS, FONT_SIZES, FONTS } from '../constants/theme';
+import { SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE, MOTION } from '../constants/theme';
 import { getHistory, deleteHistoryItem, clearHistory, type HistoryItem } from '../utils/storage';
 import { formatRelativeDate } from '../format/dates';
 import { formatPace, formatSecondsToTime } from '../format/time';
 import { formatKm } from '../format/distance';
 import { calculatePace } from '../domain/pace';
 import Card from './ui/Card';
+import ScreenHeader from './ui/ScreenHeader';
+import ClearButton from './ui/ClearButton';
+import PressableScale from './ui/PressableScale';
+import { enterItem, layoutSpring } from './ui/motion';
 import { createThemedStyles, useColors } from '../hooks/useTheme';
 
 interface HistoryTabProps {
   onSelectItem: (item: HistoryItem) => void;
 }
+
+// Item excluído sai deslizando para a esquerda; os de baixo sobem com uma mola
+const exitItem = FadeOutLeft.duration(MOTION.duration.slow);
 
 const HistoryTab: React.FC<HistoryTabProps> = ({ onSelectItem }) => {
   const styles = useStyles();
@@ -71,7 +79,13 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ onSelectItem }) => {
 
   // A linha é um container comum com dois botões irmãos (restaurar e excluir).
   // Botão dentro de botão confunde o leitor de tela, que não sabe qual ação anunciar.
-  const renderItem = ({ item }: { item: HistoryItem }): React.ReactElement => {
+  const renderItem = ({
+    item,
+    index,
+  }: {
+    item: HistoryItem;
+    index: number;
+  }): React.ReactElement => {
     // O histórico guarda números; o texto é montado só na hora de mostrar
     const relativeDate = formatRelativeDate(item.createdAt);
     const pace = formatPace(calculatePace(item.durationSeconds, item.distanceKm));
@@ -79,126 +93,113 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ onSelectItem }) => {
     const time = formatSecondsToTime(item.durationSeconds);
 
     return (
-      <View style={styles.historyItem}>
-        <Pressable
-          style={({ pressed }) => [styles.itemContent, pressed && styles.pressed]}
+      <Animated.View style={styles.historyItem} entering={enterItem(index)} exiting={exitItem}>
+        <PressableScale
+          style={styles.itemContent}
+          scaleTo={0.98}
           onPress={() => onSelectItem(item)}
           accessibilityRole="button"
           accessibilityLabel={`Pace ${pace} por km, ${distance} km em ${time}, ${relativeDate}`}
           accessibilityHint="Toque para abrir este cálculo na aba Pace"
         >
-          <View style={styles.itemHeader}>
-            <Ionicons name="speedometer" size={16} color={colors.accent} />
-            <Text style={styles.itemPace}>{pace} /km</Text>
+          <View style={styles.itemIcon}>
+            <Ionicons name="speedometer" size={20} color={colors.accent} />
           </View>
-
-          <View style={styles.itemDetails}>
-            <View style={styles.detailRow}>
-              <Ionicons name="navigate" size={12} color={colors.text.secondary} />
-              <Text style={styles.detailText}>{distance} km</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Ionicons name="time" size={12} color={colors.text.secondary} />
-              <Text style={styles.detailText}>{time}</Text>
-            </View>
+          <View style={styles.itemText}>
+            <Text style={styles.itemPace} maxFontSizeMultiplier={FONT_SCALE.control}>
+              {pace} <Text style={styles.itemPaceUnit}>/km</Text>
+            </Text>
+            <Text style={styles.itemDetails} maxFontSizeMultiplier={FONT_SCALE.control}>
+              {distance} km · {time}
+            </Text>
+            <Text style={styles.itemDate}>{relativeDate}</Text>
           </View>
+        </PressableScale>
 
-          <Text style={styles.itemDate}>{relativeDate}</Text>
-        </Pressable>
-
-        <Pressable
-          style={({ pressed }) => [styles.deleteButton, pressed && styles.pressed]}
+        <PressableScale
+          style={styles.deleteButton}
           onPress={() => handleDelete(item.id)}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          hitSlop={10}
           accessibilityRole="button"
           accessibilityLabel={`Excluir cálculo de ${distance} km`}
           accessibilityHint="Pede confirmação antes de excluir"
         >
           <Ionicons name="trash-outline" size={20} color={colors.danger} />
-        </Pressable>
-      </View>
+        </PressableScale>
+      </Animated.View>
     );
   };
 
-  if (history.length === 0) {
-    return (
-      <Card style={styles.emptyContainer}>
-        <Ionicons name="time-outline" size={64} color={colors.iconMuted} />
-        <Text style={styles.emptyTitle}>Nenhum cálculo salvo</Text>
-        <Text style={styles.emptyDescription}>
-          Seus cálculos de pace aparecerão aqui automaticamente
-        </Text>
-      </Card>
-    );
-  }
-
-  return (
-    <Card style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Histórico</Text>
-        <Pressable
+  const header = (
+    <ScreenHeader
+      title="Histórico"
+      description="Toque num cálculo para abrir de novo na aba Pace"
+      action={
+        <ClearButton
+          visible={history.length > 0}
+          destructive
+          title="Limpar tudo"
           onPress={handleClearAll}
-          style={({ pressed }) => [styles.clearButton, pressed && styles.pressed]}
-          accessibilityRole="button"
           accessibilityLabel="Limpar todo o histórico"
           accessibilityHint="Pede confirmação antes de apagar todos os cálculos"
-        >
-          <Text style={styles.clearButtonText}>Limpar tudo</Text>
-        </Pressable>
-      </View>
+        />
+      }
+    />
+  );
 
-      <FlatList
-        data={history}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        onRefresh={handleRefresh}
-        refreshing={refreshing}
-        contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
-      />
-    </Card>
+  return (
+    <Animated.FlatList
+      data={history}
+      renderItem={renderItem}
+      keyExtractor={(item) => item.id}
+      itemLayoutAnimation={layoutSpring}
+      ListHeaderComponent={header}
+      ListEmptyComponent={
+        <Card appear style={styles.emptyContainer}>
+          <View style={styles.emptyIcon}>
+            <Ionicons name="bookmark-outline" size={36} color={colors.accent} />
+          </View>
+          <Text style={styles.emptyTitle}>Nenhum cálculo salvo</Text>
+          <Text style={styles.emptyDescription}>
+            Na aba Pace, toque em “Salvar no histórico” e o cálculo aparece aqui.
+          </Text>
+        </Card>
+      }
+      onRefresh={handleRefresh}
+      refreshing={refreshing}
+      contentContainerStyle={styles.list}
+      showsVerticalScrollIndicator={false}
+    />
   );
 };
 
 const useStyles = createThemedStyles((colors) => ({
-  clearButton: {
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.xs,
-  },
-  clearButtonText: {
-    color: colors.danger,
-    fontFamily: FONTS.medium,
-    fontSize: FONT_SIZES.sm,
-  },
-  container: {
-    flex: 1,
-  },
   deleteButton: {
-    padding: SPACING.xs,
-  },
-  detailRow: {
     alignItems: 'center',
-    flexDirection: 'row',
-    gap: 4,
-  },
-  detailText: {
-    color: colors.text.secondary,
-    fontFamily: FONTS.mono,
-    fontSize: FONT_SIZES.sm,
-    fontVariant: ['tabular-nums'],
+    borderRadius: RADIUS.pill,
+    height: 44,
+    justifyContent: 'center',
+    width: 44,
   },
   emptyContainer: {
     alignItems: 'center',
-    flex: 1,
-    justifyContent: 'center',
-    padding: SPACING.xxl,
+    paddingVertical: SPACING.xxl,
   },
   emptyDescription: {
     color: colors.text.secondary,
     fontFamily: FONTS.regular,
     fontSize: FONT_SIZES.md,
+    lineHeight: 22,
     marginTop: SPACING.sm,
     textAlign: 'center',
+  },
+  emptyIcon: {
+    alignItems: 'center',
+    backgroundColor: colors.accentSoft,
+    borderRadius: RADIUS.pill,
+    height: 72,
+    justifyContent: 'center',
+    width: 72,
   },
   emptyTitle: {
     color: colors.text.primary,
@@ -206,25 +207,24 @@ const useStyles = createThemedStyles((colors) => ({
     fontSize: FONT_SIZES.xl,
     marginTop: SPACING.md,
   },
-  header: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: SPACING.sm,
-  },
-  // Mais respiro entre e dentro dos itens (ver DESIGN.md)
+  // Cada cálculo é um cartão próprio
   historyItem: {
     alignItems: 'center',
-    backgroundColor: colors.background,
-    borderRadius: RADIUS.md,
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderRadius: RADIUS.xl,
+    borderWidth: 1,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     marginBottom: SPACING.sm,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm + 2,
+    paddingLeft: SPACING.md,
+    paddingRight: SPACING.xs,
+    paddingVertical: SPACING.md - 4,
   },
   itemContent: {
+    alignItems: 'center',
     flex: 1,
+    flexDirection: 'row',
+    gap: SPACING.md - 4,
   },
   itemDate: {
     color: colors.text.tertiary,
@@ -233,33 +233,37 @@ const useStyles = createThemedStyles((colors) => ({
     marginTop: 2,
   },
   itemDetails: {
-    flexDirection: 'row',
-    gap: SPACING.sm,
-    marginTop: 2,
+    color: colors.text.secondary,
+    fontFamily: FONTS.mono,
+    fontSize: FONT_SIZES.sm,
+    fontVariant: ['tabular-nums'],
   },
-  itemHeader: {
+  itemIcon: {
     alignItems: 'center',
-    flexDirection: 'row',
-    gap: SPACING.xs,
+    backgroundColor: colors.accentSoft,
+    borderRadius: RADIUS.lg,
+    height: 44,
+    justifyContent: 'center',
+    width: 44,
   },
   // O pace é a âncora visual do item (ver DESIGN.md)
   itemPace: {
     color: colors.text.primary,
     fontFamily: FONTS.monoSemiBold,
-    fontSize: FONT_SIZES.lg,
+    fontSize: FONT_SIZES.xl,
     fontVariant: ['tabular-nums'],
   },
+  itemPaceUnit: {
+    color: colors.text.tertiary,
+    fontFamily: FONTS.mono,
+    fontSize: FONT_SIZES.sm,
+  },
+  itemText: {
+    flex: 1,
+  },
   list: {
-    paddingBottom: 0,
-  },
-  // Mesmo retorno visual do TouchableOpacity (activeOpacity 0.7), agora com Pressable
-  pressed: {
-    opacity: 0.7,
-  },
-  title: {
-    color: colors.text.primary,
-    fontFamily: FONTS.semiBold,
-    fontSize: FONT_SIZES.xxl,
+    padding: SPACING.lg,
+    paddingBottom: SPACING.xl,
   },
 }));
 

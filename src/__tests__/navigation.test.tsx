@@ -52,12 +52,12 @@ describe('navegação', () => {
   it('deve abrir na aba Pace e trocar de aba pela barra', async () => {
     renderRouter(routes, { initialUrl: '/' });
 
-    expect(await screen.findByText('Calcular pace')).toBeTruthy();
+    expect(await screen.findByRole('header', { name: 'Pace' })).toBeTruthy();
     expect(screen.getByLabelText('Aba Pace')).toBeSelected();
 
     fireEvent.press(screen.getByLabelText('Aba Tempo'));
 
-    expect(await screen.findByText('Calcular tempo')).toBeTruthy();
+    expect(await screen.findByRole('header', { name: 'Tempo' })).toBeTruthy();
     expect(screen).toHavePathname('/time');
     expect(screen.getByLabelText('Aba Tempo')).toBeSelected();
   });
