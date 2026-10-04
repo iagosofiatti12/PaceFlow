@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Tabs } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
@@ -13,6 +13,7 @@ import { GeistMono_500Medium, GeistMono_600SemiBold } from '@expo-google-fonts/g
 
 import Header from '../src/components/Header';
 import TabBar from '../src/components/TabBar';
+import IntroAnimation from '../src/components/IntroAnimation';
 import { createThemedStyles } from '../src/hooks/useTheme';
 import { applyThemePreference, loadThemePreference } from '../src/utils/themePreference';
 
@@ -27,6 +28,10 @@ SplashScreen.setOptions({ duration: 300, fade: true });
 export default function RootLayout(): React.ReactElement | null {
   // Estilos do tema atual (claro ou escuro, segue o celular)
   const styles = useStyles();
+
+  // Animação de abertura (logo pulsando e saindo correndo), por cima do app
+  const [showIntro, setShowIntro] = useState(true);
+  const hideIntro = useCallback(() => setShowIntro(false), []);
 
   // Carrega as fontes Geist antes de mostrar a interface
   const [fontsLoaded, fontError] = useFonts({
@@ -85,6 +90,7 @@ export default function RootLayout(): React.ReactElement | null {
           <Tabs.Screen name="history" options={{ title: 'Histórico' }} />
         </Tabs>
       </SafeAreaView>
+      {showIntro && <IntroAnimation onFinish={hideIntro} />}
     </SafeAreaProvider>
   );
 }

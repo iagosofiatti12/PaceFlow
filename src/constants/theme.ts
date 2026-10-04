@@ -210,3 +210,24 @@ export const MOTION = {
   /** Atraso entre itens de uma lista que entra em sequência (ms) */
   stagger: 40,
 } as const;
+
+/**
+ * Abertura do app (IntroAnimation): tempos em ms. O logo cresce (mola, ~450 ms), pulsa
+ * `pulses` vezes e sai correndo. Tudo junto dura uns 2 segundos.
+ */
+export const INTRO = {
+  /** Tamanho do logo depois de crescer (1 = tamanho da splash) */
+  bigScale: 1.7,
+  /** Duração de uma batida (cresce e volta) */
+  pulse: 520,
+  /** Quantas batidas */
+  pulses: 2,
+  /** Quando a corrida começa (depois de crescer e pulsar) */
+  runStart: 1450,
+  /** Recuo antes de disparar */
+  windUp: 160,
+  /** Disparo até sair da tela */
+  sprint: 420,
+  /** Fade do fundo revelando o app */
+  fadeOut: 280,
+} as const;
