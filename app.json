@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "PaceFlow",
-    "slug": "PaceFlow",
+    "slug": "iagoribeiro12",
     "scheme": "paceflow",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -39,6 +39,13 @@
           }
         }
       ]
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "e401cac0-dd47-458d-831a-ab74eaf982ff"
+      }
+    },
+    "owner": "iagoribeiro12s-team"
   }
 }
