@@ -1,4 +1,5 @@
 import { renderHook } from '@testing-library/react-native';
+import { Keyboard } from 'react-native';
 import { useAutoAdvance, type FocusableInput } from '../useAutoAdvance';
 
 const input = (focused: boolean): { current: FocusableInput & { focus: jest.Mock } } => ({
@@ -52,5 +53,19 @@ describe('useAutoAdvance', () => {
   it('não pula no valor inicial, só quando a pessoa digita', () => {
     const { next } = setup('12', 'hours');
     expect(next.current.focus).not.toHaveBeenCalled();
+  });
+
+  it('último campo: fecha o teclado ao completar os segundos', () => {
+    const dismiss = jest.spyOn(Keyboard, 'dismiss').mockImplementation(() => {});
+    const current = input(true);
+    const { rerender } = renderHook(
+      ({ value }: { value: string }) => useAutoAdvance(value, 'minutes', current, 'dismiss'),
+      { initialProps: { value: '' } },
+    );
+    rerender({ value: '3' });
+    expect(dismiss).not.toHaveBeenCalled();
+    rerender({ value: '30' });
+    expect(dismiss).toHaveBeenCalledTimes(1);
+    dismiss.mockRestore();
   });
 });

@@ -88,6 +88,9 @@ const TimeInput: React.FC<TimeInputProps> = ({ label, hours, minutes, seconds, e
   // Cursor anda sozinho: horas completas → minutos; minutos completos → segundos
   useAutoAdvance(hours.value, 'hours', hoursRef, minutesRef);
   useAutoAdvance(minutes.value, 'minutes', minutesRef, secondsRef);
+  // Segundos completos: o tempo acabou de ser digitado, então o teclado fecha
+  // e o resultado (que já apareceu) fica inteiro na tela
+  useAutoAdvance(seconds.value, 'minutes', secondsRef, 'dismiss');
 
   return (
     <View style={styles.inputGroup}>
