@@ -88,6 +88,12 @@ vírgula ou ponto e sempre exibe vírgula. Para mostrar uma distância, use `for
 **Splash:** o logo sobre o fundo do tema (`#FAF8F5` no claro, `#121110` no escuro), configurada
 no plugin `expo-splash-screen` do `app.json`. Ela fica na tela até as fontes carregarem.
 
+**Abertura animada:** quando a splash some, o mesmo logo, no mesmo lugar, cresce (1,7×), pulsa
+duas vezes como batida de coração e sai correndo para a direita: recua um pouco, inclina para a
+frente e dispara, enquanto o fundo some e revela o app. Dura cerca de 2 s, e um toque pula a
+animação. Os tempos ficam em `INTRO` (`theme.ts`). Com "reduzir movimento" ligado, a abertura
+some na hora.
+
 ## Redesign 2026: layout moderno e movimento (vale para todo código novo)
 
 Plano completo, bibliotecas estudadas e próximas fases em `docs/REDESIGN.md`.

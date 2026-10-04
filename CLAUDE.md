@@ -34,10 +34,10 @@ Público: corredores amadores brasileiros. Todo texto de UI é em **português b
 app/_layout.tsx            → layout raiz: fontes, área segura, logo e navegador de abas (Tabs, barra embaixo)
 app/index.tsx              → aba Pace (rota "/"); recebe ?restore=<id> para restaurar um cálculo
 app/time.tsx, table.tsx, treadmill.tsx, history.tsx → abas Tempo, Tabela, Esteira e Histórico (rotas /time, /table, /treadmill, /history)
-src/components/            → um componente por aba (cada um gerencia o PRÓPRIO estado) + Header, ThemeSheet, TabBar, RacePredictions e TrainingPaces
+src/components/            → um componente por aba (cada um gerencia o PRÓPRIO estado) + Header, ThemeSheet, TabBar, IntroAnimation, RacePredictions e TrainingPaces
 src/components/ui/         → componentes reutilizáveis: Card, ScreenHeader, ClearButton, InputField, TimeInput, FieldError, DistancePresets, SegmentedControl, Button, ButtonRow, ResultCard, PressableScale, KeyboardScreen
 src/components/ui/motion.ts→ animações prontas do app (entrada de seção, item de lista, troca rápida, layout)
-src/constants/theme.ts     → TODOS os tokens: paletas LIGHT_COLORS/DARK_COLORS, PACE_LEVEL_COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE, MOTION
+src/constants/theme.ts     → TODOS os tokens: paletas LIGHT_COLORS/DARK_COLORS, PACE_LEVEL_COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE, MOTION, INTRO
 src/constants/messages.ts  → textos das mensagens de validação (um por código de erro)
 src/constants/paceLevels.ts→ aparência de cada nível de pace (rótulo, emoji, cores)
 src/constants/raceDistances.ts → distâncias dos atalhos (5K, 10K, meia 21,0975, maratona 42,195)
@@ -142,6 +142,7 @@ npm run build:preview    # APK para instalar no celular ou no emulador (perfil "
 - **Tema escolhido no app via `Appearance.setColorScheme`** (`utils/themePreference.ts`): em vez de um Context novo, o app diz ao React Native qual tema usar, e o `useColorScheme` (que o `useColors`/`createThemedStyles` já usam) passa a responder esse tema. Zero mudança nos componentes. `null` volta a seguir o celular. A escolha fica no AsyncStorage (`@paceflow:theme`, validada com Zod) e é aplicada no `_layout` antes de a splash sair, para não piscar no tema errado.
 - **Ícone do app a partir do tênis do logo** (`assets/icon-shoe.svg`, linhas engrossadas para aparecer em 48 px): branco sobre `#E75713`, com ícone adaptativo e monocromático para Android (detalhes e como regenerar no DESIGN.md). O ícone só aparece em build de preview/produção; o Expo Go mostra o dele.
 - **Splash com `expo-splash-screen`**: o plugin no `app.json` define a splash clara e a escura, e o `app/_layout.tsx` a segura na tela (`preventAutoHideAsync`) até as fontes carregarem. Se as fontes falharem, o app abre mesmo assim, com a fonte do sistema. A splash só aparece de verdade em build de preview/produção; o Expo Go mostra a dele.
+- **Abertura animada por cima do app** (`components/IntroAnimation.tsx`): a splash nativa só mostra imagem parada, então a animação é uma camada do próprio app que começa com o mesmo logo, no mesmo tamanho e lugar da splash (`logo.png`, 200 px), e some sozinha. Assim a troca splash → animação não tem "pulo". Tempos em `INTRO` (`theme.ts`). Não usa `useReducedMotion` (o mock de testes do expo-router não tem): com "reduzir movimento", o próprio Reanimated pula as animações para o fim.
 - **Teto de ampliação só onde a largura é fixa** (`FONT_SCALE`): respeita quem aumenta a fonte do celular sem deixar botão, aba ou número grande estourar a tela.
 - **`createThemedStyles` monta os dois StyleSheets uma vez**: o hook só escolhe entre o claro e o escuro, sem recriar estilos a cada render.
 - **Contraste testado no CI** (`contrast.test.ts`): cor nova tem que passar no WCAG AA nos dois temas.
