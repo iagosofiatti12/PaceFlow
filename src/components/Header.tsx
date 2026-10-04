@@ -1,19 +1,22 @@
 import React from 'react';
-import { View, Image, useWindowDimensions } from 'react-native';
+import { View, Image } from 'react-native';
 import { SPACING } from '../constants/theme';
 import { createThemedStyles } from '../hooks/useTheme';
 
+// O logo.png (o mesmo da splash) tem muita margem transparente: no cabeçalho, o
+// desenho ficava com ~16 px de altura. O logo-header.png é o mesmo logo recortado.
+const LOGO = require('../../assets/logo-header.png');
+const LOGO_HEIGHT = 40;
+const LOGO_ASPECT = 247 / 144;
+
 const Header: React.FC = () => {
   const styles = useStyles();
-  // useWindowDimensions (e não Dimensions.get fora do componente) acompanha
-  // rotação, tablets e celulares dobráveis: a largura se atualiza sozinha
-  const { width } = useWindowDimensions();
 
   return (
     <View style={styles.header}>
       <Image
-        source={require('../../assets/logo.png')}
-        style={[styles.logo, { width: width * 0.28 }]}
+        source={LOGO}
+        style={styles.logo}
         resizeMode="contain"
         accessibilityRole="image"
         accessibilityLabel="PaceFlow"
@@ -23,8 +26,7 @@ const Header: React.FC = () => {
 };
 
 const useStyles = createThemedStyles((colors) => ({
-  // Header compacto (ver DESIGN.md): logo ~44px alinhada à esquerda,
-  // devolvendo espaço vertical para o conteúdo
+  // Cabeçalho enxuto: só o logo, à esquerda. O título de cada tela vem logo abaixo
   header: {
     backgroundColor: colors.background,
     paddingBottom: SPACING.xs,
@@ -32,8 +34,8 @@ const useStyles = createThemedStyles((colors) => ({
     paddingTop: SPACING.sm,
   },
   logo: {
-    height: 44,
-    maxWidth: 110,
+    height: LOGO_HEIGHT,
+    width: LOGO_HEIGHT * LOGO_ASPECT,
   },
 }));
 

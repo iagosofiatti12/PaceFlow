@@ -1,9 +1,12 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE } from '../../constants/theme';
+import Animated, { ZoomIn } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
+import { SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE, MOTION } from '../../constants/theme';
 import type { PaceLevel } from '../../domain/levels';
 import { PACE_LEVELS } from '../../constants/paceLevels';
-import { createThemedStyles } from '../../hooks/useTheme';
+import { createThemedStyles, useColors } from '../../hooks/useTheme';
+import { enterQuick, enterSection, exitQuick } from './motion';
 
 interface ResultCardProps {
   label: string;
@@ -14,54 +17,73 @@ interface ResultCardProps {
   level?: PaceLevel | null;
 }
 
+// O selo de nível "pula" ao aparecer ou mudar de nível
+const enterBadge = ZoomIn.springify()
+  .damping(MOTION.spring.snappy.damping)
+  .stiffness(MOTION.spring.snappy.stiffness);
+
 /**
- * Cartão laranja de resultado: rótulo em cima, número grande no centro,
+ * Cartão de resultado: degradê laranja, rótulo em cima, número grande no centro,
  * unidade opcional ao lado, texto de apoio e selo de nível opcionais.
+ * Entra com uma mola ao aparecer, e o número faz um fade a cada mudança.
  */
 const ResultCard: React.FC<ResultCardProps> = ({ label, value, unit, subtext, level }) => {
   const styles = useStyles();
+  const colors = useColors();
   const levelStyle = level ? PACE_LEVELS[level] : null;
 
   return (
-    <View style={styles.resultCard}>
-      <Text style={styles.resultLabel}>{label}</Text>
-      <View style={styles.resultValueContainer}>
-        {/* Número grande: teto de ampliação e, se ainda assim não couber
-            (ex: "12:34:56" com fonte no máximo), encolhe para caber numa linha */}
-        <Text
-          style={styles.resultValue}
-          maxFontSizeMultiplier={FONT_SCALE.display}
-          numberOfLines={1}
-          adjustsFontSizeToFit
-        >
-          {value}
-        </Text>
-        {unit && (
-          <Text style={styles.resultUnit} maxFontSizeMultiplier={FONT_SCALE.display}>
-            {unit}
-          </Text>
-        )}
-      </View>
-      {subtext && <Text style={styles.resultSubtext}>{subtext}</Text>}
-
-      {levelStyle && (
-        <View
-          style={[styles.feedbackBadge, { backgroundColor: levelStyle.color }]}
-          accessible
-          accessibilityLabel={levelStyle.label}
-        >
-          <Text style={[styles.feedbackText, { color: levelStyle.textColor }]}>
-            {`${levelStyle.label} ${levelStyle.emoji}`}
-          </Text>
+    <Animated.View style={styles.shadow} entering={enterSection} exiting={exitQuick}>
+      <LinearGradient
+        colors={[colors.accentStrong, colors.accentDeep]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.resultCard}
+      >
+        <Text style={styles.resultLabel}>{label}</Text>
+        <View style={styles.resultValueContainer}>
+          {/* A `key` muda com o valor: o número novo entra com um fade curto.
+              Teto de ampliação e, se ainda assim não couber (ex: "12:34:56"
+              com fonte no máximo), encolhe para caber numa linha */}
+          <Animated.View key={value} entering={enterQuick} style={styles.resultValueBox}>
+            <Text
+              style={styles.resultValue}
+              maxFontSizeMultiplier={FONT_SCALE.display}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+            >
+              {value}
+            </Text>
+          </Animated.View>
+          {unit && (
+            <Text style={styles.resultUnit} maxFontSizeMultiplier={FONT_SCALE.display}>
+              {unit}
+            </Text>
+          )}
         </View>
-      )}
-    </View>
+        {subtext && <Text style={styles.resultSubtext}>{subtext}</Text>}
+
+        {levelStyle && (
+          <Animated.View
+            key={level}
+            entering={enterBadge}
+            style={[styles.feedbackBadge, { backgroundColor: levelStyle.color }]}
+            accessible
+            accessibilityLabel={levelStyle.label}
+          >
+            <Text style={[styles.feedbackText, { color: levelStyle.textColor }]}>
+              {`${levelStyle.label} ${levelStyle.emoji}`}
+            </Text>
+          </Animated.View>
+        )}
+      </LinearGradient>
+    </Animated.View>
   );
 };
 
 const useStyles = createThemedStyles((colors) => ({
   feedbackBadge: {
-    borderRadius: RADIUS.xl,
+    borderRadius: RADIUS.pill,
     marginTop: SPACING.md,
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm,
@@ -72,31 +94,24 @@ const useStyles = createThemedStyles((colors) => ({
   },
   resultCard: {
     alignItems: 'center',
-    backgroundColor: colors.accentStrong,
-    borderRadius: RADIUS.xl,
-    elevation: 6,
-    // Fica entre os campos (que já têm margem embaixo) e os botões
-    marginBottom: SPACING.md,
-    padding: SPACING.xl,
-    shadowColor: colors.accent,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
+    borderRadius: RADIUS.xxl,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.xl,
   },
   resultLabel: {
     color: colors.onAccent,
     fontFamily: FONTS.medium,
     fontSize: FONT_SIZES.sm,
-    letterSpacing: 0.5,
-    marginBottom: SPACING.sm,
+    letterSpacing: 1,
+    marginBottom: SPACING.xs,
     opacity: 0.95,
+    textTransform: 'uppercase',
   },
   resultSubtext: {
     color: colors.onAccent,
     fontFamily: FONTS.regular,
     fontSize: FONT_SIZES.sm,
-    marginTop: SPACING.xs,
-    opacity: 0.85,
+    opacity: 0.9,
   },
   resultUnit: {
     color: colors.onAccent,
@@ -107,14 +122,28 @@ const useStyles = createThemedStyles((colors) => ({
   },
   resultValue: {
     color: colors.onAccent,
-    fontFamily: FONTS.mono,
-    fontSize: FONT_SIZES.xxxl,
+    fontFamily: FONTS.monoSemiBold,
+    fontSize: FONT_SIZES.xxxl + 6,
     fontVariant: ['tabular-nums'],
+    letterSpacing: -1,
+  },
+  resultValueBox: {
+    flexShrink: 1,
   },
   resultValueContainer: {
     alignItems: 'baseline',
     flexDirection: 'row',
-    marginBottom: SPACING.sm,
+    marginBottom: SPACING.xs,
+  },
+  // A sombra fica no invólucro: o degradê tem cantos arredondados próprios
+  shadow: {
+    borderRadius: RADIUS.xxl,
+    elevation: 8,
+    marginTop: SPACING.md,
+    shadowColor: colors.accent,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 18,
   },
 }));
 

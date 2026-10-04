@@ -1,8 +1,9 @@
 import React from 'react';
-import { Text, Pressable } from 'react-native';
+import { Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE } from '../../constants/theme';
 import { createThemedStyles, useColors } from '../../hooks/useTheme';
+import PressableScale from './PressableScale';
 
 interface ButtonProps {
   title: string;
@@ -17,8 +18,8 @@ interface ButtonProps {
 
 /**
  * Botão padrão do app em duas variantes:
- * - primary: fundo laranja (ação principal, ex: "Calcular")
- * - secondary: fundo branco com borda (ação de apoio, ex: "Limpar")
+ * - primary: pílula laranja (ação principal, ex: "Salvar no histórico")
+ * - secondary: pílula com borda (ação de apoio)
  */
 const Button: React.FC<ButtonProps> = ({
   title,
@@ -34,10 +35,9 @@ const Button: React.FC<ButtonProps> = ({
   const isPrimary = variant === 'primary';
 
   return (
-    <Pressable
-      style={({ pressed }) => [
+    <PressableScale
+      style={[
         isPrimary ? styles.primaryButton : styles.secondaryButton,
-        pressed && styles.pressed,
         disabled && styles.disabled,
       ]}
       onPress={onPress}
@@ -48,70 +48,67 @@ const Button: React.FC<ButtonProps> = ({
       accessibilityHint={accessibilityHint}
     >
       {icon && (
-        <Ionicons
-          name={icon}
-          size={20}
-          color={isPrimary ? colors.onAccent : colors.accentText}
-          style={styles.buttonIcon}
-        />
+        <Ionicons name={icon} size={20} color={isPrimary ? colors.onAccent : colors.accentText} />
       )}
+      {/* Numa linha só: se não couber (fonte ampliada), encolhe em vez de cortar */}
       <Text
         style={isPrimary ? styles.primaryButtonText : styles.secondaryButtonText}
         maxFontSizeMultiplier={FONT_SCALE.control}
         numberOfLines={1}
+        adjustsFontSizeToFit
       >
         {title}
       </Text>
-    </Pressable>
+    </PressableScale>
   );
 };
 
 const useStyles = createThemedStyles((colors) => ({
-  buttonIcon: {
-    marginRight: SPACING.xs,
-  },
   // Esmaecido quando desabilitado (a WCAG dispensa contraste em controles inativos)
   disabled: {
     opacity: 0.45,
   },
-  // Retorno visual ao tocar (o TouchableOpacity fazia isso sozinho com opacidade 0.2)
-  pressed: {
-    opacity: 0.8,
-  },
   primaryButton: {
     alignItems: 'center',
     backgroundColor: colors.accentStrong,
-    borderRadius: RADIUS.md,
+    borderRadius: RADIUS.pill,
     elevation: 4,
     flex: 1,
     flexDirection: 'row',
+    gap: SPACING.sm,
     justifyContent: 'center',
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.md + 2,
+    minHeight: 56,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
     shadowColor: colors.accent,
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.25,
-    shadowRadius: 12,
+    shadowRadius: 14,
   },
   primaryButtonText: {
     color: colors.onAccent,
+    flexShrink: 1,
     fontFamily: FONTS.semiBold,
     fontSize: FONT_SIZES.lg,
-    letterSpacing: 0.3,
+    letterSpacing: 0.2,
   },
   secondaryButton: {
     alignItems: 'center',
     backgroundColor: colors.surface,
     borderColor: colors.border,
-    borderRadius: RADIUS.md,
-    borderWidth: 2,
+    borderRadius: RADIUS.pill,
+    borderWidth: 1.5,
     flex: 1,
     flexDirection: 'row',
+    gap: SPACING.sm,
     justifyContent: 'center',
-    paddingVertical: SPACING.md + 2,
+    minHeight: 56,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
   },
   secondaryButtonText: {
     color: colors.text.secondary,
+    flexShrink: 1,
     fontFamily: FONTS.medium,
     fontSize: FONT_SIZES.lg,
   },

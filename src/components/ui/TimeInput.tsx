@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { View, Text, TextInput } from 'react-native';
 import { SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE } from '../../constants/theme';
 import type { MaskedField } from '../../hooks/useMaskedField';
@@ -41,15 +41,25 @@ const TimeBlock: React.FC<TimeBlockProps> = ({
 }) => {
   const styles = useStyles();
   const colors = useColors();
+  // Campo em foco ganha borda laranja (igual ao InputField)
+  const [focused, setFocused] = useState(false);
   return (
     <View style={styles.timeBlock}>
       <TextInput
         ref={inputRef}
         maxFontSizeMultiplier={FONT_SCALE.control}
-        style={[styles.timeInput, hasError ? styles.timeInputError : null]}
+        style={[
+          styles.timeInput,
+          focused && styles.timeInputFocused,
+          hasError ? styles.timeInputError : null,
+        ]}
         value={field.value}
         onChangeText={field.onChangeText}
-        onBlur={field.onBlur}
+        onFocus={() => setFocused(true)}
+        onBlur={() => {
+          setFocused(false);
+          field.onBlur();
+        }}
         keyboardType="number-pad"
         placeholder={placeholder}
         placeholderTextColor={colors.text.placeholder}
@@ -126,7 +136,7 @@ const TimeInput: React.FC<TimeInputProps> = ({ label, hours, minutes, seconds, e
 
 const useStyles = createThemedStyles((colors) => ({
   inputGroup: {
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.md,
   },
   label: {
     color: colors.text.label,
@@ -142,8 +152,8 @@ const useStyles = createThemedStyles((colors) => ({
   timeInput: {
     backgroundColor: colors.surfaceMuted,
     borderColor: colors.border,
-    borderRadius: RADIUS.md,
-    borderWidth: 2,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1.5,
     color: colors.text.primary,
     fontFamily: FONTS.mono,
     fontSize: 24,
@@ -151,6 +161,10 @@ const useStyles = createThemedStyles((colors) => ({
     padding: SPACING.md,
     textAlign: 'center',
     width: '100%',
+  },
+  timeInputFocused: {
+    backgroundColor: colors.surface,
+    borderColor: colors.accent,
   },
   timeInputError: {
     borderColor: colors.danger,

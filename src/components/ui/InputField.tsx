@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, KeyboardTypeOptions } from 'react-native';
 import { SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE } from '../../constants/theme';
 import { createThemedStyles, useColors } from '../../hooks/useTheme';
@@ -41,16 +41,28 @@ const InputField: React.FC<InputFieldProps> = ({
 }) => {
   const styles = useStyles();
   const colors = useColors();
+  // Campo em foco ganha borda laranja: a pessoa sabe onde está digitando
+  const [focused, setFocused] = useState(false);
   return (
     <View style={styles.inputGroup}>
       <Text style={styles.label}>{label}</Text>
-      <View style={[styles.inputWrapper, error ? styles.inputWrapperError : null]}>
+      <View
+        style={[
+          styles.inputWrapper,
+          focused && styles.inputWrapperFocused,
+          error ? styles.inputWrapperError : null,
+        ]}
+      >
         <TextInput
           maxFontSizeMultiplier={FONT_SCALE.control}
           style={styles.input}
           value={value}
           onChangeText={onChangeText}
-          onBlur={onBlur}
+          onFocus={() => setFocused(true)}
+          onBlur={() => {
+            setFocused(false);
+            onBlur?.();
+          }}
           keyboardType={keyboardType}
           placeholder={placeholder}
           placeholderTextColor={colors.text.placeholder}
@@ -82,13 +94,15 @@ const useStyles = createThemedStyles((colors) => ({
   input: {
     color: colors.text.primary,
     flex: 1,
+    // Sem isso, o campo não encolhe e empurra a unidade ("km") para fora do cartão
+    minWidth: 0,
     fontFamily: FONTS.mono,
     fontSize: FONT_SIZES.xl,
     fontVariant: ['tabular-nums'],
     padding: SPACING.md,
   },
   inputGroup: {
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.md,
   },
   inputUnit: {
     color: colors.accentText,
@@ -99,10 +113,14 @@ const useStyles = createThemedStyles((colors) => ({
     alignItems: 'center',
     backgroundColor: colors.surfaceMuted,
     borderColor: colors.border,
-    borderRadius: RADIUS.md,
-    borderWidth: 2,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1.5,
     flexDirection: 'row',
     paddingRight: SPACING.md,
+  },
+  inputWrapperFocused: {
+    backgroundColor: colors.surface,
+    borderColor: colors.accent,
   },
   inputWrapperError: {
     borderColor: colors.danger,
