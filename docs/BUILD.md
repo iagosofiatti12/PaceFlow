@@ -59,3 +59,27 @@ npm run build:preview
   acima gera só Android.
 - Mudou só código JavaScript? Não precisa de build novo para testar: o Expo Go continua valendo.
   Build novo só para ver ícone/splash ou depois de adicionar biblioteca com código nativo.
+
+## Atualizar o app instalado sem gerar outro APK (EAS Update)
+
+O app instalado procura atualizações sozinho toda vez que abre (`expo-updates`). Mudou só
+código JavaScript (telas, textos, cálculos, cores, animações)? Não precisa de APK novo:
+
+```bash
+npm run update:preview
+```
+
+O comando pergunta uma mensagem curta (ex: "ajuste na tabela"), envia a atualização para a Expo
+e pronto. No celular: abra o app uma vez (ele baixa a novidade em segundo plano), feche e abra de
+novo: a versão nova aparece.
+
+> Analogia: o APK é o carro; a atualização troca o painel e o banco, mas não o motor.
+
+**Quando ainda precisa de APK novo:** quando entra ou atualiza uma biblioteca com código nativo
+(ex: Reanimated, câmera), ou muda o ícone, a splash ou o `app.json`. O app usa a política de
+versão `fingerprint`: ele calcula uma "impressão digital" da parte nativa. Se ela mudou, a
+atualização não é entregue para o APK antigo (que quebraria), e é hora de `npm run build:preview`.
+
+- **Canais:** o APK de preview ouve o canal `preview`; o de produção, o canal `production`
+  (`eas.json`). Assim um teste nunca chega por engano a quem baixou da loja.
+- **Expo Go:** continua valendo para testar na hora (`npm start` + QR code), sem build nem update.

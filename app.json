@@ -4,6 +4,9 @@
     "slug": "iagoribeiro12",
     "scheme": "paceflow",
     "version": "1.0.0",
+    "runtimeVersion": {
+      "policy": "fingerprint"
+    },
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -46,6 +49,9 @@
         "projectId": "e401cac0-dd47-458d-831a-ab74eaf982ff"
       }
     },
-    "owner": "iagoribeiro12s-team"
+    "owner": "iagoribeiro12s-team",
+    "updates": {
+      "url": "https://u.expo.dev/e401cac0-dd47-458d-831a-ab74eaf982ff"
+    }
   }
 }

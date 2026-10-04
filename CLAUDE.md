@@ -125,6 +125,7 @@ Build de instalação/publicação: via **EAS (Expo Application Services)**, con
 npm install -g eas-cli   # uma vez só
 eas login                # conta gratuita em expo.dev
 npm run build:preview    # APK para instalar no celular ou no emulador (perfil "preview")
+npm run update:preview   # manda mudanças só de JavaScript para o APK já instalado (EAS Update)
 ```
 
 ## Decisões técnicas e o porquê
@@ -164,6 +165,7 @@ npm run build:preview    # APK para instalar no celular ou no emulador (perfil "
 - **Tempo máximo de 99:59:59**: o campo de horas tem 2 dígitos e o limite cobre ultramaratonas (coerente com os 500 km de distância).
 - **Pace arredondado ao segundo** (não truncado): mesmo critério do cálculo de tempo, para as abas baterem entre si.
 - **EAS com dois perfis** (`eas.json`): `preview` gera um APK para instalar direto (sem loja), para testar ícone, splash e o app de verdade; `production` gera o pacote da Play Store (`.aab`) e aumenta o número da versão sozinho (`appVersionSource: remote`). O id do app (`com.iagosofiatti.paceflow` no `app.json`) é definitivo depois da primeira publicação na loja: não trocar.
+- **EAS Update com `runtimeVersion: { policy: "fingerprint" }`** (`app.json`) e um canal por perfil (`preview`, `production` no `eas.json`): o APK instalado baixa atualizações de JavaScript sozinho ao abrir (aplica na abertura seguinte). A política `fingerprint` calcula uma impressão digital da parte nativa; se ela muda (biblioteca nativa nova, plugin, ícone), o update não chega aos APKs antigos e é preciso um build novo. Passo a passo em `docs/BUILD.md`.
 - **`react-dom` fixado em 19.1.0, mesmo sem versão web**: o `expo-router` traz componentes web (Radix) que exigem `react-dom`. Sem fixar, o npm instala a versão mais nova, que pede um React mais novo que o do SDK 54, e o `npm ci` do CI quebra. Não remover; atualizar junto com o `react` quando o SDK mudar.
 - **Lockfile gerado com npm 11** (o mesmo do Node 24 do CI): npm de versões diferentes escrevem o `package-lock.json` de formas diferentes e o `npm ci` quebra.
 
