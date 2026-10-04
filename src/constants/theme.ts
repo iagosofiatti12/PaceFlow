@@ -51,6 +51,8 @@ export interface ColorPalette {
   inverseSurface: string;
   onInverse: string;
   shadow: string;
+  /** Véu escuro atrás de painéis que sobem (ex: "Aparência") */
+  scrim: string;
 }
 
 export const LIGHT_COLORS: ColorPalette = {
@@ -77,6 +79,7 @@ export const LIGHT_COLORS: ColorPalette = {
   inverseSurface: '#2C2C2C',
   onInverse: '#FFFFFF',
   shadow: '#000000',
+  scrim: 'rgba(0, 0, 0, 0.45)',
 };
 
 // Tema escuro: fundos quase pretos com um toque quente (combinam com o laranja),
@@ -105,6 +108,7 @@ export const DARK_COLORS: ColorPalette = {
   inverseSurface: '#E9E4DD',
   onInverse: '#1C1A18',
   shadow: '#000000',
+  scrim: 'rgba(0, 0, 0, 0.6)',
 };
 
 // Escala de cores do selo de nível do pace (do mais rápido ao mais lento).
@@ -205,4 +209,25 @@ export const MOTION = {
   pressScale: 0.96,
   /** Atraso entre itens de uma lista que entra em sequência (ms) */
   stagger: 40,
+} as const;
+
+/**
+ * Abertura do app (IntroAnimation): tempos em ms. O logo cresce (mola, ~450 ms), pulsa
+ * `pulses` vezes e sai correndo. Tudo junto dura uns 2 segundos.
+ */
+export const INTRO = {
+  /** Tamanho do logo depois de crescer (1 = tamanho da splash) */
+  bigScale: 1.7,
+  /** Duração de uma batida (cresce e volta) */
+  pulse: 520,
+  /** Quantas batidas */
+  pulses: 2,
+  /** Quando a corrida começa (depois de crescer e pulsar) */
+  runStart: 1450,
+  /** Recuo antes de disparar */
+  windUp: 160,
+  /** Disparo até sair da tela */
+  sprint: 420,
+  /** Fade do fundo revelando o app */
+  fadeOut: 280,
 } as const;

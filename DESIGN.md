@@ -63,6 +63,10 @@ temas, cada combinação de texto e fundo usada no app (mínimo 4.5:1 para texto
 **Selos de nível do pace:** usam a escala `PACE_LEVEL_COLORS`, igual nos dois temas. O selo
 "avançado" mudou de `#D9591E` para `#C2521C`: o texto branco sobre o tom antigo tinha 3.89:1.
 
+**Tema escolhido no app:** o botão redondo à direita do logo abre o painel "Aparência" (sobe
+de baixo, com véu `scrim` atrás): Automático (segue o celular), Claro ou Escuro. O ícone do botão
+mostra a escolha atual (celular, sol ou lua). A escolha vale na hora e fica salva.
+
 **Modo escuro:** fundos quase pretos com um toque quente (`#121110`, `#1C1A18`), que combinam
 com o laranja, e um laranja mais luminoso para texto e ícones. O cabeçalho da tabela usa
 `inverseSurface`, que é escuro no tema claro e claro no escuro.
@@ -83,6 +87,12 @@ vírgula ou ponto e sempre exibe vírgula. Para mostrar uma distância, use `for
 
 **Splash:** o logo sobre o fundo do tema (`#FAF8F5` no claro, `#121110` no escuro), configurada
 no plugin `expo-splash-screen` do `app.json`. Ela fica na tela até as fontes carregarem.
+
+**Abertura animada:** quando a splash some, o mesmo logo, no mesmo lugar, cresce (1,7×), pulsa
+duas vezes como batida de coração e sai correndo para a direita: recua um pouco, inclina para a
+frente e dispara, enquanto o fundo some e revela o app. Dura cerca de 2 s, e um toque pula a
+animação. Os tempos ficam em `INTRO` (`theme.ts`). Com "reduzir movimento" ligado, a abertura
+some na hora.
 
 ## Redesign 2026: layout moderno e movimento (vale para todo código novo)
 

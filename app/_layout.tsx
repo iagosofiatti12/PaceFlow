@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Tabs } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
@@ -13,7 +13,9 @@ import { GeistMono_500Medium, GeistMono_600SemiBold } from '@expo-google-fonts/g
 
 import Header from '../src/components/Header';
 import TabBar from '../src/components/TabBar';
+import IntroAnimation from '../src/components/IntroAnimation';
 import { createThemedStyles } from '../src/hooks/useTheme';
+import { applyThemePreference, loadThemePreference } from '../src/utils/themePreference';
 
 // Mantém a splash (logo sobre o fundo do tema) na tela até as fontes carregarem,
 // em vez de mostrar um instante de tela vazia. Ela some com um fade curto.
@@ -27,6 +29,10 @@ export default function RootLayout(): React.ReactElement | null {
   // Estilos do tema atual (claro ou escuro, segue o celular)
   const styles = useStyles();
 
+  // Animação de abertura (logo pulsando e saindo correndo), por cima do app
+  const [showIntro, setShowIntro] = useState(true);
+  const hideIntro = useCallback(() => setShowIntro(false), []);
+
   // Carrega as fontes Geist antes de mostrar a interface
   const [fontsLoaded, fontError] = useFonts({
     Geist_400Regular,
@@ -36,9 +42,18 @@ export default function RootLayout(): React.ReactElement | null {
     GeistMono_600SemiBold,
   });
 
+  // Tema escolhido no app (claro, escuro ou automático): aplicado antes de a
+  // splash sair, para a tela não piscar no tema errado ao abrir
+  const [themeReady, setThemeReady] = useState(false);
+  useEffect(() => {
+    loadThemePreference()
+      .then(applyThemePreference)
+      .finally(() => setThemeReady(true));
+  }, []);
+
   // Fontes prontas (ou falharam: nesse caso o app abre com a fonte do sistema,
   // em vez de ficar preso na splash para sempre)
-  const ready = fontsLoaded || fontError !== null;
+  const ready = (fontsLoaded || fontError !== null) && themeReady;
 
   useEffect(() => {
     if (ready) {
@@ -75,6 +90,7 @@ export default function RootLayout(): React.ReactElement | null {
           <Tabs.Screen name="history" options={{ title: 'Histórico' }} />
         </Tabs>
       </SafeAreaView>
+      {showIntro && <IntroAnimation onFinish={hideIntro} />}
     </SafeAreaProvider>
   );
 }
