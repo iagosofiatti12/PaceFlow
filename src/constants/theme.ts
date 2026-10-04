@@ -51,6 +51,8 @@ export interface ColorPalette {
   inverseSurface: string;
   onInverse: string;
   shadow: string;
+  /** Véu escuro atrás de painéis que sobem (ex: "Aparência") */
+  scrim: string;
 }
 
 export const LIGHT_COLORS: ColorPalette = {
@@ -77,6 +79,7 @@ export const LIGHT_COLORS: ColorPalette = {
   inverseSurface: '#2C2C2C',
   onInverse: '#FFFFFF',
   shadow: '#000000',
+  scrim: 'rgba(0, 0, 0, 0.45)',
 };
 
 // Tema escuro: fundos quase pretos com um toque quente (combinam com o laranja),
@@ -105,6 +108,7 @@ export const DARK_COLORS: ColorPalette = {
   inverseSurface: '#E9E4DD',
   onInverse: '#1C1A18',
   shadow: '#000000',
+  scrim: 'rgba(0, 0, 0, 0.6)',
 };
 
 // Escala de cores do selo de nível do pace (do mais rápido ao mais lento).
