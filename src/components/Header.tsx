@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Image } from 'react-native';
+import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { RADIUS, SPACING } from '../constants/theme';
 import { createThemedStyles, useColors } from '../hooks/useTheme';
@@ -30,17 +31,30 @@ const Header: React.FC = () => {
         accessibilityLabel="PaceFlow"
       />
 
-      {/* Botão de aparência: o ícone mostra o tema escolhido (celular, sol ou lua) */}
-      <PressableScale
-        style={styles.themeButton}
-        onPress={() => setSheetOpen(true)}
-        hitSlop={8}
-        accessibilityRole="button"
-        accessibilityLabel={`Aparência: ${current.label}`}
-        accessibilityHint="Escolher tema claro, escuro ou automático"
-      >
-        <Ionicons name={current.icon} size={20} color={colors.text.secondary} />
-      </PressableScale>
+      <View style={styles.actions}>
+        {/* Botão de aparência: o ícone mostra o tema escolhido (celular, sol ou lua) */}
+        <PressableScale
+          style={styles.roundButton}
+          onPress={() => setSheetOpen(true)}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={`Aparência: ${current.label}`}
+          accessibilityHint="Escolher tema claro, escuro ou automático"
+        >
+          <Ionicons name={current.icon} size={20} color={colors.text.secondary} />
+        </PressableScale>
+
+        {/* Perfil: recordes, meta e diário de treinos (tela "Você") */}
+        <PressableScale
+          style={styles.roundButton}
+          onPress={() => router.navigate('/you')}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel="Você: recordes, meta e treinos"
+        >
+          <Ionicons name="person-outline" size={20} color={colors.text.secondary} />
+        </PressableScale>
+      </View>
 
       <ThemeSheet
         visible={sheetOpen}
@@ -53,6 +67,10 @@ const Header: React.FC = () => {
 };
 
 const useStyles = createThemedStyles((colors) => ({
+  actions: {
+    flexDirection: 'row',
+    gap: SPACING.sm,
+  },
   // Cabeçalho enxuto: logo à esquerda e aparência à direita.
   // O título de cada tela vem logo abaixo
   header: {
@@ -68,7 +86,7 @@ const useStyles = createThemedStyles((colors) => ({
     height: LOGO_HEIGHT,
     width: LOGO_HEIGHT * LOGO_ASPECT,
   },
-  themeButton: {
+  roundButton: {
     alignItems: 'center',
     backgroundColor: colors.surface,
     borderColor: colors.border,

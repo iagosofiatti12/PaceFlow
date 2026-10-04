@@ -11,6 +11,7 @@ Este arquivo define como qualquer IA ou pessoa deve trabalhar neste repositório
 - **Tabela**: tabela km a km com tempos parciais e acumulados (ao vivo), em ritmo constante ou negative split
 - **Esteira**: velocidade do painel (km/h) ↔ pace, com tabela de consulta rápida (8 a 16 km/h) e dica de inclinação
 - **Histórico**: últimos 10 cálculos de pace, persistidos no aparelho; tocar num item restaura o cálculo na aba Pace
+- **Você** (fora da barra, aberta pelo botão de perfil do cabeçalho): nome, recordes pessoais (5K/10K/21K/42K), meta, ritmos de treino do melhor treino e diário de treinos. Sem login: tudo fica no aparelho
 
 Público: corredores amadores brasileiros. Todo texto de UI é em **português brasileiro**.
 
@@ -34,15 +35,17 @@ Público: corredores amadores brasileiros. Todo texto de UI é em **português b
 app/_layout.tsx            → layout raiz: fontes, área segura, logo e navegador de abas (Tabs, barra embaixo)
 app/index.tsx              → aba Pace (rota "/"); recebe ?restore=<id> para restaurar um cálculo
 app/time.tsx, table.tsx, treadmill.tsx, history.tsx → abas Tempo, Tabela, Esteira e Histórico (rotas /time, /table, /treadmill, /history)
-src/components/            → um componente por aba (cada um gerencia o PRÓPRIO estado) + Header, ThemeSheet, TabBar, IntroAnimation, RacePredictions e TrainingPaces
-src/components/ui/         → componentes reutilizáveis: Card, ScreenHeader, ClearButton, InputField, TimeInput, FieldError, DistancePresets, SegmentedControl, Button, ButtonRow, ResultCard, PressableScale, KeyboardScreen
+app/you.tsx                → tela "Você" (rota /you): rota das Tabs que não aparece na barra (o TabBar só mostra rotas com ícone)
+src/components/            → um componente por aba (cada um gerencia o PRÓPRIO estado) + Header, ThemeSheet, TabBar, IntroAnimation, RacePredictions, TrainingPaces, YouTab, RunSheet e GoalSheet
+src/components/ui/         → componentes reutilizáveis: Card, Sheet (painel que sobe de baixo), ScreenHeader, ClearButton, InputField, TimeInput, FieldError, DistancePresets, SegmentedControl, Button, ButtonRow, ResultCard, PressableScale, KeyboardScreen
 src/components/ui/motion.ts→ animações prontas do app (entrada de seção, item de lista, troca rápida, layout)
 src/constants/theme.ts     → TODOS os tokens: paletas LIGHT_COLORS/DARK_COLORS, PACE_LEVEL_COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE, MOTION, INTRO
 src/constants/messages.ts  → textos das mensagens de validação (um por código de erro)
 src/constants/paceLevels.ts→ aparência de cada nível de pace (rótulo, emoji, cores)
 src/constants/raceDistances.ts → distâncias dos atalhos (5K, 10K, meia 21,0975, maratona 42,195)
 src/constants/trainingZones.ts → nome e descrição de cada zona de treino
-src/domain/                → regra de negócio pura, só números: pace, parciais, níveis, limites, previsão de prova (Riegel), ritmos de treino (VDOT de Daniels), esteira (km/h ↔ pace)
+src/constants/runTypes.ts  → tipos de treino do diário (Leve, Longão, Treino, Prova): nome e ícone
+src/domain/                → regra de negócio pura, só números: pace, parciais, níveis, limites, previsão de prova (Riegel), ritmos de treino (VDOT de Daniels), esteira (km/h ↔ pace), recordes pessoais e metas (records.ts)
 src/format/                → texto ↔ número: máscaras de digitação, tempo, distância e velocidade (vírgula decimal), datas relativas
 src/validation/rules.ts    → valida o texto dos campos e devolve o número convertido ou um código de erro
 src/validation/forms.ts    → avalia o formulário inteiro para o cálculo ao vivo + quando mostrar cada erro
@@ -55,6 +58,9 @@ src/utils/historySchema.ts → formato do histórico (schema Zod v2) e migraçã
 src/utils/feedback.ts      → vibração de sucesso (ao salvar) e de seleção (aba, atalho, modo)
 src/utils/themePreference.ts → tema escolhido no app (automático/claro/escuro): ler, salvar e aplicar
 src/hooks/useThemePreference.ts → tema atual + função para trocar (usado pelo botão "Aparência" do Header)
+src/hooks/usePersonalData.ts → perfil, diário e meta da tela "Você", com as ações (registrar treino avisa recordes batidos)
+src/utils/personalSchema.ts → formato (Zod v1) do perfil, do diário de treinos e da meta
+src/utils/personalStorage.ts → ler/salvar perfil, treinos (até 1000) e meta no AsyncStorage
 docs/AUDITORIA.md          → auditoria técnica e roadmap do revamp (fases 0–5)
 docs/REDESIGN.md           → redesign 2026: bibliotecas estudadas, o que foi feito e próximas fases
 ```
@@ -130,6 +136,9 @@ npm run update:preview   # manda mudanças só de JavaScript para o APK já inst
 
 ## Decisões técnicas e o porquê
 
+- **App pessoal sem login (por enquanto)**: perfil, recordes, meta e diário ficam no AsyncStorage do aparelho (`@paceflow:profile`, `@paceflow:runs`, `@paceflow:goal`, validados com Zod). Entrega quase todo o valor sem servidor, sem LGPD de dados no servidor e sem tela de cadastro (que faz gente desistir). Login (opcional, "Entrar com Google" + Supabase) só quando houver backup/sincronização ou recursos sociais, e então a Play Store exige apagar a conta pelo app.
+- **Recorde = treino registrado na distância da prova, com 1% de tolerância** (`RECORD_DISTANCE_TOLERANCE`): o GPS nunca bate exato. O tempo é ajustado para a distância oficial (10,05 km → tempo de 10 km), para os recordes serem comparáveis. Empate não é recorde novo. Meta sem recorde na distância usa estimativa de Riegel a partir do melhor treino, e estimativa nunca conta como "meta alcançada".
+- **Treino guarda o dia (AAAA-MM-DD), sem hora**: "corri no sábado". Datas são montadas no fuso local (`toIsoDay`), porque `new Date('2026-10-04')` é meia-noite UTC, que no Brasil ainda é dia 3.
 - **Estado local por aba (sem Redux/Context)**: o app é pequeno; estado global era prop drilling desnecessário.
 - **Expo Router com `Tabs` (estável) + `TabBar` próprio**: dá botão voltar do Android, links diretos (`paceflow://history`) e uma tela por arquivo. As abas customizadas de `expo-router/ui` ainda são experimentais, então usamos as `Tabs` estáveis com `tabBarPosition: 'bottom'` e a nossa barra no `tabBar`, mantendo o visual do DESIGN.md. A troca de aba usa `animation: 'shift'` (leve deslize + fade).
 - **Reanimated 4 para movimento**: as animações rodam na thread de UI (não engasgam com o JavaScript ocupado), as molas imitam objetos reais e todas respeitam o "reduzir movimento" do celular. O `babel-preset-expo` liga o plugin do `react-native-worklets` sozinho: não mexer no `babel.config`. Moti foi descartado (camada a mais) e Skia/Lottie/gestos ficam para as próximas fases (`docs/REDESIGN.md`).

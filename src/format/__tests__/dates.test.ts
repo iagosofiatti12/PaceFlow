@@ -1,4 +1,4 @@
-import { formatRelativeDate } from '../dates';
+import { formatRelativeDate, formatRunDay, recentDays, toIsoDay } from '../dates';
 
 // Datas montadas no fuso local, como o app faz no aparelho
 const local = (y: number, mo: number, d: number, h = 12, mi = 0): Date =>
@@ -26,5 +26,31 @@ describe('formatRelativeDate', () => {
 
   it('deve tratar datas no futuro (relógio do aparelho ajustado) como "Hoje"', () => {
     expect(formatRelativeDate(local(2026, 9, 26).toISOString(), now)).toBe('Hoje');
+  });
+});
+
+describe('dias dos treinos', () => {
+  // Sábado, 4 de outubro de 2026, 10h (horário local)
+  const now = new Date(2026, 9, 4, 10, 0);
+
+  it('toIsoDay usa o dia local', () => {
+    expect(toIsoDay(new Date(2026, 0, 5, 23, 59))).toBe('2026-01-05');
+  });
+
+  it('formatRunDay: hoje, ontem e dia da semana com data', () => {
+    expect(formatRunDay('2026-10-04', now)).toBe('Hoje');
+    expect(formatRunDay('2026-10-03', now)).toBe('Ontem');
+    expect(formatRunDay('2026-09-27', now)).toBe('dom, 27/09');
+    expect(formatRunDay('2025-12-31', now)).toBe('qua, 31/12/2025');
+  });
+
+  it('recentDays: hoje primeiro, atravessando o mês', () => {
+    expect(recentDays(5, now)).toEqual([
+      '2026-10-04',
+      '2026-10-03',
+      '2026-10-02',
+      '2026-10-01',
+      '2026-09-30',
+    ]);
   });
 });

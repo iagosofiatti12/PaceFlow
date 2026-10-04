@@ -24,3 +24,38 @@ export const formatRelativeDate = (isoDate: string, now: Date = new Date()): str
     year: '2-digit',
   });
 };
+
+/** Data do aparelho no formato AAAA-MM-DD (o dia, no fuso local) */
+export const toIsoDay = (date: Date): string => {
+  const pad = (n: number): string => n.toString().padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+};
+
+/** "AAAA-MM-DD" → Date à meia-noite local (e não UTC, que mudaria o dia no Brasil) */
+const fromIsoDay = (isoDay: string): Date => {
+  const [year, month, day] = isoDay.split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
+
+const WEEKDAYS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+
+/**
+ * Dia de um treino: "Hoje", "Ontem" ou "sáb, 27/09" (com o ano, se não for o atual).
+ */
+export const formatRunDay = (isoDay: string, now: Date = new Date()): string => {
+  const date = fromIsoDay(isoDay);
+  const diffDays = Math.round((startOfDay(now) - startOfDay(date)) / MS_PER_DAY);
+  if (diffDays === 0) return 'Hoje';
+  if (diffDays === 1) return 'Ontem';
+
+  const dd = date.getDate().toString().padStart(2, '0');
+  const mm = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear() === now.getFullYear() ? '' : `/${date.getFullYear()}`;
+  return `${WEEKDAYS[date.getDay()]}, ${dd}/${mm}${year}`;
+};
+
+/** Os últimos `count` dias (hoje primeiro), para escolher o dia de um treino */
+export const recentDays = (count: number, now: Date = new Date()): string[] =>
+  Array.from({ length: count }, (_, i) =>
+    toIsoDay(new Date(now.getFullYear(), now.getMonth(), now.getDate() - i)),
+  );
