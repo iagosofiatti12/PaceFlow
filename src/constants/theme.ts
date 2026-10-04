@@ -37,6 +37,8 @@ export interface ColorPalette {
   accent: string;
   /** Laranja de fundo com texto branco por cima: botões e cartão de resultado */
   accentStrong: string;
+  /** Ponta escura do degradê do cartão de resultado (mais contraste com o branco) */
+  accentDeep: string;
   /** Laranja para TEXTO sobre fundos do app ("km", coluna Total) */
   accentText: string;
   /** Fundo laranja-claro: aba ativa, linha final da tabela */
@@ -67,6 +69,7 @@ export const LIGHT_COLORS: ColorPalette = {
   iconMuted: '#8A8A8A',
   accent: '#E75713',
   accentStrong: '#BF4B17',
+  accentDeep: '#8F340C',
   accentText: '#BF4B17',
   accentSoft: '#FFF5F0',
   onAccent: '#FFFFFF',
@@ -94,6 +97,7 @@ export const DARK_COLORS: ColorPalette = {
   iconMuted: '#7F786F',
   accent: '#F07A45',
   accentStrong: '#BF4B17',
+  accentDeep: '#8F340C',
   accentText: '#F07A45',
   accentSoft: '#3A2418',
   onAccent: '#FFFFFF',
@@ -128,20 +132,27 @@ export const SPACING = {
 } as const;
 
 export const RADIUS = {
+  xs: 8,
   sm: 12,
   md: 14,
   lg: 16,
   xl: 20,
   xxl: 24,
+  /** Pílula: botões, chips e barra de abas */
+  pill: 999,
 } as const;
 
 export const FONT_SIZES = {
+  /** Rótulo das abas */
+  xxs: 11,
   xs: 12,
   sm: 13,
   md: 15,
   lg: 17,
   xl: 20,
   xxl: 22,
+  /** Título grande de cada aba */
+  title: 30,
   xxxl: 46,
 } as const;
 
@@ -169,4 +180,29 @@ export const FONTS = {
 export const FONT_SCALE = {
   display: 1.3,
   control: 1.4,
+} as const;
+
+/**
+ * Movimento (ver DESIGN.md, "Motion"). Molas em vez de durações fixas: o
+ * movimento desacelera como um objeto real, e o app parece "vivo" sem demorar.
+ * Todas as animações do Reanimated respeitam o "reduzir movimento" do celular.
+ */
+export const MOTION = {
+  /** Durações (ms) para fades e trocas de cor */
+  duration: {
+    fast: 150,
+    base: 220,
+    slow: 320,
+  },
+  /** Molas do Reanimated (withSpring / .springify()) */
+  spring: {
+    /** Resposta rápida e firme: toque, indicador de aba, seleção */
+    snappy: { damping: 20, stiffness: 300, mass: 0.8 },
+    /** Entrada de cartões e seções */
+    gentle: { damping: 18, stiffness: 160, mass: 1 },
+  },
+  /** Escala do botão enquanto o dedo está em cima */
+  pressScale: 0.96,
+  /** Atraso entre itens de uma lista que entra em sequência (ms) */
+  stagger: 40,
 } as const;

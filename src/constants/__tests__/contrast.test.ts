@@ -48,7 +48,9 @@ const textPairs = (c: ColorPalette): Pair[] => {
     ...pairs,
     ['accentText / accentSoft (aba ativa, linha final)', c.accentText, c.accentSoft],
     ['text.primary / accentSoft', c.text.primary, c.accentSoft],
+    ['text.secondary / accentSoft (dicas da Esteira e da Tabela)', c.text.secondary, c.accentSoft],
     ['onAccent / accentStrong (botões, resultado)', c.onAccent, c.accentStrong],
+    ['onAccent / accentDeep (fim do degradê do resultado)', c.onAccent, c.accentDeep],
     ['danger / surface (excluir, limpar tudo)', c.danger, c.surface],
     ['onInverse / inverseSurface (cabeçalho da tabela)', c.onInverse, c.inverseSurface],
   ];
@@ -59,6 +61,8 @@ const iconPairs = (c: ColorPalette): Pair[] => [
   ['iconMuted / background', c.iconMuted, c.background],
   ['accent / surface', c.accent, c.surface],
   ['accent / background', c.accent, c.background],
+  ['accent / accentSoft (ícone das dicas e do histórico)', c.accent, c.accentSoft],
+  ['accent / surfaceMuted (borda do campo em foco)', c.accent, c.surfaceMuted],
   ['onAccent / accentStrong (ícone do botão)', c.onAccent, c.accentStrong],
   ['danger / surfaceMuted (borda de campo com erro)', c.danger, c.surfaceMuted],
 ];
