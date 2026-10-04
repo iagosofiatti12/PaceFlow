@@ -138,6 +138,14 @@ Na aba Pace, o botão principal é "Salvar no histórico", ocupando a largura to
 sem resultado e vira "Salvo" (com ✓) depois de salvo, até o cálculo mudar. "Limpar" é uma
 pílula pequena ao lado do título, que só aparece quando há algo digitado.
 
+**Tela "Você":** aberta pelo botão redondo de perfil (ao lado do de aparência), fora da barra de
+abas. Título "Olá, {nome}" (ou "Você" e um cartão pedindo o nome). Seções em cartões: recordes
+pessoais (grade 2×2 com 5K/10K/21K/42K, sigla em `accentText`, tempo em Geist Mono semibold,
+"—" sem marca), meta (prova e tempo em Geist Mono, pace necessário e quanto falta), ritmos de
+treino do melhor treino e diário (botão "Registrar treino" + lista com ícone do tipo em
+`accentSoft`). Recorde novo aparece numa faixa `accentStrong` com troféu, que entra com zoom e vibra.
+Formulários (registrar treino, meta) ficam em painéis que sobem de baixo (`ui/Sheet`).
+
 **Atalhos de distância:** embaixo do campo de distância, quatro "chips" do mesmo tamanho
 (5K, 10K, 21K, 42K) em Geist Mono. Neutros por padrão (`surfaceMuted` + borda `border`); o da
 distância atual fica destacado com `accentSoft`, borda `accent` e texto `accentText`, igual à
