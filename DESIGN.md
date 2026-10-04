@@ -155,7 +155,12 @@ velocidade atual destacada em `accentSoft`/`accentText`.
 seguem o mesmo visual de sempre.
 
 **Campos de tempo:** o cursor pula sozinho de horas para minutos (2 dígitos) e de minutos
-para segundos (2 dígitos, ou 1 dígito de 6 a 9).
+para segundos (2 dígitos, ou 1 dígito de 6 a 9). Ao completar os segundos, o teclado fecha
+sozinho, para o resultado (e a animação dele) aparecer inteiro.
+
+**Teclado:** em celulares menores ele cobre mais da metade da tela. Por isso: arrastar a tela
+para baixo fecha o teclado, tocar fora de um campo também, e a tecla ✓ do teclado numérico
+fecha o teclado no campo atual.
 
 **Erros embaixo do campo, nunca em alerta:** borda do campo em `danger` e a mensagem logo
 abaixo, no lugar da dica. Campo vazio nunca mostra erro. Erro de limite ("máximo 500 km")
