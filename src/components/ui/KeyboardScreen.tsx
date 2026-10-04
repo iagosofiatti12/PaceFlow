@@ -21,6 +21,8 @@ const KeyboardScreen: React.FC<KeyboardScreenProps> = ({ children }) => (
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
+      // Arrastar a tela para baixo fecha o teclado (como nos apps de mensagem)
+      keyboardDismissMode="on-drag"
       bounces={false}
     >
       {children}

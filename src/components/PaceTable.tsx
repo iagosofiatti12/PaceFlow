@@ -73,6 +73,7 @@ const PaceTable: React.FC = () => {
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="on-drag"
     >
       <ScreenHeader
         title="Tabela"
