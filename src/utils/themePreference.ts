@@ -39,5 +39,9 @@ export const saveThemePreference = async (preference: ThemePreference): Promise<
  * trocam sozinhas. `null` = voltar a seguir o celular.
  */
 export const applyThemePreference = (preference: ThemePreference): void => {
-  Appearance.setColorScheme(preference === 'system' ? null : preference);
+  try {
+    Appearance.setColorScheme(preference === 'system' ? null : preference);
+  } catch {
+    // Plataforma sem suporte (ex: Android 9 ou anterior): o app segue o tema do celular
+  }
 };

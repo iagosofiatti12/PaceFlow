@@ -17,6 +17,8 @@ interface ClearButtonProps {
   accessibilityHint?: string;
   /** Ação destrutiva de verdade (ex: apagar o histórico): texto vermelho */
   destructive?: boolean;
+  /** Ícone (padrão: "refresh", ou lixeira quando destrutivo) */
+  icon?: keyof typeof Ionicons.glyphMap;
 }
 
 /**
@@ -30,6 +32,7 @@ const ClearButton: React.FC<ClearButtonProps> = ({
   accessibilityLabel,
   accessibilityHint,
   destructive = false,
+  icon,
 }) => {
   const styles = useStyles();
   const colors = useColors();
@@ -46,7 +49,11 @@ const ClearButton: React.FC<ClearButtonProps> = ({
         accessibilityLabel={accessibilityLabel}
         accessibilityHint={accessibilityHint}
       >
-        <Ionicons name={destructive ? 'trash-outline' : 'refresh'} size={16} color={color} />
+        <Ionicons
+          name={icon ?? (destructive ? 'trash-outline' : 'refresh')}
+          size={16}
+          color={color}
+        />
         <Text
           style={[styles.text, { color }]}
           maxFontSizeMultiplier={FONT_SCALE.control}

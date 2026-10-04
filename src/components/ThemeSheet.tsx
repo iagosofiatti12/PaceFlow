@@ -1,12 +1,12 @@
 import React from 'react';
-import { Modal, Pressable, Text, View } from 'react-native';
-import Animated, { FadeIn, SlideInDown } from 'react-native-reanimated';
+import { Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { FONT_SCALE, FONT_SIZES, FONTS, MOTION, RADIUS, SPACING } from '../constants/theme';
+import { FONT_SCALE, FONT_SIZES, FONTS, RADIUS, SPACING } from '../constants/theme';
 import { createThemedStyles, useColors } from '../hooks/useTheme';
 import { notifySelection } from '../utils/feedback';
 import type { ThemePreference } from '../utils/themePreference';
 import PressableScale from './ui/PressableScale';
+import Sheet from './ui/Sheet';
 
 interface ThemeSheetProps {
   visible: boolean;
@@ -33,12 +33,6 @@ export const THEME_OPTIONS: readonly {
   { value: 'dark', label: 'Escuro', description: 'Sempre escuro', icon: 'moon-outline' },
 ];
 
-// O painel sobe de baixo com uma mola, e o fundo escurece com um fade
-const enterSheet = SlideInDown.springify()
-  .damping(MOTION.spring.gentle.damping)
-  .stiffness(MOTION.spring.gentle.stiffness);
-const enterBackdrop = FadeIn.duration(MOTION.duration.base);
-
 /**
  * Painel "Aparência", que sobe de baixo: escolher entre seguir o celular,
  * claro ou escuro. A troca vale na hora e fica salva.
@@ -48,78 +42,47 @@ const ThemeSheet: React.FC<ThemeSheetProps> = ({ visible, value, onChange, onClo
   const colors = useColors();
 
   return (
-    <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
-      <Animated.View style={styles.backdrop} entering={enterBackdrop}>
-        {/* Tocar fora do painel fecha */}
-        <Pressable
-          style={styles.backdropTouch}
-          onPress={onClose}
-          accessibilityRole="button"
-          accessibilityLabel="Fechar aparência"
-        />
-        <Animated.View style={styles.sheet} entering={enterSheet}>
-          <View style={styles.handle} />
-          <Text style={styles.title} accessibilityRole="header">
-            Aparência
-          </Text>
-          <View accessibilityRole="radiogroup">
-            {THEME_OPTIONS.map((option) => {
-              const selected = option.value === value;
-              return (
-                <PressableScale
-                  key={option.value}
-                  style={[styles.option, selected && styles.optionSelected]}
-                  scaleTo={0.98}
-                  onPress={() => {
-                    if (!selected) notifySelection();
-                    onChange(option.value);
-                    onClose();
-                  }}
-                  accessibilityRole="radio"
-                  accessibilityState={{ checked: selected }}
-                  accessibilityLabel={`${option.label}: ${option.description}`}
-                >
-                  <View style={[styles.optionIcon, selected && styles.optionIconSelected]}>
-                    <Ionicons
-                      name={option.icon}
-                      size={20}
-                      color={selected ? colors.accent : colors.iconMuted}
-                    />
-                  </View>
-                  <View style={styles.optionText}>
-                    <Text style={styles.optionLabel} maxFontSizeMultiplier={FONT_SCALE.control}>
-                      {option.label}
-                    </Text>
-                    <Text style={styles.optionDescription}>{option.description}</Text>
-                  </View>
-                  {selected && <Ionicons name="checkmark-circle" size={22} color={colors.accent} />}
-                </PressableScale>
-              );
-            })}
-          </View>
-        </Animated.View>
-      </Animated.View>
-    </Modal>
+    <Sheet visible={visible} title="Aparência" onClose={onClose}>
+      <View accessibilityRole="radiogroup">
+        {THEME_OPTIONS.map((option) => {
+          const selected = option.value === value;
+          return (
+            <PressableScale
+              key={option.value}
+              style={[styles.option, selected && styles.optionSelected]}
+              scaleTo={0.98}
+              onPress={() => {
+                if (!selected) notifySelection();
+                onChange(option.value);
+                onClose();
+              }}
+              accessibilityRole="radio"
+              accessibilityState={{ checked: selected }}
+              accessibilityLabel={`${option.label}: ${option.description}`}
+            >
+              <View style={[styles.optionIcon, selected && styles.optionIconSelected]}>
+                <Ionicons
+                  name={option.icon}
+                  size={20}
+                  color={selected ? colors.accent : colors.iconMuted}
+                />
+              </View>
+              <View style={styles.optionText}>
+                <Text style={styles.optionLabel} maxFontSizeMultiplier={FONT_SCALE.control}>
+                  {option.label}
+                </Text>
+                <Text style={styles.optionDescription}>{option.description}</Text>
+              </View>
+              {selected && <Ionicons name="checkmark-circle" size={22} color={colors.accent} />}
+            </PressableScale>
+          );
+        })}
+      </View>
+    </Sheet>
   );
 };
 
 const useStyles = createThemedStyles((colors) => ({
-  backdrop: {
-    backgroundColor: colors.scrim,
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  backdropTouch: {
-    flex: 1,
-  },
-  handle: {
-    alignSelf: 'center',
-    backgroundColor: colors.borderStrong,
-    borderRadius: RADIUS.pill,
-    height: 4,
-    marginBottom: SPACING.md,
-    width: 40,
-  },
   option: {
     alignItems: 'center',
     borderColor: colors.border,
@@ -156,19 +119,6 @@ const useStyles = createThemedStyles((colors) => ({
   },
   optionText: {
     flex: 1,
-  },
-  sheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: RADIUS.xxl,
-    borderTopRightRadius: RADIUS.xxl,
-    padding: SPACING.lg,
-    paddingBottom: SPACING.xl,
-  },
-  title: {
-    color: colors.text.primary,
-    fontFamily: FONTS.semiBold,
-    fontSize: FONT_SIZES.xl,
-    marginBottom: SPACING.md,
   },
 }));
 
