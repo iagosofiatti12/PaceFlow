@@ -16,8 +16,7 @@ import ScreenHeader from './ui/ScreenHeader';
 import SegmentedControl, { type SegmentOption } from './ui/SegmentedControl';
 import InputField from './ui/InputField';
 import ResultCard from './ui/ResultCard';
-import Button from './ui/Button';
-import ButtonRow from './ui/ButtonRow';
+import ClearButton from './ui/ClearButton';
 
 type Mode = 'speed' | 'pace';
 
@@ -70,43 +69,55 @@ const TreadmillCalculator: React.FC = () => {
     pace.clear();
   };
 
+  const hasInput = speed.value !== '' || pace.value !== '';
+
   return (
-    <Card>
+    <>
       <ScreenHeader
         title="Esteira"
-        description="Converta a velocidade do painel da esteira no seu pace, e vice-versa"
+        description="A velocidade do painel vira pace, e o pace vira velocidade"
+        action={
+          <ClearButton
+            visible={hasInput}
+            onPress={handleClear}
+            accessibilityLabel="Limpar campos"
+            accessibilityHint="Toque para limpar a velocidade e o pace"
+          />
+        }
       />
 
-      <SegmentedControl options={MODES} value={mode} onChange={setMode} />
+      <Card form>
+        <SegmentedControl options={MODES} value={mode} onChange={setMode} />
 
-      {mode === 'speed' ? (
-        <InputField
-          label="Velocidade da esteira"
-          value={speed.value}
-          onChangeText={speed.onChangeText}
-          onBlur={speed.onBlur}
-          error={speedError}
-          unit="km/h"
-          placeholder="10,0"
-          accessibilityLabel="Campo de velocidade da esteira em km/h"
-          accessibilityHint="Digite a velocidade que aparece no painel"
-        />
-      ) : (
-        <InputField
-          label="Pace desejado"
-          value={pace.value}
-          onChangeText={pace.onChangeText}
-          onBlur={pace.onBlur}
-          error={paceError}
-          unit="/km"
-          placeholder="5:30"
-          keyboardType="number-pad"
-          maxLength={5}
-          hint="Formato: min:seg (ex: 5:30)"
-          accessibilityLabel="Campo de pace para a esteira"
-          accessibilityHint="Digite o pace que o treino pede"
-        />
-      )}
+        {mode === 'speed' ? (
+          <InputField
+            label="Velocidade da esteira"
+            value={speed.value}
+            onChangeText={speed.onChangeText}
+            onBlur={speed.onBlur}
+            error={speedError}
+            unit="km/h"
+            placeholder="10,0"
+            accessibilityLabel="Campo de velocidade da esteira em km/h"
+            accessibilityHint="Digite a velocidade que aparece no painel"
+          />
+        ) : (
+          <InputField
+            label="Pace desejado"
+            value={pace.value}
+            onChangeText={pace.onChangeText}
+            onBlur={pace.onBlur}
+            error={paceError}
+            unit="/km"
+            placeholder="5:30"
+            keyboardType="number-pad"
+            maxLength={5}
+            hint="Formato: min:seg (ex: 5:30)"
+            accessibilityLabel="Campo de pace para a esteira"
+            accessibilityHint="Digite o pace que o treino pede"
+          />
+        )}
+      </Card>
 
       {mode === 'speed' && speedResult.valid && (
         <ResultCard
@@ -125,17 +136,6 @@ const TreadmillCalculator: React.FC = () => {
         />
       )}
 
-      <ButtonRow>
-        <Button
-          title="Limpar"
-          icon="trash-outline"
-          variant="secondary"
-          onPress={handleClear}
-          accessibilityLabel="Limpar campos"
-          accessibilityHint="Toque para limpar a velocidade e o pace"
-        />
-      </ButtonRow>
-
       {/* Dica: sem vento, a esteira "ajuda". 1% de inclinação compensa (Jones & Doust, 1996) */}
       <View style={styles.tip}>
         <Ionicons name="bulb-outline" size={18} color={colors.accent} />
@@ -145,43 +145,45 @@ const TreadmillCalculator: React.FC = () => {
         </Text>
       </View>
 
-      <Text style={styles.tableTitle} accessibilityRole="header">
-        Consulta rápida
-      </Text>
-      <View style={styles.table}>
-        {TREADMILL_REFERENCE_SPEEDS.map((kmh, index) => {
-          const selected = currentSpeed === kmh;
-          const speedText = formatSpeed(kmh);
-          const paceText = formatPace(speedToPace(kmh));
-          return (
-            <View
-              key={kmh}
-              style={[
-                styles.tableRow,
-                index % 2 === 1 && styles.tableRowAlt,
-                selected && styles.tableRowSelected,
-              ]}
-              accessible
-              accessibilityLabel={`${speedText} quilômetros por hora: pace ${paceText} por km`}
-              accessibilityState={{ selected }}
-            >
-              <Text
-                style={[styles.tableSpeed, selected && styles.tableTextSelected]}
-                maxFontSizeMultiplier={FONT_SCALE.control}
+      <Card>
+        <Text style={styles.tableTitle} accessibilityRole="header">
+          Consulta rápida
+        </Text>
+        <View style={styles.table}>
+          {TREADMILL_REFERENCE_SPEEDS.map((kmh, index) => {
+            const selected = currentSpeed === kmh;
+            const speedText = formatSpeed(kmh);
+            const paceText = formatPace(speedToPace(kmh));
+            return (
+              <View
+                key={kmh}
+                style={[
+                  styles.tableRow,
+                  index % 2 === 1 && styles.tableRowAlt,
+                  selected && styles.tableRowSelected,
+                ]}
+                accessible
+                accessibilityLabel={`${speedText} quilômetros por hora: pace ${paceText} por km`}
+                accessibilityState={{ selected }}
               >
-                {speedText} km/h
-              </Text>
-              <Text
-                style={[styles.tablePace, selected && styles.tableTextSelected]}
-                maxFontSizeMultiplier={FONT_SCALE.control}
-              >
-                {paceText} /km
-              </Text>
-            </View>
-          );
-        })}
-      </View>
-    </Card>
+                <Text
+                  style={[styles.tableSpeed, selected && styles.tableTextSelected]}
+                  maxFontSizeMultiplier={FONT_SCALE.control}
+                >
+                  {speedText} km/h
+                </Text>
+                <Text
+                  style={[styles.tablePace, selected && styles.tableTextSelected]}
+                  maxFontSizeMultiplier={FONT_SCALE.control}
+                >
+                  {paceText} /km
+                </Text>
+              </View>
+            );
+          })}
+        </View>
+      </Card>
+    </>
   );
 };
 
@@ -227,12 +229,12 @@ const useStyles = createThemedStyles((colors) => ({
   },
   tip: {
     alignItems: 'flex-start',
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: RADIUS.sm,
+    backgroundColor: colors.accentSoft,
+    borderRadius: RADIUS.lg,
     flexDirection: 'row',
     gap: SPACING.sm,
-    marginBottom: SPACING.lg,
-    marginTop: SPACING.lg,
+    marginBottom: SPACING.md,
+    marginTop: SPACING.md,
     padding: SPACING.md,
   },
   tipText: {

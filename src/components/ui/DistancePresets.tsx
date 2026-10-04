@@ -1,9 +1,11 @@
 import React from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text } from 'react-native';
 import { RACE_DISTANCES } from '../../constants/raceDistances';
 import { FONT_SCALE, FONT_SIZES, FONTS, RADIUS, SPACING } from '../../constants/theme';
 import { formatKm, parseKm } from '../../format/distance';
 import { createThemedStyles } from '../../hooks/useTheme';
+import { notifySelection } from '../../utils/feedback';
+import PressableScale from './PressableScale';
 
 interface DistancePresetsProps {
   /** Texto atual do campo de distância (para destacar o atalho escolhido) */
@@ -25,14 +27,13 @@ const DistancePresets: React.FC<DistancePresetsProps> = ({ value, onSelect }) =>
       {RACE_DISTANCES.map((race) => {
         const selected = currentKm === race.km;
         return (
-          <Pressable
+          <PressableScale
             key={race.label}
-            onPress={() => onSelect(formatKm(race.km))}
-            style={({ pressed }) => [
-              styles.chip,
-              selected && styles.chipSelected,
-              pressed && styles.pressed,
-            ]}
+            onPress={() => {
+              if (!selected) notifySelection();
+              onSelect(formatKm(race.km));
+            }}
+            style={[styles.chip, selected && styles.chipSelected]}
             accessibilityRole="button"
             accessibilityState={{ selected }}
             accessibilityLabel={`${race.name}, ${formatKm(race.km)} km`}
@@ -46,7 +47,7 @@ const DistancePresets: React.FC<DistancePresetsProps> = ({ value, onSelect }) =>
             >
               {race.label}
             </Text>
-          </Pressable>
+          </PressableScale>
         );
       })}
     </View>
@@ -58,10 +59,10 @@ const useStyles = createThemedStyles((colors) => ({
     alignItems: 'center',
     backgroundColor: colors.surfaceMuted,
     borderColor: colors.border,
-    borderRadius: RADIUS.xl,
+    borderRadius: RADIUS.pill,
     borderWidth: 1,
     flex: 1,
-    paddingVertical: SPACING.sm,
+    paddingVertical: SPACING.sm + 2,
   },
   chipSelected: {
     backgroundColor: colors.accentSoft,
@@ -76,15 +77,12 @@ const useStyles = createThemedStyles((colors) => ({
   chipTextSelected: {
     color: colors.accentText,
   },
-  pressed: {
-    opacity: 0.7,
-  },
   // Fica colado embaixo do campo de distância (que já tem margem própria)
   row: {
     flexDirection: 'row',
     gap: SPACING.sm,
-    marginBottom: SPACING.lg,
-    marginTop: -SPACING.md,
+    marginBottom: SPACING.md,
+    marginTop: -SPACING.sm,
   },
 }));
 

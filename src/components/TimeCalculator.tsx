@@ -8,8 +8,7 @@ import Card from './ui/Card';
 import ScreenHeader from './ui/ScreenHeader';
 import InputField from './ui/InputField';
 import DistancePresets from './ui/DistancePresets';
-import Button from './ui/Button';
-import ButtonRow from './ui/ButtonRow';
+import ClearButton from './ui/ClearButton';
 import ResultCard from './ui/ResultCard';
 
 const TimeCalculator: React.FC = () => {
@@ -31,41 +30,53 @@ const TimeCalculator: React.FC = () => {
     pace.clear();
   };
 
+  const hasInput = distance.value !== '' || pace.value !== '';
+
   return (
-    <Card>
+    <>
       <ScreenHeader
-        title="Calcular tempo"
-        description="Insira a distância e seu pace: o tempo de prova aparece na hora"
+        title="Tempo"
+        description="Distância e pace: o tempo de prova aparece na hora"
+        action={
+          <ClearButton
+            visible={hasInput}
+            onPress={handleClear}
+            accessibilityLabel="Limpar campos"
+            accessibilityHint="Toque para limpar todos os campos"
+          />
+        }
       />
 
-      <InputField
-        label="Distância"
-        value={distance.value}
-        onChangeText={distance.onChangeText}
-        onBlur={distance.onBlur}
-        error={distanceError}
-        unit="km"
-        placeholder="5,0"
-        accessibilityLabel="Campo de distância em quilômetros"
-        accessibilityHint="Digite a distância da prova"
-      />
+      <Card form>
+        <InputField
+          label="Distância"
+          value={distance.value}
+          onChangeText={distance.onChangeText}
+          onBlur={distance.onBlur}
+          error={distanceError}
+          unit="km"
+          placeholder="5,0"
+          accessibilityLabel="Campo de distância em quilômetros"
+          accessibilityHint="Digite a distância da prova"
+        />
 
-      <DistancePresets value={distance.value} onSelect={distance.onChangeText} />
+        <DistancePresets value={distance.value} onSelect={distance.onChangeText} />
 
-      <InputField
-        label="Pace desejado"
-        value={pace.value}
-        onChangeText={pace.onChangeText}
-        onBlur={pace.onBlur}
-        error={paceError}
-        unit="/km"
-        placeholder="5:30"
-        keyboardType="number-pad"
-        maxLength={5}
-        hint="Formato: min:seg (ex: 5:30)"
-        accessibilityLabel="Campo de pace"
-        accessibilityHint="Digite o pace em minutos e segundos"
-      />
+        <InputField
+          label="Pace desejado"
+          value={pace.value}
+          onChangeText={pace.onChangeText}
+          onBlur={pace.onBlur}
+          error={paceError}
+          unit="/km"
+          placeholder="5:30"
+          keyboardType="number-pad"
+          maxLength={5}
+          hint="Formato: min:seg (ex: 5:30)"
+          accessibilityLabel="Campo de pace"
+          accessibilityHint="Digite o pace em minutos e segundos"
+        />
+      </Card>
 
       {form.value && (
         <ResultCard
@@ -74,18 +85,7 @@ const TimeCalculator: React.FC = () => {
           subtext={form.value.totalSeconds >= 3600 ? 'horas' : 'minutos'}
         />
       )}
-
-      <ButtonRow>
-        <Button
-          title="Limpar"
-          icon="trash-outline"
-          variant="secondary"
-          onPress={handleClear}
-          accessibilityLabel="Limpar campos"
-          accessibilityHint="Toque para limpar todos os campos"
-        />
-      </ButtonRow>
-    </Card>
+    </>
   );
 };
 

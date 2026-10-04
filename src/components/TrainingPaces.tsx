@@ -1,10 +1,13 @@
 import React from 'react';
 import { View, Text } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { TRAINING_ZONE_INFO } from '../constants/trainingZones';
 import { FONT_SCALE, FONT_SIZES, FONTS, RADIUS, SPACING } from '../constants/theme';
 import { trainingPaces } from '../domain/trainingZones';
 import { formatPace } from '../format/time';
 import { createThemedStyles } from '../hooks/useTheme';
+import Card from './ui/Card';
+import { enterItem } from './ui/motion';
 
 interface TrainingPacesProps {
   /** Distância do resultado que serve de base (km) */
@@ -25,13 +28,13 @@ const TrainingPaces: React.FC<TrainingPacesProps> = ({ distanceKm, durationSecon
   if (!paces) return null;
 
   return (
-    <View style={styles.container}>
+    <Card appear style={styles.container}>
       <Text style={styles.title} accessibilityRole="header">
         Ritmos de treino
       </Text>
       <Text style={styles.subtitle}>Para treinar no seu nível atual:</Text>
 
-      {paces.map(({ zone, fastSeconds, slowSeconds }) => {
+      {paces.map(({ zone, fastSeconds, slowSeconds }, index) => {
         const info = TRAINING_ZONE_INFO[zone];
         // Zona com faixa (leve) mostra "do mais rápido ao mais lento"
         const pace =
@@ -43,22 +46,24 @@ const TrainingPaces: React.FC<TrainingPacesProps> = ({ distanceKm, durationSecon
             ? formatPace(fastSeconds)
             : `de ${formatPace(fastSeconds)} a ${formatPace(slowSeconds)}`;
         return (
-          <View
+          <Animated.View
             key={zone}
+            entering={enterItem(index + 1)}
             style={styles.row}
             accessible
             accessibilityLabel={`${info.label}, ${info.description}: pace ${spokenPace} por km`}
           >
-            <View style={styles.zoneInfo}>
+            {/* Nome e pace na mesma linha; a descrição embaixo, com a largura toda */}
+            <View style={styles.zoneTop}>
               <Text style={styles.zoneLabel} maxFontSizeMultiplier={FONT_SCALE.control}>
                 {info.label}
               </Text>
-              <Text style={styles.zoneDescription}>{info.description}</Text>
+              <Text style={styles.pace} maxFontSizeMultiplier={FONT_SCALE.control}>
+                {pace} /km
+              </Text>
             </View>
-            <Text style={styles.pace} maxFontSizeMultiplier={FONT_SCALE.control}>
-              {pace} /km
-            </Text>
-          </View>
+            <Text style={styles.zoneDescription}>{info.description}</Text>
+          </Animated.View>
         );
       })}
 
@@ -66,16 +71,14 @@ const TrainingPaces: React.FC<TrainingPacesProps> = ({ distanceKm, durationSecon
         Método de Jack Daniels (VDOT). Use um resultado recente de prova ou teste feito no seu
         máximo; com treino leve, os ritmos ficam lentos demais.
       </Text>
-    </View>
+    </Card>
   );
 };
 
 const useStyles = createThemedStyles((colors) => ({
+  // Seção própria, abaixo do resultado
   container: {
-    borderTopColor: colors.border,
-    borderTopWidth: 1,
-    marginTop: SPACING.lg,
-    paddingTop: SPACING.lg,
+    marginTop: SPACING.md,
   },
   footnote: {
     color: colors.text.tertiary,
@@ -91,11 +94,8 @@ const useStyles = createThemedStyles((colors) => ({
     fontVariant: ['tabular-nums'],
   },
   row: {
-    alignItems: 'center',
     backgroundColor: colors.surfaceMuted,
     borderRadius: RADIUS.sm,
-    flexDirection: 'row',
-    gap: SPACING.sm,
     marginBottom: SPACING.sm,
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm,
@@ -116,8 +116,12 @@ const useStyles = createThemedStyles((colors) => ({
     fontFamily: FONTS.regular,
     fontSize: FONT_SIZES.xs,
   },
-  zoneInfo: {
-    flex: 1,
+  zoneTop: {
+    alignItems: 'baseline',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: SPACING.sm,
+    justifyContent: 'space-between',
   },
   zoneLabel: {
     color: colors.accentText,

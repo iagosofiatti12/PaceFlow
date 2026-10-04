@@ -1,8 +1,6 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import HistoryTab from '../src/components/HistoryTab';
-import { SPACING } from '../src/constants/theme';
 import type { HistoryItem } from '../src/utils/storage';
 
 /** Aba Histórico. Rota "/history". */
@@ -15,18 +13,5 @@ export default function HistoryScreen(): React.ReactElement {
     router.navigate({ pathname: '/', params: { restore: item.id, t: String(Date.now()) } });
   };
 
-  return (
-    <View style={styles.container}>
-      <HistoryTab onSelectItem={handleSelectItem} />
-    </View>
-  );
+  return <HistoryTab onSelectItem={handleSelectItem} />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingBottom: SPACING.xl + 20,
-    paddingHorizontal: SPACING.lg,
-    paddingTop: SPACING.lg,
-  },
-});

@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
   buttonGroup: {
     flexDirection: 'row',
     gap: SPACING.sm,
-    marginTop: SPACING.sm,
+    marginTop: SPACING.md,
   },
 });
 

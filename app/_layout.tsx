@@ -60,11 +60,11 @@ export default function RootLayout(): React.ReactElement | null {
         <Tabs
           tabBar={(props) => <TabBar {...props} />}
           screenOptions={{
-            // Barra de abas em cima, logo abaixo do logo (como no design atual)
-            tabBarPosition: 'top',
+            // Barra de abas embaixo, onde o polegar alcança (padrão dos apps atuais)
+            tabBarPosition: 'bottom',
             headerShown: false,
-            // Transição suave entre abas (antes era uma animação feita à mão)
-            animation: 'fade',
+            // Troca de aba com um leve deslize + fade (em vez de só fade)
+            animation: 'shift',
             sceneStyle: styles.scene,
           }}
         >

@@ -15,6 +15,7 @@ import DistancePresets from './ui/DistancePresets';
 import TimeInput from './ui/TimeInput';
 import Button from './ui/Button';
 import ButtonRow from './ui/ButtonRow';
+import ClearButton from './ui/ClearButton';
 import ResultCard from './ui/ResultCard';
 import RacePredictions from './RacePredictions';
 import TrainingPaces from './TrainingPaces';
@@ -82,34 +83,46 @@ const PaceCalculator: React.FC<PaceCalculatorProps> = ({ initialItem }) => {
     seconds.clear();
   };
 
+  const hasInput = [distance, hours, minutes, seconds].some((field) => field.value !== '');
+
   return (
-    <Card>
+    <>
       <ScreenHeader
-        title="Calcular pace"
-        description="Insira a distância e o tempo: o ritmo médio aparece na hora"
+        title="Pace"
+        description="Distância e tempo: o ritmo médio aparece na hora"
+        action={
+          <ClearButton
+            visible={hasInput}
+            onPress={handleClear}
+            accessibilityLabel="Limpar campos"
+            accessibilityHint="Toque para limpar todos os campos"
+          />
+        }
       />
 
-      <InputField
-        label="Distância"
-        value={distance.value}
-        onChangeText={distance.onChangeText}
-        onBlur={distance.onBlur}
-        error={distanceError}
-        unit="km"
-        placeholder="5,0"
-        accessibilityLabel="Campo de distância em quilômetros"
-        accessibilityHint="Digite a distância percorrida"
-      />
+      <Card form>
+        <InputField
+          label="Distância"
+          value={distance.value}
+          onChangeText={distance.onChangeText}
+          onBlur={distance.onBlur}
+          error={distanceError}
+          unit="km"
+          placeholder="5,0"
+          accessibilityLabel="Campo de distância em quilômetros"
+          accessibilityHint="Digite a distância percorrida"
+        />
 
-      <DistancePresets value={distance.value} onSelect={distance.onChangeText} />
+        <DistancePresets value={distance.value} onSelect={distance.onChangeText} />
 
-      <TimeInput
-        label="Tempo total"
-        hours={hours}
-        minutes={minutes}
-        seconds={seconds}
-        error={timeError}
-      />
+        <TimeInput
+          label="Tempo total"
+          hours={hours}
+          minutes={minutes}
+          seconds={seconds}
+          error={timeError}
+        />
+      </Card>
 
       {form.value && (
         <ResultCard
@@ -130,14 +143,6 @@ const PaceCalculator: React.FC<PaceCalculatorProps> = ({ initialItem }) => {
           accessibilityLabel={isSaved ? 'Cálculo salvo no histórico' : 'Salvar no histórico'}
           accessibilityHint="Guarda este cálculo na aba Histórico"
         />
-        <Button
-          title="Limpar"
-          icon="trash-outline"
-          variant="secondary"
-          onPress={handleClear}
-          accessibilityLabel="Limpar campos"
-          accessibilityHint="Toque para limpar todos os campos"
-        />
       </ButtonRow>
 
       {form.value && (
@@ -152,7 +157,7 @@ const PaceCalculator: React.FC<PaceCalculatorProps> = ({ initialItem }) => {
           />
         </>
       )}
-    </Card>
+    </>
   );
 };
 

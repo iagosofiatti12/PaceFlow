@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE } from '../constants/theme';
 import { generateSplits, negativeSplitPaces, type SplitStrategy } from '../domain/splits';
@@ -14,8 +15,8 @@ import ScreenHeader from './ui/ScreenHeader';
 import InputField from './ui/InputField';
 import DistancePresets from './ui/DistancePresets';
 import SegmentedControl, { type SegmentOption } from './ui/SegmentedControl';
-import Button from './ui/Button';
-import ButtonRow from './ui/ButtonRow';
+import ClearButton from './ui/ClearButton';
+import { enterSection } from './ui/motion';
 import { createThemedStyles, useColors } from '../hooks/useTheme';
 
 const STRATEGIES: readonly SegmentOption<SplitStrategy>[] = [
@@ -64,14 +65,29 @@ const PaceTable: React.FC = () => {
     pace.clear();
   };
 
-  return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <Card style={styles.calculatorCard}>
-        <ScreenHeader
-          title="Tabela de ritmo"
-          description="Informe a prova e o pace: a tabela km a km aparece na hora"
-        />
+  const hasInput = distance.value !== '' || pace.value !== '';
 
+  return (
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+    >
+      <ScreenHeader
+        title="Tabela"
+        description="A prova km a km: parciais e tempo acumulado"
+        action={
+          <ClearButton
+            visible={hasInput}
+            onPress={handleClear}
+            accessibilityLabel="Limpar"
+            accessibilityHint="Toque para limpar a tabela"
+          />
+        }
+      />
+
+      <Card form>
         <InputField
           label="Distância da prova"
           value={distance.value}
@@ -105,30 +121,19 @@ const PaceTable: React.FC = () => {
 
         {/* Negative split: larga contido e acelera na segunda metade, no mesmo tempo final */}
         {halves && (
-          <View style={styles.plan}>
+          <Animated.View style={styles.plan} entering={enterSection}>
             <Ionicons name="trending-up-outline" size={18} color={colors.accent} />
             <Text style={styles.planText}>
               1ª metade a {formatPace(Math.round(halves.firstHalf))}/km e 2ª metade a{' '}
               {formatPace(Math.round(halves.secondHalf))}/km. Largar contido poupa energia para o
               final, e o tempo total é o mesmo.
             </Text>
-          </View>
+          </Animated.View>
         )}
-
-        <ButtonRow>
-          <Button
-            title="Limpar"
-            icon="trash-outline"
-            variant="secondary"
-            onPress={handleClear}
-            accessibilityLabel="Limpar"
-            accessibilityHint="Toque para limpar a tabela"
-          />
-        </ButtonRow>
       </Card>
 
       {splits && splits.length > 0 && (
-        <View style={styles.tableContainer}>
+        <Animated.View style={styles.tableContainer} entering={enterSection}>
           <View style={styles.tableHeader}>
             <Text style={styles.tableHeaderText} maxFontSizeMultiplier={FONT_SCALE.control}>
               KM
@@ -172,28 +177,27 @@ const PaceTable: React.FC = () => {
               Tempo final: {formatSecondsToTime(splits[splits.length - 1].cumulativeSeconds)}
             </Text>
           </View>
-        </View>
+        </Animated.View>
       )}
     </ScrollView>
   );
 };
 
 const useStyles = createThemedStyles((colors) => ({
-  calculatorCard: {
-    marginBottom: SPACING.lg,
-  },
   container: {
     flex: 1,
-    paddingHorizontal: SPACING.lg,
-    paddingTop: SPACING.lg,
+  },
+  content: {
+    padding: SPACING.lg,
+    paddingBottom: SPACING.xl,
   },
   plan: {
     alignItems: 'flex-start',
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: RADIUS.sm,
+    backgroundColor: colors.accentSoft,
+    borderRadius: RADIUS.lg,
     flexDirection: 'row',
     gap: SPACING.sm,
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.md,
     padding: SPACING.md,
   },
   planText: {
@@ -232,9 +236,11 @@ const useStyles = createThemedStyles((colors) => ({
   },
   tableContainer: {
     backgroundColor: colors.surface,
+    borderColor: colors.border,
     borderRadius: RADIUS.xxl,
+    borderWidth: 1,
     elevation: 3,
-    marginBottom: SPACING.xl,
+    marginTop: SPACING.md,
     overflow: 'hidden',
     shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
