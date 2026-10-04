@@ -34,7 +34,7 @@ Público: corredores amadores brasileiros. Todo texto de UI é em **português b
 app/_layout.tsx            → layout raiz: fontes, área segura, logo e navegador de abas (Tabs, barra embaixo)
 app/index.tsx              → aba Pace (rota "/"); recebe ?restore=<id> para restaurar um cálculo
 app/time.tsx, table.tsx, treadmill.tsx, history.tsx → abas Tempo, Tabela, Esteira e Histórico (rotas /time, /table, /treadmill, /history)
-src/components/            → um componente por aba (cada um gerencia o PRÓPRIO estado) + Header, TabBar, RacePredictions e TrainingPaces
+src/components/            → um componente por aba (cada um gerencia o PRÓPRIO estado) + Header, ThemeSheet, TabBar, RacePredictions e TrainingPaces
 src/components/ui/         → componentes reutilizáveis: Card, ScreenHeader, ClearButton, InputField, TimeInput, FieldError, DistancePresets, SegmentedControl, Button, ButtonRow, ResultCard, PressableScale, KeyboardScreen
 src/components/ui/motion.ts→ animações prontas do app (entrada de seção, item de lista, troca rápida, layout)
 src/constants/theme.ts     → TODOS os tokens: paletas LIGHT_COLORS/DARK_COLORS, PACE_LEVEL_COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE, MOTION
@@ -53,6 +53,8 @@ src/hooks/useKeyboardVisible.ts → diz se o teclado está aberto (a barra de ab
 src/utils/storage.ts       → persistência do histórico (AsyncStorage)
 src/utils/historySchema.ts → formato do histórico (schema Zod v2) e migração da v1
 src/utils/feedback.ts      → vibração de sucesso (ao salvar) e de seleção (aba, atalho, modo)
+src/utils/themePreference.ts → tema escolhido no app (automático/claro/escuro): ler, salvar e aplicar
+src/hooks/useThemePreference.ts → tema atual + função para trocar (usado pelo botão "Aparência" do Header)
 docs/AUDITORIA.md          → auditoria técnica e roadmap do revamp (fases 0–5)
 docs/REDESIGN.md           → redesign 2026: bibliotecas estudadas, o que foi feito e próximas fases
 ```
@@ -137,6 +139,7 @@ npm run build:preview    # APK para instalar no celular ou no emulador (perfil "
 - **`react-native-safe-area-context`**: o `SafeAreaView` do `react-native` está depreciado.
 - **Prettier com `endOfLine: "auto"`**: o desenvolvimento acontece no Windows (CRLF); sem isso o format:check briga com o git.
 - **Modo escuro seguindo o celular**: `userInterfaceStyle: "automatic"` no `app.json` + `useColorScheme` do React Native. O `expo-system-ui` é obrigatório para isso funcionar em builds de Android (documentação do Expo).
+- **Tema escolhido no app via `Appearance.setColorScheme`** (`utils/themePreference.ts`): em vez de um Context novo, o app diz ao React Native qual tema usar, e o `useColorScheme` (que o `useColors`/`createThemedStyles` já usam) passa a responder esse tema. Zero mudança nos componentes. `null` volta a seguir o celular. A escolha fica no AsyncStorage (`@paceflow:theme`, validada com Zod) e é aplicada no `_layout` antes de a splash sair, para não piscar no tema errado.
 - **Ícone do app a partir do tênis do logo** (`assets/icon-shoe.svg`, linhas engrossadas para aparecer em 48 px): branco sobre `#E75713`, com ícone adaptativo e monocromático para Android (detalhes e como regenerar no DESIGN.md). O ícone só aparece em build de preview/produção; o Expo Go mostra o dele.
 - **Splash com `expo-splash-screen`**: o plugin no `app.json` define a splash clara e a escura, e o `app/_layout.tsx` a segura na tela (`preventAutoHideAsync`) até as fontes carregarem. Se as fontes falharem, o app abre mesmo assim, com a fonte do sistema. A splash só aparece de verdade em build de preview/produção; o Expo Go mostra a dele.
 - **Teto de ampliação só onde a largura é fixa** (`FONT_SCALE`): respeita quem aumenta a fonte do celular sem deixar botão, aba ou número grande estourar a tela.

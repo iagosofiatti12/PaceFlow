@@ -63,6 +63,10 @@ temas, cada combinação de texto e fundo usada no app (mínimo 4.5:1 para texto
 **Selos de nível do pace:** usam a escala `PACE_LEVEL_COLORS`, igual nos dois temas. O selo
 "avançado" mudou de `#D9591E` para `#C2521C`: o texto branco sobre o tom antigo tinha 3.89:1.
 
+**Tema escolhido no app:** o botão redondo à direita do logo abre o painel "Aparência" (sobe
+de baixo, com véu `scrim` atrás): Automático (segue o celular), Claro ou Escuro. O ícone do botão
+mostra a escolha atual (celular, sol ou lua). A escolha vale na hora e fica salva.
+
 **Modo escuro:** fundos quase pretos com um toque quente (`#121110`, `#1C1A18`), que combinam
 com o laranja, e um laranja mais luminoso para texto e ícones. O cabeçalho da tabela usa
 `inverseSurface`, que é escuro no tema claro e claro no escuro.
