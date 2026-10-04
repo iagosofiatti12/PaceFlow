@@ -21,6 +21,7 @@ Público: corredores amadores brasileiros. Todo texto de UI é em **português b
 - **Expo Router 6** para navegação: cada aba é um arquivo em `app/` (rotas por arquivo)
 - **AsyncStorage** (`@react-native-async-storage/async-storage`) para o histórico
 - **Zod 4** para validar o formato do histórico ao ler do aparelho
+- **Reanimated 4** (`react-native-reanimated` + `react-native-worklets`) para animações, **expo-linear-gradient** para o degradê do resultado e **expo-haptics** para vibração (plano em `docs/REDESIGN.md`)
 - **Fontes**: Geist Sans e Geist Mono via `@expo-google-fonts/*`, carregadas com `useFonts` no `app/_layout.tsx`
 - **Lint**: ESLint 9 flat config (`eslint.config.js`) com `eslint-config-expo` + `eslint-config-prettier`
 - **Testes**: Jest com preset `jest-expo` + `@testing-library/react-native` (hooks) + `expo-router/testing-library` (navegação); testes em `src/**/__tests__/*.test.ts(x)` — nunca dentro de `app/`, onde todo arquivo vira rota
@@ -30,12 +31,13 @@ Público: corredores amadores brasileiros. Todo texto de UI é em **português b
 ## Arquitetura
 
 ```
-app/_layout.tsx            → layout raiz: fontes, área segura, logo e navegador de abas (Tabs)
+app/_layout.tsx            → layout raiz: fontes, área segura, logo e navegador de abas (Tabs, barra embaixo)
 app/index.tsx              → aba Pace (rota "/"); recebe ?restore=<id> para restaurar um cálculo
 app/time.tsx, table.tsx, treadmill.tsx, history.tsx → abas Tempo, Tabela, Esteira e Histórico (rotas /time, /table, /treadmill, /history)
 src/components/            → um componente por aba (cada um gerencia o PRÓPRIO estado) + Header, TabBar, RacePredictions e TrainingPaces
-src/components/ui/         → componentes reutilizáveis: Card, ScreenHeader, InputField, TimeInput, FieldError, DistancePresets, SegmentedControl, Button, ButtonRow, ResultCard, KeyboardScreen
-src/constants/theme.ts     → TODOS os tokens: paletas LIGHT_COLORS/DARK_COLORS, PACE_LEVEL_COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE
+src/components/ui/         → componentes reutilizáveis: Card, ScreenHeader, ClearButton, InputField, TimeInput, FieldError, DistancePresets, SegmentedControl, Button, ButtonRow, ResultCard, PressableScale, KeyboardScreen
+src/components/ui/motion.ts→ animações prontas do app (entrada de seção, item de lista, troca rápida, layout)
+src/constants/theme.ts     → TODOS os tokens: paletas LIGHT_COLORS/DARK_COLORS, PACE_LEVEL_COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, FONT_SCALE, MOTION
 src/constants/messages.ts  → textos das mensagens de validação (um por código de erro)
 src/constants/paceLevels.ts→ aparência de cada nível de pace (rótulo, emoji, cores)
 src/constants/raceDistances.ts → distâncias dos atalhos (5K, 10K, meia 21,0975, maratona 42,195)
@@ -47,10 +49,12 @@ src/validation/forms.ts    → avalia o formulário inteiro para o cálculo ao v
 src/hooks/useMaskedField.ts→ estado de um campo com máscara (value, onChangeText, clear)
 src/hooks/useTheme.ts      → useColors() e createThemedStyles(): cores do tema claro/escuro
 src/hooks/useAutoAdvance.ts→ pula o cursor para o próximo campo de tempo quando o atual fica completo
+src/hooks/useKeyboardVisible.ts → diz se o teclado está aberto (a barra de abas some no Android)
 src/utils/storage.ts       → persistência do histórico (AsyncStorage)
 src/utils/historySchema.ts → formato do histórico (schema Zod v2) e migração da v1
-src/utils/feedback.ts      → vibração de sucesso (ao salvar no histórico)
+src/utils/feedback.ts      → vibração de sucesso (ao salvar) e de seleção (aba, atalho, modo)
 docs/AUDITORIA.md          → auditoria técnica e roadmap do revamp (fases 0–5)
+docs/REDESIGN.md           → redesign 2026: bibliotecas estudadas, o que foi feito e próximas fases
 ```
 
 Padrões estabelecidos:
@@ -63,6 +67,8 @@ Padrões estabelecidos:
 - **Erro no campo, nunca em `Alert`**: `shouldShowError(erro, campo.touched)` decide se o erro aparece. Erros de limite (`distance.max`, `time.max`, `pace.range`) aparecem na hora; erros de digitação em andamento (`pace.format`, `distance.min`...) esperam a pessoa sair do campo. O texto vem de `VALIDATION_MESSAGES[código]` e vai na prop `error` do `InputField`/`TimeInput`, que mostra o `FieldError` e o anuncia ao leitor de tela.
 - **Salvar no histórico é explícito**: botão "Salvar no histórico" na aba Pace, desabilitado sem resultado e depois de salvo (até o cálculo mudar). `notifySuccess()` vibra só ao salvar.
 - **Campos com máscara**: `const distance = useMaskedField(formatDistanceInput)` em vez de `useState` + handler manual. Passe `onBlur={distance.onBlur}` para o campo: é o que marca `touched`.
+- **Estrutura de cada aba**: `ScreenHeader` (título grande + `ClearButton` à direita) → `Card form` com os campos → `ResultCard` → botões → seções extras em `Card appear`. Nada de botão "Limpar" ocupando uma linha.
+- **Movimento**: use as animações prontas de `ui/motion.ts` e os tokens `MOTION`, nunca durações soltas. Elemento tocável é `PressableScale` (ou `Button`), não `Pressable` com opacidade. Escolher uma opção chama `notifySelection()`.
 
 ## Convenções de código
 
@@ -122,7 +128,10 @@ npm run build:preview    # APK para instalar no celular ou no emulador (perfil "
 ## Decisões técnicas e o porquê
 
 - **Estado local por aba (sem Redux/Context)**: o app é pequeno; estado global era prop drilling desnecessário.
-- **Expo Router com `Tabs` (estável) + `TabBar` próprio**: dá botão voltar do Android, links diretos (`paceflow://history`) e uma tela por arquivo. As abas customizadas de `expo-router/ui` ainda são experimentais, então usamos as `Tabs` estáveis com `tabBarPosition: 'top'` e a nossa barra no `tabBar`, mantendo o visual do DESIGN.md. O fade entre abas é a opção `animation: 'fade'`.
+- **Expo Router com `Tabs` (estável) + `TabBar` próprio**: dá botão voltar do Android, links diretos (`paceflow://history`) e uma tela por arquivo. As abas customizadas de `expo-router/ui` ainda são experimentais, então usamos as `Tabs` estáveis com `tabBarPosition: 'bottom'` e a nossa barra no `tabBar`, mantendo o visual do DESIGN.md. A troca de aba usa `animation: 'shift'` (leve deslize + fade).
+- **Reanimated 4 para movimento**: as animações rodam na thread de UI (não engasgam com o JavaScript ocupado), as molas imitam objetos reais e todas respeitam o "reduzir movimento" do celular. O `babel-preset-expo` liga o plugin do `react-native-worklets` sozinho: não mexer no `babel.config`. Moti foi descartado (camada a mais) e Skia/Lottie/gestos ficam para as próximas fases (`docs/REDESIGN.md`).
+- **Sem animação de layout (`layout={...}`) fora de listas**: no teste pelo navegador, `LinearTransition` em cartões soltos deixava elementos para trás. Ficou só no histórico (`itemLayoutAnimation`), que é o caso de uso documentado. Entradas (`entering`) são seguras.
+- **`react-native-worklets` fixado em 0.5.1**: é a versão que o Expo SDK 54 e o Expo Go trazem; outra versão quebra o app no Expo Go.
 - **`jest-expo` em vez do preset `react-native`**: mocka os módulos nativos do Expo automaticamente, sem `transformIgnorePatterns` manual.
 - **ESLint flat config com `eslint-config-expo`**: caminho oficial do Expo; substituiu 6 plugins instalados à mão.
 - **`react-native-safe-area-context`**: o `SafeAreaView` do `react-native` está depreciado.

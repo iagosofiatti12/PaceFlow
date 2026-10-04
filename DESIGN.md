@@ -84,36 +84,73 @@ vírgula ou ponto e sempre exibe vírgula. Para mostrar uma distância, use `for
 **Splash:** o logo sobre o fundo do tema (`#FAF8F5` no claro, `#121110` no escuro), configurada
 no plugin `expo-splash-screen` do `app.json`. Ela fica na tela até as fontes carregarem.
 
+## Redesign 2026: layout moderno e movimento (vale para todo código novo)
+
+Plano completo, bibliotecas estudadas e próximas fases em `docs/REDESIGN.md`.
+
+**Navegação embaixo:** barra de abas flutuante na parte de baixo da tela (onde o polegar
+alcança), com contorno fino e sombra leve. Ícone de contorno quando inativa e preenchido quando
+ativa; rótulo pequeno (`FONT_SIZES.xxs`). Uma pílula `accentSoft` desliza com mola até a aba
+tocada. No Android, a barra some enquanto o teclado está aberto.
+
+**Título grande por aba:** cada aba abre com o título grande (`FONT_SIZES.title`, 30 px) fora do
+cartão, a descrição embaixo e, à direita, a ação discreta da tela ("Limpar", "Limpar tudo").
+O cabeçalho do app tem só o logo, já recortado (`assets/logo-header.png`).
+
+**Superfícies:** cartões com contorno fino (`border`) e sombra bem leve; botões e chips em
+formato de pílula (`RADIUS.pill`); campos com borda `accent` e fundo `surface` enquanto estão em
+foco. O cartão de resultado é um degradê de `accentStrong` até `accentDeep` (o branco por cima
+passa no contraste nas duas pontas, ver `contrast.test.ts`).
+
+**Movimento (Reanimated 4):** curto, com mola, e sempre com propósito. Os tokens ficam em
+`MOTION` (`theme.ts`) e as animações prontas em `src/components/ui/motion.ts`:
+
+| O quê                                 | Como                                                       |
+| ------------------------------------- | ---------------------------------------------------------- |
+| Toque em botão, chip, aba, item       | Encolhe para ~96% e volta com mola (`PressableScale`)      |
+| Aba ou opção escolhida                | Pílula desliza até a nova posição (mola `snappy`)          |
+| Resultado e seções que surgem         | Sobem 16 px com fade e mola suave (`enterSection`)         |
+| Número do resultado a cada tecla      | Fade rápido do valor novo (`enterQuick`)                   |
+| Selo de nível do pace                 | "Pula" com zoom ao aparecer ou mudar de nível              |
+| Linhas de previsão, ritmos, histórico | Entram em sequência, 40 ms entre uma e outra (`enterItem`) |
+| Item excluído do histórico            | Sai deslizando para a esquerda; os de baixo sobem          |
+| Escolher aba, atalho ou modo          | Toque leve de vibração (`notifySelection`)                 |
+
+Regras: nada passa de ~400 ms; nada anima em loop; nenhuma informação depende da animação para
+ser entendida. Todas as animações respeitam o "reduzir movimento" do celular (padrão do
+Reanimated): com a opção ligada, a tela muda direto, sem movimento.
+
 ## Cálculo ao vivo e erros no campo (vale para todo código novo)
 
 **Sem botão "Calcular":** o resultado aparece e se atualiza enquanto a pessoa digita. A ordem
-de cada aba é: campos → cartão de resultado → botões. Na aba Pace, o botão principal é
-"Salvar no histórico": fica esmaecido sem resultado e vira "Salvo" (com ✓) depois de salvo,
-até o cálculo mudar. Nas abas Tempo e Tabela, o único botão é "Limpar".
+de cada aba é: título → cartão com os campos → cartão de resultado → botões → seções extras.
+Na aba Pace, o botão principal é "Salvar no histórico", ocupando a largura toda: fica esmaecido
+sem resultado e vira "Salvo" (com ✓) depois de salvo, até o cálculo mudar. "Limpar" é uma
+pílula pequena ao lado do título, que só aparece quando há algo digitado.
 
 **Atalhos de distância:** embaixo do campo de distância, quatro "chips" do mesmo tamanho
 (5K, 10K, 21K, 42K) em Geist Mono. Neutros por padrão (`surfaceMuted` + borda `border`); o da
 distância atual fica destacado com `accentSoft`, borda `accent` e texto `accentText`, igual à
 aba ativa. O leitor de tela lê o nome completo ("Meia maratona, 21,0975 km").
 
-**Previsão de prova:** no fim do cartão da aba Pace, depois dos botões (primeiro o resultado e a
-ação, depois a informação extra), separada por uma linha fina. Uma linha por prova em fundo
+**Previsão de prova:** cartão próprio na aba Pace, depois do botão de salvar (primeiro o
+resultado e a ação, depois a informação extra). Uma linha por prova em fundo
 `surfaceMuted`: sigla em `accentText` e nome embaixo à esquerda; tempo em Geist Mono semibold e
 pace menor à direita. Termina com uma nota curta dizendo que é estimativa.
 
-**Ritmos de treino:** logo depois da previsão de prova, no mesmo visual (linha fina em cima,
-uma linha `surfaceMuted` por zona). Nome da zona em `accentText` e para que serve embaixo, à
-esquerda; pace em Geist Mono semibold à direita. O leve é uma faixa ("6:07 – 6:43 /km"); as
+**Ritmos de treino:** outro cartão, logo depois da previsão de prova, no mesmo visual (uma linha
+`surfaceMuted` por zona). Nome da zona em `accentText` à esquerda e pace em Geist Mono semibold
+à direita, na mesma linha; para que serve vem embaixo, com a largura toda. O leve é uma faixa ("6:07 – 6:43 /km"); as
 outras zonas são um ritmo só. Termina com uma nota curta sobre o método.
 
 **Aba Esteira:** a troca de modo ("Sei a velocidade" / "Sei o pace") usa o `SegmentedControl`,
-com o mesmo visual da aba ativa (pílula `accentSoft` + texto `accentText` sobre fundo
-`surfaceMuted`). Abaixo do resultado vem uma dica em caixa `surfaceMuted` com ícone de lâmpada
+(pílula clara com borda `accent` e texto `accentText`, que desliza até a opção escolhida, sobre
+fundo `surfaceMuted`). Abaixo do resultado vem uma dica em caixa `accentSoft` com ícone de lâmpada
 em `accent`, e a "Consulta rápida": tabela listrada de 8 a 16 km/h em Geist Mono, com a linha da
 velocidade atual destacada em `accentSoft`/`accentText`.
 
 **Plano de prova na aba Tabela:** abaixo do pace, um `SegmentedControl` escolhe entre
-"Ritmo constante" e "Negative split". No negative split aparece uma caixa `surfaceMuted` com
+"Ritmo constante" e "Negative split". No negative split aparece uma caixa `accentSoft` com
 ícone `trending-up-outline` em `accent`, dizendo o pace de cada metade; a tabela e o tempo final
 seguem o mesmo visual de sempre.
 
