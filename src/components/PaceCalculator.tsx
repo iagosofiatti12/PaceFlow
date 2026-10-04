@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Text } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { getPaceLevel } from '../domain/levels';
 import { formatDistanceInput, formatHoursInput, formatMinutesInput } from '../format/masks';
 import { formatPace, splitDuration } from '../format/time';
@@ -8,6 +10,11 @@ import { VALIDATION_MESSAGES } from '../constants/messages';
 import { useMaskedField } from '../hooks/useMaskedField';
 import { notifySuccess } from '../utils/feedback';
 import { saveCalculation, type HistoryItem } from '../utils/storage';
+import { addRun, getRuns, type NewRun } from '../utils/personalStorage';
+import { recordsBrokenBy } from '../domain/records';
+import { RACE_DISTANCES } from '../constants/raceDistances';
+import { FONT_SIZES, FONTS, SPACING } from '../constants/theme';
+import { createThemedStyles } from '../hooks/useTheme';
 import Card from './ui/Card';
 import ScreenHeader from './ui/ScreenHeader';
 import InputField from './ui/InputField';
@@ -19,6 +26,8 @@ import ClearButton from './ui/ClearButton';
 import ResultCard from './ui/ResultCard';
 import RacePredictions from './RacePredictions';
 import TrainingPaces from './TrainingPaces';
+import RunSheet from './RunSheet';
+import { enterQuick } from './ui/motion';
 
 interface PaceCalculatorProps {
   /** Item do histórico para preencher os campos ao restaurar um cálculo salvo */
@@ -29,7 +38,13 @@ interface PaceCalculatorProps {
 const calculationKey = (distanceKm: number, durationSeconds: number): string =>
   `${distanceKm}|${durationSeconds}`;
 
+const RACE_KMS = RACE_DISTANCES.map((race) => race.km);
+
 const PaceCalculator: React.FC<PaceCalculatorProps> = ({ initialItem }) => {
+  const styles = useStyles();
+  const [runSheetOpen, setRunSheetOpen] = useState(false);
+  // Aviso depois de registrar o cálculo como treino ("registrado" ou "novo recorde")
+  const [runNotice, setRunNotice] = useState<string | null>(null);
   // Se veio um item do histórico, os campos já nascem preenchidos
   const initialTime = initialItem ? splitDuration(initialItem.durationSeconds) : null;
 
@@ -76,7 +91,22 @@ const PaceCalculator: React.FC<PaceCalculatorProps> = ({ initialItem }) => {
     setSavedKey(calculationKey(distanceKm, durationSeconds));
   };
 
+  // Registrar o cálculo como treino no diário (aba "Você"), avisando se for recorde
+  const handleLogRun = async (run: NewRun): Promise<void> => {
+    const previous = await getRuns();
+    const saved = await addRun(run);
+    const broken = recordsBrokenBy(saved, previous, RACE_KMS);
+    notifySuccess();
+    const labels = broken.map((km) => RACE_DISTANCES.find((r) => r.km === km)?.label ?? '');
+    setRunNotice(
+      broken.length > 0
+        ? `Novo recorde: ${labels.join(', ')}! 🎉 Veja em "Você".`
+        : 'Treino registrado no seu diário ✓',
+    );
+  };
+
   const handleClear = (): void => {
+    setRunNotice(null);
     distance.clear();
     hours.clear();
     minutes.clear();
@@ -145,6 +175,26 @@ const PaceCalculator: React.FC<PaceCalculatorProps> = ({ initialItem }) => {
         />
       </ButtonRow>
 
+      {/* Correu isso de verdade? Vira um treino no diário e conta para os recordes */}
+      {form.value && (
+        <ButtonRow>
+          <Button
+            title="Registrar como treino"
+            icon="add-circle-outline"
+            variant="secondary"
+            onPress={() => setRunSheetOpen(true)}
+            accessibilityHint="Abre o diário de treinos já com esta distância e este tempo"
+          />
+        </ButtonRow>
+      )}
+      {runNotice && (
+        <Animated.View key={runNotice} entering={enterQuick}>
+          <Text style={styles.notice} accessibilityLiveRegion="polite">
+            {runNotice}
+          </Text>
+        </Animated.View>
+      )}
+
       {form.value && (
         <>
           <RacePredictions
@@ -157,8 +207,26 @@ const PaceCalculator: React.FC<PaceCalculatorProps> = ({ initialItem }) => {
           />
         </>
       )}
+
+      <RunSheet
+        visible={runSheetOpen}
+        onClose={() => setRunSheetOpen(false)}
+        onSave={handleLogRun}
+        initialDistanceKm={form.value?.distanceKm}
+        initialDurationSeconds={form.value?.durationSeconds}
+      />
     </>
   );
 };
+
+const useStyles = createThemedStyles((colors) => ({
+  notice: {
+    color: colors.accentText,
+    fontFamily: FONTS.medium,
+    fontSize: FONT_SIZES.sm,
+    marginTop: SPACING.sm,
+    textAlign: 'center',
+  },
+}));
 
 export default PaceCalculator;

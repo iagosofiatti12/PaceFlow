@@ -88,6 +88,8 @@ export default function RootLayout(): React.ReactElement | null {
           <Tabs.Screen name="table" options={{ title: 'Tabela' }} />
           <Tabs.Screen name="treadmill" options={{ title: 'Esteira' }} />
           <Tabs.Screen name="history" options={{ title: 'Histórico' }} />
+          {/* "Você" não aparece na barra: abre pelo botão de perfil do cabeçalho */}
+          <Tabs.Screen name="you" options={{ title: 'Você' }} />
         </Tabs>
       </SafeAreaView>
       {showIntro && <IntroAnimation onFinish={hideIntro} />}

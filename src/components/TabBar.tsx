@@ -40,10 +40,18 @@ const TabBar: React.FC<TabBarProps> = ({ state, descriptors, navigation }) => {
   const indicatorX = useSharedValue(0);
   const keyboardVisible = useKeyboardVisible();
 
+  // Só as rotas com ícone viram aba. Outras telas (ex: "Você", aberta pelo
+  // cabeçalho) existem no navegador, mas não aparecem na barra
+  const tabs = state.routes.filter((route) => route.name in TAB_ICONS);
+  const activeKey = state.routes[state.index]?.key;
+  const activeIndex = tabs.findIndex((route) => route.key === activeKey);
+
   // A pílula vai até a aba ativa (por toque, botão voltar ou link direto)
   useEffect(() => {
-    indicatorX.value = withSpring(state.index * tabWidth, MOTION.spring.snappy);
-  }, [state.index, tabWidth, indicatorX]);
+    if (activeIndex >= 0) {
+      indicatorX.value = withSpring(activeIndex * tabWidth, MOTION.spring.snappy);
+    }
+  }, [activeIndex, tabWidth, indicatorX]);
 
   const indicatorStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: indicatorX.value }],
@@ -51,7 +59,7 @@ const TabBar: React.FC<TabBarProps> = ({ state, descriptors, navigation }) => {
 
   const handleLayout = (event: LayoutChangeEvent): void => {
     const innerWidth = event.nativeEvent.layout.width - BAR_PADDING * 2;
-    setTabWidth(innerWidth / state.routes.length);
+    setTabWidth(innerWidth / tabs.length);
   };
 
   // No Android a tela encolhe com o teclado: sem a barra, sobra espaço para o campo
@@ -60,11 +68,11 @@ const TabBar: React.FC<TabBarProps> = ({ state, descriptors, navigation }) => {
   return (
     <View style={styles.wrapper}>
       <View style={styles.bar} onLayout={handleLayout} accessibilityRole="tablist">
-        {tabWidth > 0 && (
+        {tabWidth > 0 && activeIndex >= 0 && (
           <Animated.View style={[styles.indicator, { width: tabWidth }, indicatorStyle]} />
         )}
-        {state.routes.map((route, index) => {
-          const isActive = state.index === index;
+        {tabs.map((route) => {
+          const isActive = route.key === activeKey;
           const label = descriptors[route.key].options.title ?? route.name;
           const icons = TAB_ICONS[route.name];
 
